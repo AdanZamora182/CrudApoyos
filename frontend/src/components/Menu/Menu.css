@@ -1,0 +1,238 @@
+/* Variables de color y diseño */
+:root {
+    --primary-color: #5c6bc0;
+    --secondary-color: #26c6da;
+    --dark-color: #2c3e50;
+    --light-color: #f5f7fa;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --danger-color: #f44336;
+    --border-radius: 10px;
+    --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+  }
+  
+  /* Estilos base */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+  }
+  
+  /* Contenedor del menú */
+  .menu-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* Encabezado */
+  .menu-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .menu-logo {
+    height: 40px;
+    margin-right: 15px;
+  }
+  
+  .menu-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .logout-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+  
+  .logout-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Contenido del menú */
+  .menu-content {
+    flex: 1;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .menu-welcome {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .menu-welcome h2 {
+    color: var(--dark-color);
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  
+  .menu-welcome p {
+    color: #666;
+    font-size: 16px;
+  }
+  
+  /* Tarjetas del menú */
+  .menu-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+  }
+  
+  .menu-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 25px;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 15px;
+    background-color: var(--light-color);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 15px;
+  }
+  
+  .menu-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+  
+  .menu-card p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 14px;
+    flex-grow: 1;
+  }
+  
+  .card-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .card-button {
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+  
+  .card-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .card-button.primary:hover {
+    background-color: #4a5ba8;
+  }
+  
+  .card-button.secondary {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid #ddd;
+  }
+  
+  .card-button.secondary:hover {
+    background-color: #e9ecef;
+  }
+  
+  .card-button.report {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+  
+  .card-button.report:hover {
+    background-color: #21a5b8;
+  }
+  
+  /* Footer */
+  .menu-footer {
+    background-color: var(--dark-color);
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+  }
+  
+  /* Diseño responsivo */
+  @media (max-width: 768px) {
+    .menu-header {
+      flex-direction: column;
+      padding: 15px;
+      gap: 15px;
+      text-align: center;
+    }
+    
+    .logo-container {
+      flex-direction: column;
+    }
+    
+    .menu-logo {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+    
+    .user-info {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .menu-content {
+      padding: 20px;
+    }
+    
+    .menu-cards {
+      grid-template-columns: 1fr;
+    }
+  }
