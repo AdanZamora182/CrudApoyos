@@ -1,23 +1,23 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HttpModule } from '@nestjs/axios'; // Importar HttpModule
+import { HttpModule } from '@nestjs/axios'; 
 import { UsuarioModule } from './usuario/usuario.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3307,
-      username: 'root',
-      password: 'Rivero182.',
-      database: 'crudapoyos',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
-      logging: true,
-    }),
+    type: 'mysql',
+    host: 'bd-crud-apoyos.cuxojb4u4gko.us-east-1.rds.amazonaws.com', // Endpoint de RDS
+    port: 3306, // 
+    username: 'admin',         //  
+    password: '2YewJnmTwNf00Up',  // Contraseña Maestra
+    database: 'crudApoyos',    // 
+    entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    synchronize: false,        // Lo mantenemos en false para producción
+    logging: true,
+  }),
     HttpModule, // Registrar HttpModule
-    UsuarioModule, // Asegúrate de que este módulo esté importado
+    UsuarioModule, 
   ],
 })
 export class AppModule {}
