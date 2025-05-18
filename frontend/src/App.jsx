@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Menu from './components/Menu/Menu';
-import CabezaCirculoForm from './components/CabezaCirculoForm/CabezaCirculoForm'; // Importar el formulario
+import CabezaCirculoForm from './components/CabezaCirculoForm/CabezaCirculoForm';
+import IntegranteCirculoForm from './components/IntegrantesCirculoForm/IntegranteCirculoForm'; // Importar el formulario
 
 function App() {
   // Función para verificar si el usuario está autenticado
@@ -42,6 +43,16 @@ function App() {
           element={
             <ProtectedRoute>
               <CabezaCirculoForm />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Ruta para el formulario de Integrantes de Círculo */}
+        <Route 
+          path="/integrantes-circulo" 
+          element={
+            <ProtectedRoute>
+              <IntegranteCirculoForm />
             </ProtectedRoute>
           } 
         />

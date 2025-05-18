@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios'; 
 import { UsuarioModule } from './usuario/usuario.module';
+import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module'; // Importar el módulo
+
 
 @Module({
   imports: [
@@ -17,7 +19,8 @@ import { UsuarioModule } from './usuario/usuario.module';
     logging: true,
   }),
     HttpModule, // Registrar HttpModule
-    UsuarioModule, 
+    UsuarioModule,  // Registrar el módulo
+    CabezaCirculoModule, // Registrar el módulo
   ],
 })
 export class AppModule {}

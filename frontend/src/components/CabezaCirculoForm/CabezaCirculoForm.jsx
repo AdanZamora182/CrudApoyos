@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./CabezaCirculo.css";
-import { createCabezaCirculo } from "../../api";
+import { createCabezaCirculo } from "../../api"; // Asegúrate que esta ruta sea correcta
 import logoApoyos from '../../assets/logoApoyos.png';
 
 const CabezaCirculoForm = () => {
@@ -11,11 +11,11 @@ const CabezaCirculoForm = () => {
     nombre: "",
     apellidoPaterno: "",
     apellidoMaterno: "",
-    fechaNacimiento: "",
+    fechaNacimiento: "", // HTML input type="date" usualmente devuelve YYYY-MM-DD
     telefono: "",
     calle: "",
     noExterior: "",
-    noInterior: "",
+    noInterior: "", // Este campo es obligatorio en el backend
     colonia: "",
     codigoPostal: "",
     municipio: "",
@@ -38,12 +38,58 @@ const CabezaCirculoForm = () => {
       ...formData,
       [name]: value,
     });
+    // Opcional: limpiar el error del campo cuando el usuario empieza a escribir
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null,
+      });
+    }
   };
 
   const validateField = (name, value) => {
+    const trimmedValue = value !== null && value !== undefined ? String(value).trim() : "";
     let error = "";
-    if (!value && name !== "noInterior" && name !== "facebook" && name !== "otraRedSocial") {
+
+    // Campos opcionales (nullable en el backend)
+    const optionalFields = ["noExterior", "municipio", "facebook", "otraRedSocial"];
+
+    // Verificación de campos obligatorios
+    if (!optionalFields.includes(name) && trimmedValue === "") {
       error = "Este campo es obligatorio.";
+      return error;
+    }
+
+    // Validaciones específicas por tipo o formato
+    switch (name) {
+      case "telefono":
+      case "noInterior": // Obligatorio y numérico
+      case "codigoPostal":
+        if (trimmedValue !== "" && isNaN(Number(trimmedValue))) {
+          error = "Debe ser un número válido.";
+        } else if (trimmedValue !== "" && !/^\d+$/.test(trimmedValue)) {
+          error = "Solo se admiten números.";
+        }
+        break;
+      case "noExterior": // Opcional, pero si se ingresa, debe ser numérico
+        if (trimmedValue !== "" && isNaN(Number(trimmedValue))) {
+          error = "Debe ser un número válido.";
+        } else if (trimmedValue !== "" && !/^\d*$/.test(trimmedValue)) { // Permite vacío o números
+          error = "Solo se admiten números.";
+        }
+        break;
+      case "email": // Obligatorio
+        if (trimmedValue !== "" && !/\S+@\S+\.\S+/.test(trimmedValue)) {
+          error = "Formato de email inválido.";
+        }
+        break;
+      case "fechaNacimiento": // Obligatorio
+        // Podrías añadir validación de formato si no confías en input type="date"
+        // o si quieres asegurar que no sea una fecha futura, etc.
+        break;
+      // Puedes añadir más validaciones específicas aquí (ej. longitud para claveElector)
+      default:
+        break;
     }
     return error;
   };
@@ -51,20 +97,13 @@ const CabezaCirculoForm = () => {
   const validateForm = () => {
     let formIsValid = true;
     const newErrors = {};
-
-    // Validar campos obligatorios
-    Object.keys(formData).forEach((field) => {
-      if (field === "noInterior" || field === "facebook" || field === "otraRedSocial") {
-        return; // Estos campos no son obligatorios
-      }
-      
+    Object.keys(initialFormState).forEach((field) => {
       const error = validateField(field, formData[field]);
       if (error) {
         formIsValid = false;
         newErrors[field] = error;
       }
     });
-
     setErrors(newErrors);
     return formIsValid;
   };
@@ -75,7 +114,7 @@ const CabezaCirculoForm = () => {
     if (!validateForm()) {
       setMessage({
         type: "error",
-        text: "Por favor, complete todos los campos obligatorios.",
+        text: "Por favor, complete correctamente todos los campos obligatorios.",
       });
       return;
     }
@@ -85,25 +124,28 @@ const CabezaCirculoForm = () => {
 
     try {
       // Formatear datos para enviar al backend
+      // Asegurar que los nombres de campo (keys) sean camelCase para coincidir con la entidad del backend
       const cabezaData = {
-        Nombre: formData.nombre,
-        Apellido_Paterno: formData.apellidoPaterno,
-        Apellido_Materno: formData.apellidoMaterno,
-        Fecha_Nacimiento: formData.fechaNacimiento,
-        Telefono: formData.telefono,
-        Calle: formData.calle,
-        No_Exterior: formData.noExterior ? Number.parseInt(formData.noExterior) : null,
-        No_Interior: formData.noInterior ? Number.parseInt(formData.noInterior) : null,
-        Colonia: formData.colonia,
-        Codigo_Postal: Number.parseInt(formData.codigoPostal),
-        Municipio: formData.municipio,
-        Clave_Elector: formData.claveElector,
-        Email: formData.email,
-        Facebook: formData.facebook,
-        Otra_RedSocial: formData.otraRedSocial,
-        Estructura_Territorial: formData.estructuraTerritorial,
-        Posicion_Estructura: formData.posicionEstructura,
+        nombre: formData.nombre,
+        apellidoPaterno: formData.apellidoPaterno,
+        apellidoMaterno: formData.apellidoMaterno,
+        fechaNacimiento: formData.fechaNacimiento, // Asumimos YYYY-MM-DD del input type="date"
+        telefono: parseInt(formData.telefono, 10),
+        calle: formData.calle,
+        noExterior: formData.noExterior ? parseInt(formData.noExterior, 10) : null,
+        noInterior: parseInt(formData.noInterior, 10), // Es obligatorio y numérico
+        colonia: formData.colonia,
+        codigoPostal: parseInt(formData.codigoPostal, 10),
+        municipio: formData.municipio || null, // Es nullable, enviar null si está vacío
+        claveElector: formData.claveElector,
+        email: formData.email,
+        facebook: formData.facebook || null, // Es nullable
+        otraRedSocial: formData.otraRedSocial || null, // Es nullable
+        estructuraTerritorial: formData.estructuraTerritorial,
+        posicionEstructura: formData.posicionEstructura,
       };
+      
+      console.log("Datos a enviar al backend:", cabezaData); // Para depuración
 
       await createCabezaCirculo(cabezaData);
 
@@ -112,13 +154,15 @@ const CabezaCirculoForm = () => {
         text: "Cabeza de círculo registrada exitosamente.",
       });
 
-      // Limpiar formulario
-      setFormData(initialFormState);
+      setFormData(initialFormState); // Limpiar formulario
+      setErrors({}); // Limpiar errores
     } catch (error) {
       console.error("Error al registrar cabeza de círculo:", error);
+      const backendErrorMessage = error.response?.data?.message || "Error al registrar cabeza de círculo. Verifique los datos e inténtelo de nuevo.";
+      const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Error al registrar cabeza de círculo.",
+        text: displayMessage,
       });
     } finally {
       setLoading(false);
@@ -201,11 +245,12 @@ const CabezaCirculoForm = () => {
             <div className="form-col">
               <label>Teléfono</label>
               <input
-                type="text"
+                type="text" // Usar text para permitir validación más flexible, luego convertir a número
                 name="telefono"
                 value={formData.telefono}
                 onChange={handleChange}
                 className={errors.telefono ? "input-error" : ""}
+                maxLength="10" // Ejemplo de restricción
               />
               {errors.telefono && <span className="error-text">{errors.telefono}</span>}
             </div>
@@ -241,9 +286,9 @@ const CabezaCirculoForm = () => {
 
           <div className="form-row">
             <div className="form-col">
-              <label>No. Exterior</label>
+              <label>No. Exterior (opcional)</label>
               <input
-                type="number"
+                type="text" // Usar text para permitir vacío y validación más flexible
                 name="noExterior"
                 value={formData.noExterior}
                 onChange={handleChange}
@@ -252,22 +297,25 @@ const CabezaCirculoForm = () => {
               {errors.noExterior && <span className="error-text">{errors.noExterior}</span>}
             </div>
             <div className="form-col">
-              <label>No. Interior (opcional)</label>
+              <label>No. Interior</label> {/* Eliminado "(opcional)" */}
               <input
-                type="number"
+                type="text" // Usar text para permitir validación más flexible
                 name="noInterior"
                 value={formData.noInterior}
                 onChange={handleChange}
+                className={errors.noInterior ? "input-error" : ""}
               />
+              {errors.noInterior && <span className="error-text">{errors.noInterior}</span>}
             </div>
             <div className="form-col">
               <label>Código Postal</label>
               <input
-                type="number"
+                type="text" // Usar text para permitir validación más flexible
                 name="codigoPostal"
                 value={formData.codigoPostal}
                 onChange={handleChange}
                 className={errors.codigoPostal ? "input-error" : ""}
+                maxLength="5" // Ejemplo
               />
               {errors.codigoPostal && <span className="error-text">{errors.codigoPostal}</span>}
             </div>
@@ -275,7 +323,7 @@ const CabezaCirculoForm = () => {
 
           <div className="form-row">
             <div className="form-col">
-              <label>Municipio</label>
+              <label>Municipio (opcional)</label>
               <input
                 type="text"
                 name="municipio"
@@ -299,6 +347,7 @@ const CabezaCirculoForm = () => {
                 value={formData.claveElector}
                 onChange={handleChange}
                 className={errors.claveElector ? "input-error" : ""}
+                maxLength="18" // Ejemplo
               />
               {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}
             </div>

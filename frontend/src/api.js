@@ -25,3 +25,9 @@ export const createCabezaCirculo = async (datos) => {
   const response = await api.post('/cabezas-circulo', datos);
   return response.data;
 };
+
+// Función para registrar un Integrante de Círculo
+export const createIntegranteCirculo = async (datos) => {
+  const response = await api.post('/integrantes-circulo', datos);
+  return response.data;
+};
