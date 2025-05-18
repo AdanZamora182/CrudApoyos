@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ApoyoForm.css";
-import { createApoyo } from "../../api"; // Asegúrate de que esta función esté definida en tu archivo api.js
+import { createApoyo } from "../../api";
 
 const ApoyoForm = () => {
   const navigate = useNavigate();
 
   const initialFormState = {
+    cantidad: "",
     tipoApoyo: "",
     fechaEntrega: "",
     personaId: "",
@@ -36,9 +37,11 @@ const ApoyoForm = () => {
 
   const validateField = (name, value) => {
     let error = "";
-    if (!value) {
+    if (!value && name !== "personaId" && name !== "cabezaId") {
+      // Solo los campos distintos de personaId y cabezaId son obligatorios
       error = "Este campo es obligatorio.";
-    } else if ((name === "personaId" || name === "cabezaId") && isNaN(value)) {
+    } else if ((name === "personaId" || name === "cabezaId" || name === "cantidad") && value && isNaN(value)) {
+      // Validar que sean números válidos si tienen valor
       error = "Debe ser un número válido.";
     }
     return error;
@@ -73,14 +76,16 @@ const ApoyoForm = () => {
     setMessage({ type: "", text: "" });
 
     try {
+      // Ajustar los nombres de las claves para que coincidan con apoyo.entity.ts
       const apoyoData = {
-        Tipo_Apoyo: formData.tipoApoyo.trim(),
-        Fecha_Entrega: formData.fechaEntrega,
-        Persona_id: formData.personaId ? parseInt(formData.personaId, 10) : null,
-        Cabeza_id: formData.cabezaId ? parseInt(formData.cabezaId, 10) : null,
+        cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
+        tipoApoyo: formData.tipoApoyo.trim(),
+        fechaEntrega: formData.fechaEntrega,
+        persona: formData.personaId ? { id: parseInt(formData.personaId, 10) } : null, // Relación con persona
+        cabeza: formData.cabezaId ? { id: parseInt(formData.cabezaId, 10) } : null,   // Relación con cabeza
       };
 
-      console.log("Datos enviados al backend:", apoyoData); // Para depuración
+      console.log("Datos enviados al backend:", apoyoData);
 
       await createApoyo(apoyoData);
 
@@ -125,6 +130,17 @@ const ApoyoForm = () => {
           <h3 className="form-section-title">Información del Apoyo</h3>
           <div className="form-row">
             <div className="form-col">
+              <label>Cantidad</label>
+              <input
+                type="number"
+                name="cantidad"
+                value={formData.cantidad}
+                onChange={handleChange}
+                className={errors.cantidad ? "input-error" : ""}
+              />
+              {errors.cantidad && <span className="error-text">{errors.cantidad}</span>}
+            </div>
+            <div className="form-col">
               <label>Tipo de Apoyo</label>
               <input
                 type="text"
@@ -135,6 +151,8 @@ const ApoyoForm = () => {
               />
               {errors.tipoApoyo && <span className="error-text">{errors.tipoApoyo}</span>}
             </div>
+          </div>
+          <div className="form-row">
             <div className="form-col">
               <label>Fecha de Entrega</label>
               <input

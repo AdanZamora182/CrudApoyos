@@ -4,6 +4,7 @@ import { HttpModule } from '@nestjs/axios';
 import { UsuarioModule } from './usuario/usuario.module';
 import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module'; // Importar el módulo
 import { IntegranteCirculoModule } from './integrante-circulo/integrante-circulo.module';
+import { ApoyoModule } from './apoyo/apoyo.module'; // Importar el módulo
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { IntegranteCirculoModule } from './integrante-circulo/integrante-circulo
     HttpModule, // Registrar HttpModule
     UsuarioModule,  // Registrar el módulo
     CabezaCirculoModule,
-    IntegranteCirculoModule // Registrar el módulo
+    IntegranteCirculoModule, // Registrar el módulo
+    ApoyoModule, // Registrar el módulo aquí
   ],
 })
 export class AppModule {}
