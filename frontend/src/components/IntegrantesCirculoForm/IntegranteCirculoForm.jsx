@@ -17,7 +17,7 @@ const IntegranteCirculoForm = () => {
     colonia: "",
     claveElector: "",
     telefono: "",
-    liderId: "",
+    lider: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -31,6 +31,14 @@ const IntegranteCirculoForm = () => {
       ...formData,
       [name]: value,
     });
+
+    // Limpiar errores al escribir
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null,
+      });
+    }
   };
 
   const validateField = (name, value) => {
@@ -38,7 +46,7 @@ const IntegranteCirculoForm = () => {
     if (!value && name !== "noExterior") {
       error = "Este campo es obligatorio.";
     } else if ((name === "noExterior" || name === "noInterior" || name === "telefono" || name === "liderId") && isNaN(value)) {
-      error = "Este campo debe ser un número.";
+      error = "Debe ser un número válido.";
     }
     return error;
   };
@@ -75,18 +83,20 @@ const IntegranteCirculoForm = () => {
 
     try {
       const integranteData = {
-        Nombre: formData.nombre,
-        Apellido_Paterno: formData.apellidoPaterno,
-        Apellido_Materno: formData.apellidoMaterno,
-        Fecha_Nacimiento: formData.fechaNacimiento,
-        Calle: formData.calle,
-        No_Exterior: formData.noExterior ? Number.parseInt(formData.noExterior) : null,
-        No_Interior: Number.parseInt(formData.noInterior),
-        Colonia: formData.colonia,
-        Clave_Elector: formData.claveElector,
-        Telefono: Number.parseInt(formData.telefono),
-        Lider_id: formData.liderId ? Number.parseInt(formData.liderId) : null,
-      };
+      nombre: formData.nombre.trim(),
+      apellidoPaterno: formData.apellidoPaterno.trim(),
+      apellidoMaterno: formData.apellidoMaterno.trim(),
+      fechaNacimiento: formData.fechaNacimiento,
+      calle: formData.calle.trim(),
+      noExterior: formData.noExterior ? Number.parseInt(formData.noExterior) : null,
+      noInterior: Number.parseInt(formData.noInterior),
+      colonia: formData.colonia.trim(),
+      claveElector: formData.claveElector.trim(),
+      telefono: Number.parseInt(formData.telefono),
+      lider: formData.lider ? Number.parseInt(formData.lider) : null,
+    };
+
+      console.log("Datos enviados al backend:", integranteData);
 
       await createIntegranteCirculo(integranteData);
 
@@ -260,12 +270,12 @@ const IntegranteCirculoForm = () => {
               <label>Líder ID</label>
               <input
                 type="number"
-                name="liderId"
-                value={formData.liderId}
+                name="lider"
+                value={formData.lider}
                 onChange={handleChange}
-                className={errors.liderId ? "input-error" : ""}
+                className={errors.lider ? "input-error" : ""}
               />
-              {errors.liderId && <span className="error-text">{errors.liderId}</span>}
+              {errors.lider && <span className="error-text">{errors.lider}</span>}
             </div>
           </div>
         </div>

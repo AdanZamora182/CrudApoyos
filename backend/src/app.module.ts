@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios'; 
 import { UsuarioModule } from './usuario/usuario.module';
 import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module'; // Importar el módulo
-
+import { IntegranteCirculoModule } from './integrante-circulo/integrante-circulo.module';
 
 @Module({
   imports: [
@@ -20,7 +20,8 @@ import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module'; //
   }),
     HttpModule, // Registrar HttpModule
     UsuarioModule,  // Registrar el módulo
-    CabezaCirculoModule, // Registrar el módulo
+    CabezaCirculoModule,
+    IntegranteCirculoModule // Registrar el módulo
   ],
 })
 export class AppModule {}

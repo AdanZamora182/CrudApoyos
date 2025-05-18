@@ -4,7 +4,9 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Menu from './components/Menu/Menu';
 import CabezaCirculoForm from './components/CabezaCirculoForm/CabezaCirculoForm';
-import IntegranteCirculoForm from './components/IntegrantesCirculoForm/IntegranteCirculoForm'; // Importar el formulario
+import IntegranteCirculoForm from './components/IntegrantesCirculoForm/IntegranteCirculoForm'; 
+import ApoyoForm from './components/ApoyoForm/ApoyoForm'; 
+
 
 function App() {
   // Función para verificar si el usuario está autenticado
@@ -53,6 +55,16 @@ function App() {
           element={
             <ProtectedRoute>
               <IntegranteCirculoForm />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Ruta para el formulario de Apoyos */}
+        <Route 
+          path="/apoyos" 
+          element={
+            <ProtectedRoute>
+              <ApoyoForm />
             </ProtectedRoute>
           } 
         />
