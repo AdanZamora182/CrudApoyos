@@ -19,8 +19,33 @@ const ApoyoForm = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
 
+  const predefinedOptions = [
+    "Tinaco",
+    "Silla de ruedas",
+    "Calentador Solar",
+    "Muletas",
+    "Bastón",
+    "Jitomate",
+    "Pepino",
+    "Juguete",
+    "Despensa",
+    "Oxímetro",
+    "Bau manómetro",
+    "Frijol",
+    "Ropa",
+    "Calzado",
+    "Otro",
+  ];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Restrict input for specific fields
+    const numericFields = ["cantidad", "personaId", "cabezaId"];
+    if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
+      return; // Prevent non-numeric input
+    }
+
     setFormData({
       ...formData,
       [name]: value,
@@ -37,11 +62,11 @@ const ApoyoForm = () => {
 
   const validateField = (name, value) => {
     let error = "";
-    if (!value && name !== "personaId" && name !== "cabezaId") {
-      // Solo los campos distintos de personaId y cabezaId son obligatorios
+    const mandatoryFields = ["fechaEntrega", "tipoApoyo", "cantidad"];
+
+    if (mandatoryFields.includes(name) && !value) {
       error = "Este campo es obligatorio.";
     } else if ((name === "personaId" || name === "cabezaId" || name === "cantidad") && value && isNaN(value)) {
-      // Validar que sean números válidos si tienen valor
       error = "Debe ser un número válido.";
     }
     return error;
@@ -79,7 +104,7 @@ const ApoyoForm = () => {
       // Ajustar los nombres de las claves para que coincidan con apoyo.entity.ts
       const apoyoData = {
         cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
-        tipoApoyo: formData.tipoApoyo.trim(),
+        tipoApoyo: formData.tipoApoyo === "Otro" ? formData.tipoApoyoCustom.trim() : formData.tipoApoyo.trim(),
         fechaEntrega: formData.fechaEntrega,
         persona: formData.personaId ? { id: parseInt(formData.personaId, 10) } : null, // Relación con persona
         cabeza: formData.cabezaId ? { id: parseInt(formData.cabezaId, 10) } : null,   // Relación con cabeza
@@ -143,14 +168,35 @@ const ApoyoForm = () => {
             </div>
             <div className="form-col">
               <label>Tipo de Apoyo</label>
-              <input
-                type="text"
+              <select
                 name="tipoApoyo"
                 value={formData.tipoApoyo}
                 onChange={handleChange}
                 className={errors.tipoApoyo ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
-              />
+              >
+                <option value="">Seleccione una opción</option>
+                {predefinedOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {formData.tipoApoyo === "Otro" && (
+                <input
+                  type="text"
+                  name="tipoApoyo"
+                  placeholder="Especifique el tipo de apoyo"
+                  value={formData.tipoApoyo === "Otro" ? formData.tipoApoyoCustom || "" : ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      tipoApoyoCustom: e.target.value,
+                    })
+                  }
+                  className={errors.tipoApoyo ? "input-error" : ""}
+                  autoComplete="off"
+                />
+              )}
               {errors.tipoApoyo && <span className="error-text">{errors.tipoApoyo}</span>}
             </div>
           </div>
@@ -176,7 +222,7 @@ const ApoyoForm = () => {
             <div className="form-col">
               <label>ID de la Persona</label>
               <input
-                type="number"
+                type="text"
                 name="personaId"
                 value={formData.personaId}
                 onChange={handleChange}
@@ -188,7 +234,7 @@ const ApoyoForm = () => {
             <div className="form-col">
               <label>ID de la Cabeza</label>
               <input
-                type="number"
+                type="text"
                 name="cabezaId"
                 value={formData.cabezaId}
                 onChange={handleChange}

@@ -34,6 +34,13 @@ const CabezaCirculoForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Restrict input for specific fields
+    const numericFields = ["telefono", "noExterior", "noInterior", "codigoPostal"];
+    if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
+      return; // Prevent non-numeric input
+    }
+
     setFormData({
       ...formData,
       [name]: value,
@@ -241,7 +248,7 @@ const CabezaCirculoForm = () => {
                 value={formData.telefono}
                 onChange={handleChange}
                 className={errors.telefono ? "input-error" : ""}
-                maxLength="10" // Ejemplo de restricción
+                maxLength="10" // Restrict length if needed
                 autoComplete="off" // Desactiva el autocompletado
               />
               {errors.telefono && <span className="error-text">{errors.telefono}</span>}
@@ -311,7 +318,7 @@ const CabezaCirculoForm = () => {
                 value={formData.codigoPostal}
                 onChange={handleChange}
                 className={errors.codigoPostal ? "input-error" : ""}
-                maxLength="5" // Ejemplo
+                maxLength="5" // Restrict to 5 characters
                 autoComplete="off" // Desactiva el autocompletado
               />
               {errors.codigoPostal && <span className="error-text">{errors.codigoPostal}</span>}
@@ -345,7 +352,7 @@ const CabezaCirculoForm = () => {
                 value={formData.claveElector}
                 onChange={handleChange}
                 className={errors.claveElector ? "input-error" : ""}
-                maxLength="18" // Ejemplo
+                maxLength="18" // Restrict to 18 characters
                 autoComplete="off" // Desactiva el autocompletado
               />
               {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}

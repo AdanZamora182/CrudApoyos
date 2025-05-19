@@ -24,11 +24,14 @@ export class IntegranteCirculo {
   @Column({ name: 'No_Exterior', nullable: true })
   noExterior: number;
 
-  @Column({ name: 'No_Interior' })
+  @Column({ name: 'No_Interior', nullable: true })
   noInterior: number;
 
   @Column({ name: 'Colonia' })
   colonia: string;
+
+  @Column({ name: 'Codigo_Postal', nullable: true }) // Nueva columna
+  codigoPostal: number;
 
   @Column({ name: 'Clave_Elector', unique: true })
   claveElector: string;
