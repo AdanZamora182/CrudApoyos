@@ -146,6 +146,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.nombre}
                 onChange={handleChange}
                 className={errors.nombre ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.nombre && <span className="error-text">{errors.nombre}</span>}
             </div>
@@ -157,6 +158,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.apellidoPaterno}
                 onChange={handleChange}
                 className={errors.apellidoPaterno ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.apellidoPaterno && <span className="error-text">{errors.apellidoPaterno}</span>}
             </div>
@@ -168,6 +170,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.apellidoMaterno}
                 onChange={handleChange}
                 className={errors.apellidoMaterno ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.apellidoMaterno && <span className="error-text">{errors.apellidoMaterno}</span>}
             </div>
@@ -182,6 +185,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.fechaNacimiento}
                 onChange={handleChange}
                 className={errors.fechaNacimiento ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.fechaNacimiento && <span className="error-text">{errors.fechaNacimiento}</span>}
             </div>
@@ -193,6 +197,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.telefono}
                 onChange={handleChange}
                 className={errors.telefono ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.telefono && <span className="error-text">{errors.telefono}</span>}
             </div>
@@ -210,6 +215,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.calle}
                 onChange={handleChange}
                 className={errors.calle ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.calle && <span className="error-text">{errors.calle}</span>}
             </div>
@@ -221,6 +227,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.colonia}
                 onChange={handleChange}
                 className={errors.colonia ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.colonia && <span className="error-text">{errors.colonia}</span>}
             </div>
@@ -235,6 +242,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.noExterior}
                 onChange={handleChange}
                 className={errors.noExterior ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.noExterior && <span className="error-text">{errors.noExterior}</span>}
             </div>
@@ -246,6 +254,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.noInterior}
                 onChange={handleChange}
                 className={errors.noInterior ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.noInterior && <span className="error-text">{errors.noInterior}</span>}
             </div>
@@ -263,6 +272,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.claveElector}
                 onChange={handleChange}
                 className={errors.claveElector ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}
             </div>
@@ -274,6 +284,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.lider}
                 onChange={handleChange}
                 className={errors.lider ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.lider && <span className="error-text">{errors.lider}</span>}
             </div>

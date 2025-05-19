@@ -137,6 +137,7 @@ const ApoyoForm = () => {
                 value={formData.cantidad}
                 onChange={handleChange}
                 className={errors.cantidad ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.cantidad && <span className="error-text">{errors.cantidad}</span>}
             </div>
@@ -148,6 +149,7 @@ const ApoyoForm = () => {
                 value={formData.tipoApoyo}
                 onChange={handleChange}
                 className={errors.tipoApoyo ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.tipoApoyo && <span className="error-text">{errors.tipoApoyo}</span>}
             </div>
@@ -161,6 +163,7 @@ const ApoyoForm = () => {
                 value={formData.fechaEntrega}
                 onChange={handleChange}
                 className={errors.fechaEntrega ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.fechaEntrega && <span className="error-text">{errors.fechaEntrega}</span>}
             </div>
@@ -173,22 +176,24 @@ const ApoyoForm = () => {
             <div className="form-col">
               <label>ID de la Persona</label>
               <input
-                type="text"
+                type="number"
                 name="personaId"
                 value={formData.personaId}
                 onChange={handleChange}
                 className={errors.personaId ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.personaId && <span className="error-text">{errors.personaId}</span>}
             </div>
             <div className="form-col">
               <label>ID de la Cabeza</label>
               <input
-                type="text"
+                type="number"
                 name="cabezaId"
                 value={formData.cabezaId}
                 onChange={handleChange}
                 className={errors.cabezaId ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.cabezaId && <span className="error-text">{errors.cabezaId}</span>}
             </div>

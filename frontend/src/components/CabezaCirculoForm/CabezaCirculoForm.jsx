@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./CabezaCirculo.css";
-import { createCabezaCirculo } from "../../api"; // Asegúrate que esta ruta sea correcta
+import { createCabezaCirculo } from "../../api";
 import logoApoyos from '../../assets/logoApoyos.png';
 
 const CabezaCirculoForm = () => {
@@ -11,11 +11,11 @@ const CabezaCirculoForm = () => {
     nombre: "",
     apellidoPaterno: "",
     apellidoMaterno: "",
-    fechaNacimiento: "", // HTML input type="date" usualmente devuelve YYYY-MM-DD
+    fechaNacimiento: "",
     telefono: "",
     calle: "",
     noExterior: "",
-    noInterior: "", // Este campo es obligatorio en el backend
+    noInterior: "", // Ahora es opcional
     colonia: "",
     codigoPostal: "",
     municipio: "",
@@ -38,7 +38,8 @@ const CabezaCirculoForm = () => {
       ...formData,
       [name]: value,
     });
-    // Opcional: limpiar el error del campo cuando el usuario empieza a escribir
+
+    // Limpiar errores al escribir
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -48,22 +49,22 @@ const CabezaCirculoForm = () => {
   };
 
   const validateField = (name, value) => {
-    const trimmedValue = value !== null && value !== undefined ? String(value).trim() : "";
     let error = "";
+    const trimmedValue = value !== null && value !== undefined ? String(value).trim() : "";
 
-    // Campos opcionales (nullable en el backend)
-    const optionalFields = ["noExterior", "municipio", "facebook", "otraRedSocial"];
+    // Campos opcionales
+    const optionalFields = ["noInterior", "municipio", "facebook", "otraRedSocial"];
 
-    // Verificación de campos obligatorios
+    // Validar campos obligatorios
     if (!optionalFields.includes(name) && trimmedValue === "") {
       error = "Este campo es obligatorio.";
       return error;
     }
 
-    // Validaciones específicas por tipo o formato
+    // Validaciones específicas por campo
     switch (name) {
       case "telefono":
-      case "noInterior": // Obligatorio y numérico
+      case "noExterior":
       case "codigoPostal":
         if (trimmedValue !== "" && isNaN(Number(trimmedValue))) {
           error = "Debe ser un número válido.";
@@ -71,23 +72,11 @@ const CabezaCirculoForm = () => {
           error = "Solo se admiten números.";
         }
         break;
-      case "noExterior": // Opcional, pero si se ingresa, debe ser numérico
-        if (trimmedValue !== "" && isNaN(Number(trimmedValue))) {
-          error = "Debe ser un número válido.";
-        } else if (trimmedValue !== "" && !/^\d*$/.test(trimmedValue)) { // Permite vacío o números
-          error = "Solo se admiten números.";
-        }
-        break;
-      case "email": // Obligatorio
+      case "email":
         if (trimmedValue !== "" && !/\S+@\S+\.\S+/.test(trimmedValue)) {
           error = "Formato de email inválido.";
         }
         break;
-      case "fechaNacimiento": // Obligatorio
-        // Podrías añadir validación de formato si no confías en input type="date"
-        // o si quieres asegurar que no sea una fecha futura, etc.
-        break;
-      // Puedes añadir más validaciones específicas aquí (ej. longitud para claveElector)
       default:
         break;
     }
@@ -123,29 +112,27 @@ const CabezaCirculoForm = () => {
     setMessage({ type: "", text: "" });
 
     try {
-      // Formatear datos para enviar al backend
-      // Asegurar que los nombres de campo (keys) sean camelCase para coincidir con la entidad del backend
       const cabezaData = {
         nombre: formData.nombre,
         apellidoPaterno: formData.apellidoPaterno,
         apellidoMaterno: formData.apellidoMaterno,
-        fechaNacimiento: formData.fechaNacimiento, // Asumimos YYYY-MM-DD del input type="date"
+        fechaNacimiento: formData.fechaNacimiento,
         telefono: parseInt(formData.telefono, 10),
         calle: formData.calle,
-        noExterior: formData.noExterior ? parseInt(formData.noExterior, 10) : null,
-        noInterior: parseInt(formData.noInterior, 10), // Es obligatorio y numérico
+        noExterior: parseInt(formData.noExterior, 10), // Obligatorio
+        noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null, // Opcional
         colonia: formData.colonia,
         codigoPostal: parseInt(formData.codigoPostal, 10),
-        municipio: formData.municipio || null, // Es nullable, enviar null si está vacío
+        municipio: formData.municipio || null,
         claveElector: formData.claveElector,
         email: formData.email,
-        facebook: formData.facebook || null, // Es nullable
-        otraRedSocial: formData.otraRedSocial || null, // Es nullable
+        facebook: formData.facebook || null,
+        otraRedSocial: formData.otraRedSocial || null,
         estructuraTerritorial: formData.estructuraTerritorial,
         posicionEstructura: formData.posicionEstructura,
       };
       
-      console.log("Datos a enviar al backend:", cabezaData); // Para depuración
+      console.log("Datos a enviar al backend:", cabezaData);
 
       await createCabezaCirculo(cabezaData);
 
@@ -203,6 +190,7 @@ const CabezaCirculoForm = () => {
                 value={formData.nombre}
                 onChange={handleChange}
                 className={errors.nombre ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.nombre && <span className="error-text">{errors.nombre}</span>}
             </div>
@@ -214,6 +202,7 @@ const CabezaCirculoForm = () => {
                 value={formData.apellidoPaterno}
                 onChange={handleChange}
                 className={errors.apellidoPaterno ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.apellidoPaterno && <span className="error-text">{errors.apellidoPaterno}</span>}
             </div>
@@ -225,6 +214,7 @@ const CabezaCirculoForm = () => {
                 value={formData.apellidoMaterno}
                 onChange={handleChange}
                 className={errors.apellidoMaterno ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.apellidoMaterno && <span className="error-text">{errors.apellidoMaterno}</span>}
             </div>
@@ -239,6 +229,7 @@ const CabezaCirculoForm = () => {
                 value={formData.fechaNacimiento}
                 onChange={handleChange}
                 className={errors.fechaNacimiento ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.fechaNacimiento && <span className="error-text">{errors.fechaNacimiento}</span>}
             </div>
@@ -251,6 +242,7 @@ const CabezaCirculoForm = () => {
                 onChange={handleChange}
                 className={errors.telefono ? "input-error" : ""}
                 maxLength="10" // Ejemplo de restricción
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.telefono && <span className="error-text">{errors.telefono}</span>}
             </div>
@@ -268,6 +260,7 @@ const CabezaCirculoForm = () => {
                 value={formData.calle}
                 onChange={handleChange}
                 className={errors.calle ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.calle && <span className="error-text">{errors.calle}</span>}
             </div>
@@ -279,6 +272,7 @@ const CabezaCirculoForm = () => {
                 value={formData.colonia}
                 onChange={handleChange}
                 className={errors.colonia ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.colonia && <span className="error-text">{errors.colonia}</span>}
             </div>
@@ -286,24 +280,26 @@ const CabezaCirculoForm = () => {
 
           <div className="form-row">
             <div className="form-col">
-              <label>No. Exterior (opcional)</label>
+              <label>No. Exterior</label>
               <input
                 type="text" // Usar text para permitir vacío y validación más flexible
                 name="noExterior"
                 value={formData.noExterior}
                 onChange={handleChange}
                 className={errors.noExterior ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.noExterior && <span className="error-text">{errors.noExterior}</span>}
             </div>
             <div className="form-col">
-              <label>No. Interior</label> {/* Eliminado "(opcional)" */}
+              <label>No. Interior (opcional)</label> {/* Eliminado "(opcional)" */}
               <input
                 type="text" // Usar text para permitir validación más flexible
                 name="noInterior"
                 value={formData.noInterior}
                 onChange={handleChange}
                 className={errors.noInterior ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.noInterior && <span className="error-text">{errors.noInterior}</span>}
             </div>
@@ -316,6 +312,7 @@ const CabezaCirculoForm = () => {
                 onChange={handleChange}
                 className={errors.codigoPostal ? "input-error" : ""}
                 maxLength="5" // Ejemplo
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.codigoPostal && <span className="error-text">{errors.codigoPostal}</span>}
             </div>
@@ -330,6 +327,7 @@ const CabezaCirculoForm = () => {
                 value={formData.municipio}
                 onChange={handleChange}
                 className={errors.municipio ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.municipio && <span className="error-text">{errors.municipio}</span>}
             </div>
@@ -348,6 +346,7 @@ const CabezaCirculoForm = () => {
                 onChange={handleChange}
                 className={errors.claveElector ? "input-error" : ""}
                 maxLength="18" // Ejemplo
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}
             </div>
@@ -359,6 +358,7 @@ const CabezaCirculoForm = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={errors.email ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.email && <span className="error-text">{errors.email}</span>}
             </div>
@@ -372,6 +372,7 @@ const CabezaCirculoForm = () => {
                 name="facebook"
                 value={formData.facebook}
                 onChange={handleChange}
+                autoComplete="off" // Desactiva el autocompletado
               />
             </div>
             <div className="form-col">
@@ -381,6 +382,7 @@ const CabezaCirculoForm = () => {
                 name="otraRedSocial"
                 value={formData.otraRedSocial}
                 onChange={handleChange}
+                autoComplete="off" // Desactiva el autocompletado
               />
             </div>
           </div>
@@ -397,6 +399,7 @@ const CabezaCirculoForm = () => {
                 value={formData.estructuraTerritorial}
                 onChange={handleChange}
                 className={errors.estructuraTerritorial ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.estructuraTerritorial && <span className="error-text">{errors.estructuraTerritorial}</span>}
             </div>
@@ -408,6 +411,7 @@ const CabezaCirculoForm = () => {
                 value={formData.posicionEstructura}
                 onChange={handleChange}
                 className={errors.posicionEstructura ? "input-error" : ""}
+                autoComplete="off" // Desactiva el autocompletado
               />
               {errors.posicionEstructura && <span className="error-text">{errors.posicionEstructura}</span>}
             </div>
