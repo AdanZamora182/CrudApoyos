@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./CabezaCirculo.css";
 import { createCabezaCirculo } from "../../api";
-import logoApoyos from '../../assets/logoApoyos.png';
 
 const CabezaCirculoForm = () => {
   const navigate = useNavigate();
@@ -173,7 +172,6 @@ const CabezaCirculoForm = () => {
     <div className="form-container">
       <div className="form-header">
         <div className="header-logo">
-          <img src={logoApoyos} alt="Logo Apoyos" className="apoyos-logo" />
           <h1 className="form-title">Registro de Cabeza de Círculo</h1>
         </div>
         <button className="back-button" onClick={() => navigate('/menu')}>
