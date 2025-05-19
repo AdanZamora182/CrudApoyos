@@ -24,11 +24,6 @@ body {
   box-shadow: 
     20px 20px 60px #d1d9e6, 
     -20px -20px 60px #ffffff;
-  transition: transform 0.3s ease;
-}
-
-.form-container:hover {
-  transform: translateY(-5px);
 }
 
 .form-header {

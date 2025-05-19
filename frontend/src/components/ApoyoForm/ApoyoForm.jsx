@@ -182,20 +182,22 @@ const ApoyoForm = () => {
                 ))}
               </select>
               {formData.tipoApoyo === "Otro" && (
-                <input
-                  type="text"
-                  name="tipoApoyo"
-                  placeholder="Especifique el tipo de apoyo"
-                  value={formData.tipoApoyo === "Otro" ? formData.tipoApoyoCustom || "" : ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      tipoApoyoCustom: e.target.value,
-                    })
-                  }
-                  className={errors.tipoApoyo ? "input-error" : ""}
-                  autoComplete="off"
-                />
+                <div className="custom-input-container">
+                  <input
+                    type="text"
+                    name="tipoApoyoCustom"
+                    placeholder="Especifique el tipo de apoyo"
+                    value={formData.tipoApoyoCustom || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        tipoApoyoCustom: e.target.value,
+                      })
+                    }
+                    className={`custom-input ${errors.tipoApoyo ? "input-error" : ""}`}
+                    autoComplete="off"
+                  />
+                </div>
               )}
               {errors.tipoApoyo && <span className="error-text">{errors.tipoApoyo}</span>}
             </div>
