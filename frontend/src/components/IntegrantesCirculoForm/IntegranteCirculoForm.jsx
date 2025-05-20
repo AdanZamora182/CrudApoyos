@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./IntegranteCirculo.css";
-import { createIntegranteCirculo } from "../../api";
+import { createIntegranteCirculo, buscarCabezasCirculo } from "../../api";
 
 const IntegranteCirculoForm = () => {
   const navigate = useNavigate();
@@ -25,6 +25,9 @@ const IntegranteCirculoForm = () => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
+  const [cabezasCirculo, setCabezasCirculo] = useState([]);
+  const [selectedLider, setSelectedLider] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); // Add state for search input
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -116,7 +119,12 @@ const IntegranteCirculoForm = () => {
         text: "Integrante registrado exitosamente.",
       });
 
-      setFormData(initialFormState);
+      handleReset(true); // Reset all fields but preserve the success message
+
+      // Set a timeout to clear the success message after 8 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 8000);
     } catch (error) {
       console.error("Error al registrar integrante:", error);
       setMessage({
@@ -128,10 +136,36 @@ const IntegranteCirculoForm = () => {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = (preserveMessage = false) => {
     setFormData(initialFormState);
     setErrors({});
-    setMessage({ type: "", text: "" });
+    if (!preserveMessage) {
+      setMessage({ type: "", text: "" }); // Clear message only if not preserving
+    }
+    setSelectedLider(null); // Clear selected leader
+    setCabezasCirculo([]); // Clear search results
+    setSearchQuery(""); // Clear search input
+  };
+
+  const handleSearchCabezas = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query); // Update search input state
+    if (query.length > 2) {
+      try {
+        const results = await buscarCabezasCirculo(query);
+        setCabezasCirculo(results);
+      } catch (error) {
+        console.error("Error al buscar cabezas de círculo:", error);
+      }
+    } else {
+      setCabezasCirculo([]);
+    }
+  };
+
+  const handleSelectLider = (cabeza) => {
+    setSelectedLider(cabeza);
+    setFormData({ ...formData, lider: cabeza.id }); // Set lider ID automatically
+    setCabezasCirculo([]); // Clear search results
   };
 
   return (
@@ -150,7 +184,7 @@ const IntegranteCirculoForm = () => {
           <h3 className="form-section-title">Información Personal</h3>
           <div className="form-row">
             <div className="form-col">
-              <label>Nombre</label>
+              <label>Nombre(s)</label>
               <input
                 type="text"
                 name="nombre"
@@ -305,19 +339,46 @@ const IntegranteCirculoForm = () => {
               />
               {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}
             </div>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h3 className="form-section-title">Asociar Cabeza de Círculo</h3>
+          <div className="form-row">
             <div className="form-col">
-              <label>Líder ID</label>
+              <label>Buscar Cabeza de Círculo</label>
               <input
                 type="text"
-                name="lider"
-                value={formData.lider}
-                onChange={handleChange}
-                className={errors.lider ? "input-error" : ""}
+                placeholder="Nombre o Clave de Elector"
+                value={searchQuery}
+                onChange={handleSearchCabezas}
                 autoComplete="off"
               />
-              {errors.lider && <span className="error-text">{errors.lider}</span>}
+              <ul className="search-results">
+                {cabezasCirculo.map((cabeza) => (
+                  <li
+                    key={cabeza.id}
+                    onClick={() => handleSelectLider(cabeza)}
+                    className="search-result-item"
+                  >
+                    {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+          {selectedLider && (
+            <div className="form-row">
+              <div className="form-col">
+                <label>Cabeza de Círculo Seleccionada</label>
+                <input
+                  type="text"
+                  value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
+                  readOnly
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="form-actions">

@@ -188,7 +188,7 @@ const CabezaCirculoForm = () => {
           <h3 className="form-section-title">Información Personal</h3>
           <div className="form-row">
             <div className="form-col">
-              <label>Nombre</label>
+              <label>Nombre(s)</label>
               <input
                 type="text"
                 name="nombre"

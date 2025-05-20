@@ -47,3 +47,20 @@ export const createApoyo = async (datos) => {
     throw error;
   }
 };
+
+// Función para buscar Cabezas de Círculo por nombre o clave electoral
+export const buscarCabezasCirculo = async (query) => {
+  try {
+    const response = await api.get(`/cabezas-circulo/buscar`, { params: { query } });
+    return response.data.map((cabeza) => ({
+      id: cabeza.id,
+      nombre: cabeza.nombre, // Ensure correct casing
+      apellidoPaterno: cabeza.apellidoPaterno,
+      apellidoMaterno: cabeza.apellidoMaterno,
+      claveElector: cabeza.claveElector,
+    }));
+  } catch (error) {
+    console.error("Error en buscarCabezasCirculo:", error.response?.data || error.message);
+    throw error;
+  }
+};

@@ -102,7 +102,7 @@ function Menu() {
       </div>
 
       <footer className="menu-footer">
-        <p>&copy; 2025 Sistema de Gestión de Apoyos | Uso exclusivo para el personal de MARHK</p>
+        <p>&copy; 2025 Sistema de Gestión de Apoyos</p>
       </footer>
     </div>
   );
