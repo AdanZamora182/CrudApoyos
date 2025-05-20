@@ -197,10 +197,11 @@
     max-height: 150px;
     overflow-y: auto;
     background-color: white;
-    position: absolute;
+    position: absolute; /* Posiciona el <ul> relativo al contenedor */
     z-index: 1000;
-    width: 100%; /* Match the width of the input field */
-    max-width: 900px; /* Optional: Set a maximum width */
+    width: 100%; /* Coincide con el ancho del contenedor relativo */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
   }
   
   .search-result-item {

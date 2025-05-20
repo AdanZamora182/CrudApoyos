@@ -345,7 +345,7 @@ const IntegranteCirculoForm = () => {
         <div className="form-section">
           <h3 className="form-section-title">Asociar Cabeza de Círculo</h3>
           <div className="form-row">
-            <div className="form-col">
+            <div className="form-col" style={{ position: "relative" }}>
               <label>Buscar Cabeza de Círculo</label>
               <input
                 type="text"
