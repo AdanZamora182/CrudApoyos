@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Menu from './components/Menu/Menu';
-import CabezaCirculoForm from './components/CabezaCirculoForm/CabezaCirculoForm';
-import IntegranteCirculoForm from './components/IntegrantesCirculoForm/IntegranteCirculoForm'; 
-import ApoyoForm from './components/ApoyoForm/ApoyoForm'; 
+import CabezaCirculoForm from './components/CabezaCirculo/CabezaCirculoForm';
+import IntegranteCirculoForm from './components/IntegrantesCirculo/IntegranteCirculoForm'; 
+import ApoyoForm from './components/Apoyo/ApoyoForm'; 
 
 
 function App() {
