@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Get, Param, ParseIntPipe, Put, Delete, Query } from '@nestjs/common';
 import { IntegranteCirculoService } from './integrante-circulo.service';
 import { IntegranteCirculo } from './integrante-circulo.entity';
 
@@ -18,7 +18,10 @@ export class IntegranteCirculoController {
   }
   
   @Get()
-  async findAll(): Promise<IntegranteCirculo[]> {
+  async findAll(@Query('query') query?: string): Promise<IntegranteCirculo[]> {
+    if (query) {
+      return await this.integranteCirculoService.buscar(query);
+    }
     return await this.integranteCirculoService.findAll();
   }
 }

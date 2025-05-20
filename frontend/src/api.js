@@ -64,3 +64,20 @@ export const buscarCabezasCirculo = async (query) => {
     throw error;
   }
 };
+
+// Función para buscar Integrantes de Círculo por nombre o clave electoral
+export const buscarIntegrantesCirculo = async (query) => {
+  try {
+    const response = await api.get(`/integrantes-circulo`, { params: { query } });
+    return response.data.map((integrante) => ({
+      id: integrante.id,
+      nombre: integrante.nombre,
+      apellidoPaterno: integrante.apellidoPaterno,
+      apellidoMaterno: integrante.apellidoMaterno,
+      claveElector: integrante.claveElector,
+    }));
+  } catch (error) {
+    console.error("Error en buscarIntegrantesCirculo:", error.response?.data || error.message);
+    throw error;
+  }
+};

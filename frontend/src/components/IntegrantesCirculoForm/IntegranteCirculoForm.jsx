@@ -165,6 +165,7 @@ const IntegranteCirculoForm = () => {
   const handleSelectLider = (cabeza) => {
     setSelectedLider(cabeza);
     setFormData({ ...formData, lider: cabeza.id }); // Set lider ID automatically
+    setSearchQuery(""); // Clear the search query after selection
     setCabezasCirculo([]); // Clear search results
   };
 
@@ -350,7 +351,7 @@ const IntegranteCirculoForm = () => {
               <input
                 type="text"
                 placeholder="Nombre o Clave de Elector"
-                value={searchQuery}
+                value={searchQuery} // Bind input value to searchQuery state
                 onChange={handleSearchCabezas}
                 autoComplete="off"
               />

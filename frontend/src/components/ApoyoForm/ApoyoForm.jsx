@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ApoyoForm.css";
-import { createApoyo } from "../../api";
+import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
 
 const ApoyoForm = () => {
   const navigate = useNavigate();
@@ -10,14 +10,17 @@ const ApoyoForm = () => {
     cantidad: "",
     tipoApoyo: "",
     fechaEntrega: "",
-    personaId: "",
-    cabezaId: "",
+    beneficiarioId: null, // ID of the selected beneficiary
+    beneficiarioTipo: "", // Type of beneficiary: "cabeza" or "integrante"
   };
 
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // Search input for beneficiaries
+  const [beneficiarios, setBeneficiarios] = useState([]); // Search results
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // Selected beneficiary
 
   const predefinedOptions = [
     "Tinaco",
@@ -41,7 +44,7 @@ const ApoyoForm = () => {
     const { name, value } = e.target;
 
     // Restrict input for specific fields
-    const numericFields = ["cantidad", "personaId", "cabezaId"];
+    const numericFields = ["cantidad"];
     if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
       return; // Prevent non-numeric input
     }
@@ -51,7 +54,7 @@ const ApoyoForm = () => {
       [name]: value,
     });
 
-    // Limpiar errores al escribir
+    // Clear errors while typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -66,8 +69,6 @@ const ApoyoForm = () => {
 
     if (mandatoryFields.includes(name) && !value) {
       error = "Este campo es obligatorio.";
-    } else if ((name === "personaId" || name === "cabezaId" || name === "cantidad") && value && isNaN(value)) {
-      error = "Debe ser un número válido.";
     }
     return error;
   };
@@ -82,8 +83,44 @@ const ApoyoForm = () => {
         newErrors[field] = error;
       }
     });
+    if (!selectedBeneficiario) {
+      formIsValid = false;
+      newErrors.beneficiarioId = "Debe seleccionar un beneficiario.";
+    }
     setErrors(newErrors);
     return formIsValid;
+  };
+
+  const handleSearchBeneficiarios = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query.length > 2) {
+      try {
+        const [cabezas, integrantes] = await Promise.all([
+          buscarCabezasCirculo(query),
+          buscarIntegrantesCirculo(query),
+        ]);
+        setBeneficiarios([
+          ...cabezas.map((cabeza) => ({ ...cabeza, tipo: "cabeza" })),
+          ...integrantes.map((integrante) => ({ ...integrante, tipo: "integrante" })),
+        ]);
+      } catch (error) {
+        console.error("Error al buscar beneficiarios:", error);
+      }
+    } else {
+      setBeneficiarios([]);
+    }
+  };
+
+  const handleSelectBeneficiario = (beneficiario) => {
+    setSelectedBeneficiario(beneficiario);
+    setFormData({
+      ...formData,
+      beneficiarioId: beneficiario.id, // Correctly set the ID of the selected beneficiary
+      beneficiarioTipo: beneficiario.tipo, // Correctly set the type of the selected beneficiary
+    });
+    setSearchQuery(""); // Clear the search query after selection
+    setBeneficiarios([]);
   };
 
   const handleSubmit = async (e) => {
@@ -101,13 +138,12 @@ const ApoyoForm = () => {
     setMessage({ type: "", text: "" });
 
     try {
-      // Ajustar los nombres de las claves para que coincidan con apoyo.entity.ts
       const apoyoData = {
         cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
         tipoApoyo: formData.tipoApoyo === "Otro" ? formData.tipoApoyoCustom.trim() : formData.tipoApoyo.trim(),
         fechaEntrega: formData.fechaEntrega,
-        persona: formData.personaId ? { id: parseInt(formData.personaId, 10) } : null, // Relación con persona
-        cabeza: formData.cabezaId ? { id: parseInt(formData.cabezaId, 10) } : null,   // Relación con cabeza
+        persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null, // Match "persona" for Persona_id
+        cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null, // Match "cabeza" for Cabeza_id
       };
 
       console.log("Datos enviados al backend:", apoyoData);
@@ -119,8 +155,15 @@ const ApoyoForm = () => {
         text: "Apoyo registrado exitosamente.",
       });
 
-      setFormData(initialFormState); // Limpiar formulario
+      setFormData(initialFormState); // Clear form
       setErrors({});
+      setSelectedBeneficiario(null); // Clear selected beneficiary
+      setSearchQuery(""); // Clear search input
+
+      // Set a timeout to clear the success message after 8 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 8000);
     } catch (error) {
       console.error("Error al registrar apoyo:", error);
       const backendErrorMessage = error.response?.data?.message || "Error al registrar apoyo. Verifique los datos e inténtelo de nuevo.";
@@ -137,6 +180,8 @@ const ApoyoForm = () => {
     setFormData(initialFormState);
     setErrors({});
     setMessage({ type: "", text: "" });
+    setSelectedBeneficiario(null);
+    setSearchQuery("");
   };
 
   return (
@@ -162,7 +207,7 @@ const ApoyoForm = () => {
                 value={formData.cantidad}
                 onChange={handleChange}
                 className={errors.cantidad ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                autoComplete="off"
               />
               {errors.cantidad && <span className="error-text">{errors.cantidad}</span>}
             </div>
@@ -211,7 +256,7 @@ const ApoyoForm = () => {
                 value={formData.fechaEntrega}
                 onChange={handleChange}
                 className={errors.fechaEntrega ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                autoComplete="off"
               />
               {errors.fechaEntrega && <span className="error-text">{errors.fechaEntrega}</span>}
             </div>
@@ -219,33 +264,43 @@ const ApoyoForm = () => {
         </div>
 
         <div className="form-section">
-          <h3 className="form-section-title">Relaciones</h3>
+          <h3 className="form-section-title">Asociar Beneficiario</h3>
           <div className="form-row">
-            <div className="form-col">
-              <label>ID de la Persona</label>
+            <div className="form-col" style={{ position: "relative" }}>
+              <label>Buscar Beneficiario</label>
               <input
                 type="text"
-                name="personaId"
-                value={formData.personaId}
-                onChange={handleChange}
-                className={errors.personaId ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                placeholder="Nombre o Clave de Elector"
+                value={searchQuery} // Bind input value to searchQuery state
+                onChange={handleSearchBeneficiarios}
+                autoComplete="off"
               />
-              {errors.personaId && <span className="error-text">{errors.personaId}</span>}
-            </div>
-            <div className="form-col">
-              <label>ID de la Cabeza</label>
-              <input
-                type="text"
-                name="cabezaId"
-                value={formData.cabezaId}
-                onChange={handleChange}
-                className={errors.cabezaId ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
-              />
-              {errors.cabezaId && <span className="error-text">{errors.cabezaId}</span>}
+              <ul className="search-results">
+                {beneficiarios.map((beneficiario) => (
+                  <li
+                    key={`${beneficiario.tipo}-${beneficiario.id}`}
+                    onClick={() => handleSelectBeneficiario(beneficiario)}
+                    className="search-result-item"
+                  >
+                    {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+          {selectedBeneficiario && (
+            <div className="form-row">
+              <div className="form-col">
+                <label>Beneficiario Seleccionado</label>
+                <input
+                  type="text"
+                  value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
+                  readOnly
+                />
+              </div>
+            </div>
+          )}
+          {errors.beneficiarioId && <span className="error-text">{errors.beneficiarioId}</span>}
         </div>
 
         <div className="form-actions">

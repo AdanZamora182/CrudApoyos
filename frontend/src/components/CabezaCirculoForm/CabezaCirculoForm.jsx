@@ -149,6 +149,11 @@ const CabezaCirculoForm = () => {
 
       setFormData(initialFormState); // Limpiar formulario
       setErrors({}); // Limpiar errores
+
+      // Set a timeout to clear the success message after 8 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 8000);
     } catch (error) {
       console.error("Error al registrar cabeza de círculo:", error);
       const backendErrorMessage = error.response?.data?.message || "Error al registrar cabeza de círculo. Verifique los datos e inténtelo de nuevo.";
