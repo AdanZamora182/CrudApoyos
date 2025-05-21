@@ -23,4 +23,24 @@ export class CabezaCirculoController {
   async buscar(@Query('query') query: string): Promise<CabezaCirculo[]> {
     return this.cabezaCirculoService.buscar(query);
   }
+  
+  @Get()
+  async findAll(): Promise<CabezaCirculo[]> {
+    return this.cabezaCirculoService.findAll();
+  }
+  
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<CabezaCirculo> {
+    return this.cabezaCirculoService.findOne(id);
+  }
+  
+  @Put(':id')
+  async update(@Param('id', ParseIntPipe) id: number, @Body() cabezaData: Partial<CabezaCirculo>): Promise<CabezaCirculo> {
+    return this.cabezaCirculoService.update(id, cabezaData);
+  }
+  
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.cabezaCirculoService.remove(id);
+  }
 }

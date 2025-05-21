@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./CabezaCirculo.css";
 import { createCabezaCirculo } from "../../api";
 
-const CabezaCirculoForm = () => {
+const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
   
   const initialFormState = {
@@ -30,6 +30,7 @@ const CabezaCirculoForm = () => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
+  const [hideHeaderState, setHideHeader] = useState(hideHeader); // Controlar desde props
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -173,21 +174,18 @@ const CabezaCirculoForm = () => {
     setMessage({ type: "", text: "" });
   };
 
+  // En el render
   return (
-    <div className="form-container">
-      <div className="form-header">
-        <div className="header-logo">
+    <div className={`form-container ${hideHeaderState ? "integrated-form" : ""}`}>
+      {!hideHeaderState && (
+        <div className="form-header">
           <h1 className="form-title">Registro de Cabeza de Círculo</h1>
+          {/* Eliminado el botón "Volver al Menú" */}
         </div>
-        <button className="back-button" onClick={() => navigate('/menu')}>
-          Volver al Menú
-        </button>
-      </div>
+      )}
       
-      <p className="form-subtitle">Complete todos los campos para registrar un nuevo cabeza de círculo</p>
-
       {message.text && <div className={`form-message form-message-${message.type}`}>{message.text}</div>}
-
+      
       <form onSubmit={handleSubmit}>
         <div className="form-section">
           <h3 className="form-section-title">Información Personal</h3>

@@ -52,13 +52,8 @@ export const createApoyo = async (datos) => {
 export const buscarCabezasCirculo = async (query) => {
   try {
     const response = await api.get(`/cabezas-circulo/buscar`, { params: { query } });
-    return response.data.map((cabeza) => ({
-      id: cabeza.id,
-      nombre: cabeza.nombre, // Ensure correct casing
-      apellidoPaterno: cabeza.apellidoPaterno,
-      apellidoMaterno: cabeza.apellidoMaterno,
-      claveElector: cabeza.claveElector,
-    }));
+    // When no query is provided, the backend returns all fields
+    return response.data;
   } catch (error) {
     console.error("Error en buscarCabezasCirculo:", error.response?.data || error.message);
     throw error;
@@ -80,4 +75,14 @@ export const buscarIntegrantesCirculo = async (query) => {
     console.error("Error en buscarIntegrantesCirculo:", error.response?.data || error.message);
     throw error;
   }
+};
+
+// Eliminar una cabeza de círculo
+export const deleteCabezaCirculo = async (id) => {
+  return await api.delete(`/cabezas-circulo/${id}`);
+};
+
+// Actualizar una cabeza de círculo
+export const updateCabezaCirculo = async (id, data) => {
+  return await api.put(`/cabezas-circulo/${id}`, data);
 };
