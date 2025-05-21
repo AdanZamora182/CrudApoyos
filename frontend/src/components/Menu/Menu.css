@@ -7,9 +7,9 @@
   --success-color: #4caf50;
   --warning-color: #ff9800;
   --danger-color: #f44336;
-  --sidebar-width: 250px;
-  --sidebar-collapsed-width: 70px;
-  --header-height: 60px;
+  --sidebar-width: 230px; /* Reduced from 250px */
+  --sidebar-collapsed-width: 60px; /* Reduced from 70px */
+  --header-height: 50px; /* Reduced from 60px */
   --transition-speed: 0.3s;
   --gray-bg: #f8f9fa;
   --border-color: #e9ecef;
@@ -30,7 +30,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--gray-bg);
   color: #333;
-  line-height: 1.6;
+  line-height: 1.5; /* Reduced from 1.6 */
+  font-size: 14px; /* Base font size reduced */
 }
 
 /* Layout structure */
@@ -62,7 +63,7 @@ body {
 .sidebar-header {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 10px 15px; /* Reduced padding */
   border-bottom: 1px solid var(--border-color);
   height: var(--header-height);
   position: relative;
@@ -70,7 +71,7 @@ body {
 
 /* Add a specific class for the system title */
 .system-title {
-  font-size: 14px; /* Reduced from 16px */
+  font-size: 13px; /* Reduced from 14px */
   color: var(--primary-color);
   white-space: nowrap;
   transition: opacity var(--transition-speed) ease;
@@ -79,7 +80,7 @@ body {
 }
 
 .sidebar-logo {
-  height: 30px;
+  height: 25px; /* Reduced from 30px */
   margin-right: 10px;
   transition: all var(--transition-speed) ease;
   cursor: pointer; /* Add cursor pointer to indicate it's clickable */
@@ -97,7 +98,7 @@ body {
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
+  padding: 10px 15px; /* Reduced from 12px 15px */
   cursor: pointer;
   transition: background-color var(--transition-speed) ease;
   color: var(--dark-color);
@@ -121,8 +122,8 @@ body {
 
 /* Improve alignment of menu icons, especially the logout button */
 .menu-icon {
-  font-size: 18px;
-  min-width: 40px;
+  font-size: 16px; /* Reduced from 18px */
+  min-width: 35px; /* Reduced from 40px */
   display: flex;
   justify-content: center;
   align-items: center; /* Ensure vertical alignment */
@@ -166,13 +167,13 @@ body {
 /* Make logout button consistent with other menu items */
 .menu-item.logout {
   color: var(--danger-color);
-  padding: 12px 15px;
+  padding: 10px 15px; /* Reduced from 12px 15px */
   display: flex;
   align-items: center;
 }
 
 .menu-item.logout .menu-icon {
-  min-width: 40px; /* Same width as other menu icons */
+  min-width: 35px; /* Same width as other menu icons */
   display: flex;
   justify-content: center;
 }
@@ -207,11 +208,11 @@ body {
 
 .content-header {
   height: var(--header-height);
+  padding: 0 15px; /* Reduced from 0 20px */
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   position: sticky;
@@ -222,7 +223,7 @@ body {
 }
 
 .content-header h1 {
-  font-size: 20px;
+  font-size: 18px; /* Reduced from 20px */
   color: var(--dark-color);
   white-space: nowrap;
   overflow: hidden;
@@ -230,12 +231,12 @@ body {
 }
 
 .user-welcome {
-  font-size: 14px;
+  font-size: 13px; /* Reduced from 14px */
   color: #6c757d;
 }
 
 .content-body {
-  padding: 20px;
+  padding: 15px; /* Reduced from 20px */
   flex-grow: 1;
   overflow-y: auto; /* Enable scrolling in content area */
   height: calc(100vh - var(--header-height)); /* Subtract header height */
@@ -250,18 +251,20 @@ body {
 
 .welcome-banner {
   background-color: white;
-  padding: 25px;
+  padding: 20px; /* Reduced from 25px */
   border-radius: 8px;
   box-shadow: var(--card-shadow);
   text-align: center;
 }
 
 .welcome-banner h2 {
+  font-size: 20px; /* Reduced from default */
+  margin-bottom: 8px; /* Reduced from 10px */
   color: var(--primary-color);
-  margin-bottom: 10px;
 }
 
 .welcome-banner p {
+  font-size: 14px;
   color: #6c757d;
   max-width: 600px;
   margin: 0 auto;
@@ -275,7 +278,7 @@ body {
 
 .access-card {
   background-color: white;
-  padding: 20px;
+  padding: 15px; /* Reduced from 20px */
   border-radius: 8px;
   box-shadow: var(--card-shadow);
   transition: all 0.3s ease;
@@ -291,11 +294,11 @@ body {
 }
 
 .card-icon {
-  font-size: 30px;
-  margin-bottom: 15px;
+  font-size: 25px; /* Reduced from 30px */
+  margin-bottom: 10px; /* Reduced from 15px */
   background-color: var(--active-color);
-  width: 60px;
-  height: 60px;
+  width: 50px; /* Reduced from 60px */
+  height: 50px; /* Reduced from 60px */
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -303,15 +306,15 @@ body {
 }
 
 .access-card h3 {
+  font-size: 16px; /* Reduced from 18px */
+  margin-bottom: 8px; /* Reduced from 10px */
   color: var(--primary-color);
-  font-size: 18px;
-  margin-bottom: 10px;
   text-align: center;
 }
 
 .access-card p {
+  font-size: 13px; /* Reduced from 14px */
   color: #6c757d;
-  font-size: 14px;
   text-align: center;
 }
 

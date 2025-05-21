@@ -6,7 +6,11 @@ import logoApoyos from '../../assets/logoApoyos.png';
 function Menu() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  // Load the collapsed state from localStorage or use default (false)
+  const [collapsed, setCollapsed] = useState(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    return savedState ? JSON.parse(savedState) : false;
+  });
   const [title, setTitle] = useState("Inicio"); // Changed from "Panel de Control"
   const [currentComponent, setCurrentComponent] = useState(null);
   
@@ -60,11 +64,15 @@ function Menu() {
   };
 
   const toggleSidebar = () => {
-    setCollapsed(!collapsed);
+    const newState = !collapsed;
+    setCollapsed(newState);
+    // Save to localStorage
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
   };
 
+  // Add a compact UI class to the main layout
   return (
-    <div className="layout">
+    <div className="layout compact-ui">
       <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <img 

@@ -64,13 +64,8 @@ export const buscarCabezasCirculo = async (query) => {
 export const buscarIntegrantesCirculo = async (query) => {
   try {
     const response = await api.get(`/integrantes-circulo`, { params: { query } });
-    return response.data.map((integrante) => ({
-      id: integrante.id,
-      nombre: integrante.nombre,
-      apellidoPaterno: integrante.apellidoPaterno,
-      apellidoMaterno: integrante.apellidoMaterno,
-      claveElector: integrante.claveElector,
-    }));
+    // Return complete records instead of just a subset of fields
+    return response.data;
   } catch (error) {
     console.error("Error en buscarIntegrantesCirculo:", error.response?.data || error.message);
     throw error;
@@ -85,4 +80,14 @@ export const deleteCabezaCirculo = async (id) => {
 // Actualizar una cabeza de círculo
 export const updateCabezaCirculo = async (id, data) => {
   return await api.put(`/cabezas-circulo/${id}`, data);
+};
+
+// Eliminar un integrante de círculo
+export const deleteIntegranteCirculo = async (id) => {
+  return await api.delete(`/integrantes-circulo/${id}`);
+};
+
+// Actualizar un integrante de círculo
+export const updateIntegranteCirculo = async (id, data) => {
+  return await api.put(`/integrantes-circulo/${id}`, data);
 };

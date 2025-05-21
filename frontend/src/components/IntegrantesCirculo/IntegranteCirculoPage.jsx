@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import CabezaCirculoForm from "./CabezaCirculoForm";
-import CabezaCirculoCRUD from "./CabezaCirculoCRUD";
+import IntegranteCirculoForm from "./IntegranteCirculoForm";
+import IntegranteCirculoCRUD from "./IntegranteCirculoCRUD";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./CabezaCirculo.css";
+import "./IntegranteCirculo.css";
 
-const CabezasCirculoPage = () => {
+const IntegranteCirculoPage = () => {
   // Load the active tab from localStorage or use default ("form")
   const [activeSection, setActiveSection] = useState(() => {
-    const savedTab = localStorage.getItem('cabezaCirculoActiveTab');
+    const savedTab = localStorage.getItem('integranteCirculoActiveTab');
     return savedTab || "form";
   });
   
@@ -16,13 +16,13 @@ const CabezasCirculoPage = () => {
 
   // Update localStorage when active tab changes
   useEffect(() => {
-    localStorage.setItem('cabezaCirculoActiveTab', activeSection);
+    localStorage.setItem('integranteCirculoActiveTab', activeSection);
   }, [activeSection]);
   
   // Handle tab switching
   const handleTabChange = (tab) => {
     setActiveSection(tab);
-    localStorage.setItem('cabezaCirculoActiveTab', tab);
+    localStorage.setItem('integranteCirculoActiveTab', tab);
   };
 
   return (
@@ -51,11 +51,11 @@ const CabezasCirculoPage = () => {
       </div>
 
       <div className="section-content">
-        {activeSection === "form" && <CabezaCirculoForm hideHeader={true} />}
-        {activeSection === "crud" && <CabezaCirculoCRUD />}
+        {activeSection === "form" && <IntegranteCirculoForm hideHeader={true} />}
+        {activeSection === "crud" && <IntegranteCirculoCRUD />}
       </div>
     </div>
   );
 };
 
-export default CabezasCirculoPage;
+export default IntegranteCirculoPage;

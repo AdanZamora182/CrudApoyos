@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "./IntegranteCirculo.css";
 import { createIntegranteCirculo, buscarCabezasCirculo } from "../../api";
 
-const IntegranteCirculoForm = () => {
+const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
-
+  
   const initialFormState = {
     nombre: "",
     apellidoPaterno: "",
@@ -15,7 +15,7 @@ const IntegranteCirculoForm = () => {
     noExterior: "",
     noInterior: "",
     colonia: "",
-    codigoPostal: "", // Nuevo campo
+    codigoPostal: "",
     claveElector: "",
     telefono: "",
     lider: "",
@@ -27,13 +27,14 @@ const IntegranteCirculoForm = () => {
   const [loading, setLoading] = useState(false);
   const [cabezasCirculo, setCabezasCirculo] = useState([]);
   const [selectedLider, setSelectedLider] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // Add state for search input
+  const [searchQuery, setSearchQuery] = useState("");
+  const [hideHeaderState, setHideHeader] = useState(hideHeader); // Control from props
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     // Restrict input for specific fields
-    const numericFields = ["telefono", "noExterior", "noInterior", "codigoPostal", "lider"];
+    const numericFields = ["telefono", "noExterior", "noInterior", "codigoPostal"];
     if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
       return; // Prevent non-numeric input
     }
@@ -43,7 +44,7 @@ const IntegranteCirculoForm = () => {
       [name]: value,
     });
 
-    // Limpiar errores al escribir
+    // Clear errors when typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -54,12 +55,30 @@ const IntegranteCirculoForm = () => {
 
   const validateField = (name, value) => {
     let error = "";
-    if (!value && name !== "noInterior" && name !== "codigoPostal") {
-      // Campos obligatorios excepto noInterior y codigoPostal
+    const trimmedValue = value !== null && value !== undefined ? String(value).trim() : "";
+
+    // Optional fields
+    const optionalFields = ["noInterior", "lider"];
+
+    // Check required fields
+    if (!optionalFields.includes(name) && trimmedValue === "") {
       error = "Este campo es obligatorio.";
-    } else if ((name === "noExterior" || name === "noInterior" || name === "telefono" || name === "codigoPostal" || name === "lider") && isNaN(value)) {
-      // Validar que sean números válidos
-      error = "Debe ser un número válido.";
+      return error;
+    }
+
+    // Field-specific validations
+    switch (name) {
+      case "telefono":
+      case "noExterior":
+      case "codigoPostal":
+        if (trimmedValue !== "" && isNaN(Number(trimmedValue))) {
+          error = "Debe ser un número válido.";
+        } else if (trimmedValue !== "" && !/^\d+$/.test(trimmedValue)) {
+          error = "Solo se admiten números.";
+        }
+        break;
+      default:
+        break;
     }
     return error;
   };
@@ -67,89 +86,23 @@ const IntegranteCirculoForm = () => {
   const validateForm = () => {
     let formIsValid = true;
     const newErrors = {};
-
-    Object.keys(formData).forEach((field) => {
+    
+    Object.keys(initialFormState).forEach((field) => {
       const error = validateField(field, formData[field]);
       if (error) {
         formIsValid = false;
         newErrors[field] = error;
       }
     });
-
+    
     setErrors(newErrors);
     return formIsValid;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      setMessage({
-        type: "error",
-        text: "Por favor, complete todos los campos obligatorios.",
-      });
-      return;
-    }
-
-    setLoading(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      const integranteData = {
-        nombre: formData.nombre.trim(),
-        apellidoPaterno: formData.apellidoPaterno.trim(),
-        apellidoMaterno: formData.apellidoMaterno.trim(),
-        fechaNacimiento: formData.fechaNacimiento,
-        calle: formData.calle.trim(),
-        noExterior: formData.noExterior ? Number.parseInt(formData.noExterior) : null, // Obligatorio
-        noInterior: formData.noInterior ? Number.parseInt(formData.noInterior) : null, // Opcional
-        colonia: formData.colonia.trim(),
-        codigoPostal: formData.codigoPostal ? Number.parseInt(formData.codigoPostal) : null,
-        claveElector: formData.claveElector.trim(),
-        telefono: formData.telefono ? Number.parseInt(formData.telefono) : null,
-        lider: formData.lider ? Number.parseInt(formData.lider) : null,
-      };
-
-      console.log("Datos enviados al backend:", integranteData);
-
-      await createIntegranteCirculo(integranteData);
-
-      setMessage({
-        type: "success",
-        text: "Integrante registrado exitosamente.",
-      });
-
-      handleReset(true); // Reset all fields but preserve the success message
-
-      // Set a timeout to clear the success message after 8 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 8000);
-    } catch (error) {
-      console.error("Error al registrar integrante:", error);
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Error al registrar integrante.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleReset = (preserveMessage = false) => {
-    setFormData(initialFormState);
-    setErrors({});
-    if (!preserveMessage) {
-      setMessage({ type: "", text: "" }); // Clear message only if not preserving
-    }
-    setSelectedLider(null); // Clear selected leader
-    setCabezasCirculo([]); // Clear search results
-    setSearchQuery(""); // Clear search input
-  };
-
   const handleSearchCabezas = async (e) => {
     const query = e.target.value;
-    setSearchQuery(query); // Update search input state
+    setSearchQuery(query);
+    
     if (query.length > 2) {
       try {
         const results = await buscarCabezasCirculo(query);
@@ -164,22 +117,90 @@ const IntegranteCirculoForm = () => {
 
   const handleSelectLider = (cabeza) => {
     setSelectedLider(cabeza);
-    setFormData({ ...formData, lider: cabeza.id }); // Set lider ID automatically
-    setSearchQuery(""); // Clear the search query after selection
-    setCabezasCirculo([]); // Clear search results
+    setFormData({ ...formData, lider: cabeza.id });
+    setSearchQuery("");
+    setCabezasCirculo([]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      setMessage({
+        type: "error",
+        text: "Por favor, complete correctamente todos los campos obligatorios.",
+      });
+      return;
+    }
+
+    setLoading(true);
+    setMessage({ type: "", text: "" });
+
+    try {
+      const integranteData = {
+        nombre: formData.nombre,
+        apellidoPaterno: formData.apellidoPaterno,
+        apellidoMaterno: formData.apellidoMaterno,
+        fechaNacimiento: formData.fechaNacimiento,
+        calle: formData.calle,
+        noExterior: formData.noExterior ? parseInt(formData.noExterior, 10) : null,
+        noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null,
+        colonia: formData.colonia,
+        codigoPostal: formData.codigoPostal ? parseInt(formData.codigoPostal, 10) : null,
+        claveElector: formData.claveElector,
+        telefono: parseInt(formData.telefono, 10),
+        lider: formData.lider ? { id: parseInt(formData.lider, 10) } : null,
+      };
+      
+      console.log("Datos a enviar al backend:", integranteData);
+
+      await createIntegranteCirculo(integranteData);
+
+      setMessage({
+        type: "success",
+        text: "Integrante de círculo registrado exitosamente.",
+      });
+
+      setFormData(initialFormState); // Clear form
+      setErrors({}); // Clear errors
+      setSelectedLider(null); // Clear selected leader
+
+      // Set a timeout to clear the success message after 8 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 8000);
+    } catch (error) {
+      console.error("Error al registrar integrante de círculo:", error);
+      const backendErrorMessage = error.response?.data?.message || "Error al registrar integrante de círculo. Verifique los datos e inténtelo de nuevo.";
+      const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
+      setMessage({
+        type: "error",
+        text: displayMessage,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setFormData(initialFormState);
+    setErrors({});
+    setMessage({ type: "", text: "" });
+    setSelectedLider(null);
+    setSearchQuery("");
+    setCabezasCirculo([]);
   };
 
   return (
-    <div className="form-container">
-      <div className="form-header">
-        <h1 className="form-title">Registro de Integrante del Círculo</h1>
-        <button className="back-button" onClick={() => navigate('/menu')}>
-          Volver al Menú
-        </button>
-      </div>
-
+    <div className={`form-container ${hideHeaderState ? "integrated-form compact-ui" : ""}`}>
+      {!hideHeaderState && (
+        <div className="form-header">
+          <h1 className="form-title">Registro de Integrante de Círculo</h1>
+        </div>
+      )}
+      
       {message.text && <div className={`form-message form-message-${message.type}`}>{message.text}</div>}
-
+      
       <form onSubmit={handleSubmit}>
         <div className="form-section">
           <h3 className="form-section-title">Información Personal</h3>
@@ -243,7 +264,7 @@ const IntegranteCirculoForm = () => {
                 value={formData.telefono}
                 onChange={handleChange}
                 className={errors.telefono ? "input-error" : ""}
-                maxLength="10" // Limit to 10 characters
+                maxLength="10"
                 autoComplete="off"
               />
               {errors.telefono && <span className="error-text">{errors.telefono}</span>}
@@ -294,7 +315,7 @@ const IntegranteCirculoForm = () => {
               {errors.noExterior && <span className="error-text">{errors.noExterior}</span>}
             </div>
             <div className="form-col">
-              <label>No. Interior</label>
+              <label>No. Interior (opcional)</label>
               <input
                 type="text"
                 name="noInterior"
@@ -305,9 +326,6 @@ const IntegranteCirculoForm = () => {
               />
               {errors.noInterior && <span className="error-text">{errors.noInterior}</span>}
             </div>
-          </div>
-
-          <div className="form-row">
             <div className="form-col">
               <label>Código Postal</label>
               <input
@@ -343,43 +361,52 @@ const IntegranteCirculoForm = () => {
           </div>
         </div>
 
+        {/* Replace the Asociar Cabeza de Círculo section with this updated version */}
         <div className="form-section">
           <h3 className="form-section-title">Asociar Cabeza de Círculo</h3>
-          <div className="form-row">
-            <div className="form-col" style={{ position: "relative" }}>
-              <label>Buscar Cabeza de Círculo</label>
-              <input
-                type="text"
-                placeholder="Nombre o Clave de Elector"
-                value={searchQuery} // Bind input value to searchQuery state
-                onChange={handleSearchCabezas}
-                autoComplete="off"
-              />
-              <ul className="search-results">
-                {cabezasCirculo.map((cabeza) => (
-                  <li
-                    key={cabeza.id}
-                    onClick={() => handleSelectLider(cabeza)}
-                    className="search-result-item"
-                  >
-                    {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {selectedLider && (
+          <div className="leader-section">
             <div className="form-row">
-              <div className="form-col">
-                <label>Cabeza de Círculo Seleccionada</label>
+              <div className="form-col" style={{ position: "relative" }}>
+                <label>Buscar Cabeza de Círculo</label>
                 <input
                   type="text"
-                  value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
-                  readOnly
+                  placeholder="Nombre o Clave de Elector"
+                  value={searchQuery}
+                  onChange={handleSearchCabezas}
+                  autoComplete="off"
                 />
+                {cabezasCirculo.length > 0 && (
+                  <ul className="search-results">
+                    {cabezasCirculo.map((cabeza) => (
+                      <li
+                        key={cabeza.id}
+                        onClick={() => handleSelectLider(cabeza)}
+                        className="search-result-item"
+                      >
+                        {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
-          )}
+            
+            {selectedLider ? (
+              <div className="form-row">
+                <div className="form-col">
+                  <label>Cabeza de Círculo Seleccionada</label>
+                  <input
+                    type="text"
+                    value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
+                    readOnly
+                    className="selected-lider"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="leader-placeholder"></div>
+            )}
+          </div>
         </div>
 
         <div className="form-actions">

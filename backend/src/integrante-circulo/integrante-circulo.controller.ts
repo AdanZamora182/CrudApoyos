@@ -24,4 +24,19 @@ export class IntegranteCirculoController {
     }
     return await this.integranteCirculoService.findAll();
   }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<IntegranteCirculo> {
+    return this.integranteCirculoService.findOne(id);
+  }
+  
+  @Put(':id')
+  async update(@Param('id', ParseIntPipe) id: number, @Body() integranteData: Partial<IntegranteCirculo>): Promise<IntegranteCirculo> {
+    return this.integranteCirculoService.update(id, integranteData);
+  }
+  
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.integranteCirculoService.remove(id);
+  }
 }

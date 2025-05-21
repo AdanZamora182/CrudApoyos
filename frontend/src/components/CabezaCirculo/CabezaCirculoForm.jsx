@@ -176,7 +176,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
 
   // En el render
   return (
-    <div className={`form-container ${hideHeaderState ? "integrated-form" : ""}`}>
+    <div className={`form-container ${hideHeaderState ? "integrated-form compact-ui" : ""}`}>
       {!hideHeaderState && (
         <div className="form-header">
           <h1 className="form-title">Registro de Cabeza de Círculo</h1>

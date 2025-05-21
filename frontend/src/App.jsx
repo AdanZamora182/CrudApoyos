@@ -7,6 +7,7 @@ import CabezaCirculoForm from './components/CabezaCirculo/CabezaCirculoForm';
 import IntegranteCirculoForm from './components/IntegrantesCirculo/IntegranteCirculoForm'; 
 import ApoyoForm from './components/Apoyo/ApoyoForm'; 
 import CabezasCirculoPage from "./components/CabezaCirculo/CabezasCirculoPage";
+import IntegranteCirculoPage from "./components/IntegrantesCirculo/IntegranteCirculoPage";
 
 function App() {
   // Función para verificar si el usuario está autenticado
@@ -40,7 +41,7 @@ function App() {
         >
           <Route path="menu" element={<></>} /> {/* Empty element for home page */}
           <Route path="cabezas-circulo" element={<CabezasCirculoPage />} />
-          <Route path="integrantes-circulo" element={<IntegranteCirculoForm />} />
+          <Route path="integrantes-circulo" element={<IntegranteCirculoPage />} />
           <Route path="apoyos" element={<ApoyoForm />} />
           <Route path="dashboard" element={<div>Dashboard (En construcción)</div>} /> {/* Changed from reportes to dashboard */}
         </Route>

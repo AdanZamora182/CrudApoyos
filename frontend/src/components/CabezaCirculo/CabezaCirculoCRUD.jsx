@@ -10,9 +10,20 @@ const CabezaCirculoCRUD = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [isLoading, setIsLoading] = useState(true);
   
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
+  // Pagination states - update to use unique localStorage key and properly manage page across navigation
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('cabezaCirculoCurrentPage');
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  });
   const [recordsPerPage] = useState(12);
+
+  // Ensure the pagination state is loaded when component mounts and whenever we return to this component
+  useEffect(() => {
+    const savedPage = localStorage.getItem('cabezaCirculoCurrentPage');
+    if (savedPage) {
+      setCurrentPage(parseInt(savedPage, 10));
+    }
+  }, []);
 
   useEffect(() => {
     fetchCabezasCirculo();
@@ -22,8 +33,10 @@ const CabezaCirculoCRUD = () => {
     setIsLoading(true);
     try {
       const response = await buscarCabezasCirculo(""); // Fetch all records
-      setCabezasCirculo(response);
-      setFilteredCabezas(response); // Inicialmente, todos los registros están visibles
+      // Sort records by ID in descending order (newest first)
+      const sortedRecords = response.sort((a, b) => b.id - a.id);
+      setCabezasCirculo(sortedRecords);
+      setFilteredCabezas(sortedRecords); // Inicialmente, todos los registros están visibles
     } catch (error) {
       console.error("Error fetching cabezas de círculo:", error);
       setMessage({ type: "error", text: "Error al cargar los datos." });
@@ -132,7 +145,9 @@ const CabezaCirculoCRUD = () => {
       cabeza.claveElector?.toLowerCase().includes(query)
     );
 
-    setFilteredCabezas(filtered);
+    // Ensure filtered results are also sorted by ID in descending order
+    const sortedFiltered = filtered.sort((a, b) => b.id - a.id);
+    setFilteredCabezas(sortedFiltered);
   };
 
   // Format date for display (YYYY-MM-DD)
@@ -148,26 +163,39 @@ const CabezaCirculoCRUD = () => {
   const currentRecords = filteredCabezas.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(filteredCabezas.length / recordsPerPage);
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // Save current page to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cabezaCirculoCurrentPage', currentPage.toString());
+  }, [currentPage]);
+
+  // Change page with localStorage persistence
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    localStorage.setItem('cabezaCirculoCurrentPage', pageNumber.toString());
+  };
 
   // Go to next page
   const nextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      localStorage.setItem('cabezaCirculoCurrentPage', newPage.toString());
     }
   };
 
   // Go to previous page
   const prevPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      localStorage.setItem('cabezaCirculoCurrentPage', newPage.toString());
     }
   };
 
-  // Reset to first page when search changes
+  // Reset to first page when search changes, but preserve in localStorage
   useEffect(() => {
     setCurrentPage(1);
+    localStorage.setItem('cabezaCirculoCurrentPage', '1');
   }, [searchQuery]);
 
   // Improved page number display logic for pagination
