@@ -19,6 +19,8 @@ function Register() {
   const [captchaToken, setCaptchaToken] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -174,7 +176,7 @@ function Register() {
               <label htmlFor="password">🔐 Contraseña</label>
               <div className="input-group">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password" // El 'name' debe coincidir con la clave en el estado formData
                   value={formData.password}
@@ -183,6 +185,16 @@ function Register() {
                   autoComplete="off"
                   required
                 />
+                <button 
+                  type="button" 
+                  className="password-toggle"
+                  onMouseDown={() => setShowPassword(true)}
+                  onMouseUp={() => setShowPassword(false)}
+                  onMouseLeave={() => setShowPassword(false)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
               </div>
             </div>
 
@@ -190,7 +202,7 @@ function Register() {
               <label htmlFor="confirmPassword">🕵️ Confirmar</label>
               <div className="input-group">
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   name="confirmPassword" // El 'name' debe coincidir con la clave en el estado formData
                   value={formData.confirmPassword}
@@ -199,6 +211,16 @@ function Register() {
                   autoComplete="off"
                   required
                 />
+                <button 
+                  type="button" 
+                  className="password-toggle"
+                  onMouseDown={() => setShowConfirmPassword(true)}
+                  onMouseUp={() => setShowConfirmPassword(false)}
+                  onMouseLeave={() => setShowConfirmPassword(false)}
+                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
               </div>
             </div>
           </div>

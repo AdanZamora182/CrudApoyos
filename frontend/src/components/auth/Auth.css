@@ -127,6 +127,43 @@ input::placeholder {
   color: #aaa;
 }
 
+/* Estilos para el botón de mostrar/ocultar contraseña */
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+  background-color: transparent;
+}
+
+.password-toggle:hover {
+  color: #5c6bc0;
+}
+
+.password-toggle:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle:focus {
+  outline: none;
+}
+
+/* Ajuste para el campo de contraseña para dar espacio al botón */
+.form-group:has(.password-toggle) input {
+  padding-right: 40px;
+}
+
 /* Checkbox */
 .remember-me {
   display: flex;
