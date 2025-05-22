@@ -220,6 +220,128 @@
                 inset -2px -2px 5px rgba(255, 255, 255, 0.5);
   }
   
+  /* Add these styles for the beneficiary section */
+.beneficiary-container {
+  min-height: 220px;  /* Increased from 160px to provide more space */
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-beneficiary-container {
+  flex: 1;
+  margin-top: 15px;
+  min-height: 70px;  /* Minimum height to ensure consistent spacing */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.empty-beneficiary-placeholder {
+  height: 70px;  /* Keep the same height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;  /* Remove the dotted border */
+  border-radius: 5px;
+  background-color: transparent;  /* Make background transparent */
+}
+
+.placeholder-text {
+  color: #aaa;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.selected-beneficiary {
+  background-color: #f3f6ff;
+  border-left: 3px solid var(--primary-color);
+  font-weight: 500;
+}
+
+/* Update search results styles for better display */
+.search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ddd;
+  max-height: 132px; /* Height for exactly 3 items (3 * 44px) */
+  overflow-y: auto;
+  background-color: white;
+  position: absolute;
+  z-index: 1050; /* Increased z-index to ensure dropdown appears on top */
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+.search-result-item {
+  padding: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 44px; /* Fixed height for each item */
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.search-result-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Add styles for the beneficiary edit section */
+.beneficiary-edit-section {
+  min-height: 240px; /* Increased height to show dropdown and selection */
+}
+
+.beneficiary-edit-section .search-results {
+  max-height: 132px; /* Height for exactly 3 items (3 * 44px) */
+  overflow-y: auto;
+}
+
+.beneficiary-edit-section .selected-beneficiary-container {
+  margin-top: 15px;
+  min-height: 70px; /* Space for selected beneficiary */
+}
+
+.beneficiary-edit-section .selected-beneficiary {
+  background-color: #f3f6ff;
+  border-left: 3px solid var(--primary-color);
+  font-weight: 500;
+}
+
+/* Style for select dropdown in edit modal */
+.neumorphic-modal select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: all 0.3s;
+  background-color: white;
+  appearance: auto;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05),
+              inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
+
+.neumorphic-modal .custom-input-container {
+  margin-top: 15px;
+}
+
+.neumorphic-modal .custom-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-top: 10px;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05),
+              inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
+
+/* ...existing code... */
+
   @media (max-width: 768px) {
     .form-container {
       padding: 20px;

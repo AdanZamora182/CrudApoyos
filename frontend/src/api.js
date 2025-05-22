@@ -48,6 +48,17 @@ export const createApoyo = async (datos) => {
   }
 };
 
+// Función para obtener todos los apoyos
+export const getApoyos = async () => {
+  try {
+    const response = await api.get('/apoyos');
+    return response.data;
+  } catch (error) {
+    console.error("Error en getApoyos:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // Función para buscar Cabezas de Círculo por nombre o clave electoral
 export const buscarCabezasCirculo = async (query) => {
   try {
@@ -90,4 +101,14 @@ export const deleteIntegranteCirculo = async (id) => {
 // Actualizar un integrante de círculo
 export const updateIntegranteCirculo = async (id, data) => {
   return await api.put(`/integrantes-circulo/${id}`, data);
+};
+
+// Eliminar un apoyo
+export const deleteApoyo = async (id) => {
+  return await api.delete(`/apoyos/${id}`);
+};
+
+// Actualizar un apoyo
+export const updateApoyo = async (id, data) => {
+  return await api.put(`/apoyos/${id}`, data);
 };

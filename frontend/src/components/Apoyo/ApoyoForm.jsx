@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./ApoyoForm.css";
 import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
 
-const ApoyoForm = () => {
+const ApoyoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
 
   const initialFormState = {
@@ -21,6 +21,7 @@ const ApoyoForm = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search input for beneficiaries
   const [beneficiarios, setBeneficiarios] = useState([]); // Search results
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // Selected beneficiary
+  const [hideHeaderState] = useState(hideHeader); // Control from props
 
   const predefinedOptions = [
     "Tinaco",
@@ -33,7 +34,7 @@ const ApoyoForm = () => {
     "Juguete",
     "Despensa",
     "Oxímetro",
-    "Bau manómetro",
+    "Baumanómetro",
     "Frijol",
     "Ropa",
     "Calzado",
@@ -140,7 +141,7 @@ const ApoyoForm = () => {
     try {
       const apoyoData = {
         cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
-        tipoApoyo: formData.tipoApoyo === "Otro" ? formData.tipoApoyoCustom.trim() : formData.tipoApoyo.trim(),
+        tipoApoyo: formData.tipoApoyo === "Otro" ? formData.tipoApoyo.trim() : formData.tipoApoyo.trim(),
         fechaEntrega: formData.fechaEntrega,
         persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null, // Match "persona" for Persona_id
         cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null, // Match "cabeza" for Cabeza_id
@@ -185,13 +186,12 @@ const ApoyoForm = () => {
   };
 
   return (
-    <div className="form-container">
-      <div className="form-header">
-        <h1 className="form-title">Registro de Apoyo</h1>
-        <button className="back-button" onClick={() => navigate('/menu')}>
-          Volver al Menú
-        </button>
-      </div>
+    <div className={`form-container ${hideHeaderState ? "integrated-form compact-ui" : ""}`}>
+      {!hideHeaderState && (
+        <div className="form-header">
+          <h1 className="form-title">Registro de Apoyo</h1>
+        </div>
+      )}
 
       {message.text && <div className={`form-message form-message-${message.type}`}>{message.text}</div>}
 
@@ -263,44 +263,58 @@ const ApoyoForm = () => {
           </div>
         </div>
 
+        {/* Replace the Asociar Beneficiario section with this fixed-height version */}
         <div className="form-section">
           <h3 className="form-section-title">Asociar Beneficiario</h3>
-          <div className="form-row">
-            <div className="form-col" style={{ position: "relative" }}>
-              <label>Buscar Beneficiario</label>
-              <input
-                type="text"
-                placeholder="Nombre o Clave de Elector"
-                value={searchQuery} // Bind input value to searchQuery state
-                onChange={handleSearchBeneficiarios}
-                autoComplete="off"
-              />
-              <ul className="search-results">
-                {beneficiarios.map((beneficiario) => (
-                  <li
-                    key={`${beneficiario.tipo}-${beneficiario.id}`}
-                    onClick={() => handleSelectBeneficiario(beneficiario)}
-                    className="search-result-item"
-                  >
-                    {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {selectedBeneficiario && (
+          <div className="beneficiary-container">
             <div className="form-row">
-              <div className="form-col">
-                <label>Beneficiario Seleccionado</label>
+              <div className="form-col" style={{ position: "relative" }}>
+                <label>Buscar Beneficiario</label>
                 <input
                   type="text"
-                  value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
-                  readOnly
+                  placeholder="Nombre o Clave de Elector"
+                  value={searchQuery}
+                  onChange={handleSearchBeneficiarios}
+                  autoComplete="off"
                 />
+                {beneficiarios.length > 0 && (
+                  <ul className="search-results">
+                    {beneficiarios.map((beneficiario) => (
+                      <li
+                        key={`${beneficiario.tipo}-${beneficiario.id}`}
+                        onClick={() => handleSelectBeneficiario(beneficiario)}
+                        className="search-result-item"
+                      >
+                        {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
-          )}
-          {errors.beneficiarioId && <span className="error-text">{errors.beneficiarioId}</span>}
+
+            <div className="selected-beneficiary-container">
+              {selectedBeneficiario ? (
+                <div className="form-row">
+                  <div className="form-col">
+                    <label>Beneficiario Seleccionado</label>
+                    <input
+                      type="text"
+                      value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
+                      readOnly
+                      className="selected-beneficiary"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="empty-beneficiary-placeholder">
+                  {/* Removed the placeholder text */}
+                </div>
+              )}
+            </div>
+
+            {errors.beneficiarioId && <span className="error-text">{errors.beneficiarioId}</span>}
+          </div>
         </div>
 
         <div className="form-actions">

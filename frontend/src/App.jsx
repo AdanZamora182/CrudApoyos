@@ -8,6 +8,8 @@ import IntegranteCirculoForm from './components/IntegrantesCirculo/IntegranteCir
 import ApoyoForm from './components/Apoyo/ApoyoForm'; 
 import CabezasCirculoPage from "./components/CabezaCirculo/CabezasCirculoPage";
 import IntegranteCirculoPage from "./components/IntegrantesCirculo/IntegranteCirculoPage";
+import ApoyoPage from './components/Apoyo/ApoyoPage';  // Import the new ApoyoPage component
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
   // Función para verificar si el usuario está autenticado
@@ -42,8 +44,8 @@ function App() {
           <Route path="menu" element={<></>} /> {/* Empty element for home page */}
           <Route path="cabezas-circulo" element={<CabezasCirculoPage />} />
           <Route path="integrantes-circulo" element={<IntegranteCirculoPage />} />
-          <Route path="apoyos" element={<ApoyoForm />} />
-          <Route path="dashboard" element={<div>Dashboard (En construcción)</div>} /> {/* Changed from reportes to dashboard */}
+          <Route path="apoyos" element={<ApoyoPage />} /> 
+          <Route path="dashboard" element={<Dashboard />} /> {/* Add Dashboard component here */}
         </Route>
         
         {/* Redirigir rutas desconocidas y la raíz */}

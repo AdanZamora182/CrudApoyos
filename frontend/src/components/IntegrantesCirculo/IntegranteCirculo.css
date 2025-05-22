@@ -107,13 +107,13 @@
 
 /* Add styles for the leader section to maintain consistent height */
 .leader-section {
-  min-height: 140px; /* This height should accommodate the expanded view */
+  min-height: 180px; /* Increased from 140px to provide more space */
   display: flex;
   flex-direction: column;
 }
 
 .leader-placeholder {
-  height: 70px; /* Approximate height of the leader selection row */
+  height: 90px; /* Increased from 70px to match the increased leader section height */
   margin-top: 12px;
 }
 
@@ -275,11 +275,11 @@ input:focus {
   margin: 0;
   padding: 0;
   border: 1px solid #ddd;
-  max-height: 150px;
+  max-height: 132px; /* Height for 3 items (3 * 44px) */
   overflow-y: auto;
   background-color: white;
   position: absolute; /* Posiciona el <ul> relativo al contenedor */
-  z-index: 1000;
+  z-index: 1050; /* Increased z-index to ensure it appears on top of other elements */
   width: 100%; /* Coincide con el ancho del contenedor relativo */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -291,6 +291,10 @@ input:focus {
   white-space: nowrap; /* Prevent text wrapping */
   overflow: hidden; /* Hide overflowing text */
   text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  height: 44px; /* Fixed height for each item */
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .search-result-item:hover {

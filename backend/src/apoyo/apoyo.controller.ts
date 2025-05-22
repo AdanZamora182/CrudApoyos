@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete, BadRequestException } from '@nestjs/common';
 import { ApoyoService } from './apoyo.service';
 import { Apoyo } from './apoyo.entity';
 
@@ -20,5 +20,20 @@ export class ApoyoController {
   @Get()
   async findAll(): Promise<Apoyo[]> {
     return await this.apoyoService.findAll();
+  }
+  
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Apoyo> {
+    return await this.apoyoService.findOne(id);
+  }
+  
+  @Put(':id')
+  async update(@Param('id', ParseIntPipe) id: number, @Body() apoyoData: Partial<Apoyo>): Promise<Apoyo> {
+    return await this.apoyoService.update(id, apoyoData);
+  }
+  
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return await this.apoyoService.remove(id);
   }
 }

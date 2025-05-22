@@ -131,6 +131,11 @@ const CabezaCirculoCRUD = () => {
     } catch (error) {
       console.error("Error updating record:", error);
       setMessage({ type: "error", text: "Error al actualizar el registro." });
+      
+      // Clear error message after 10 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 10000);
     }
   };
 
