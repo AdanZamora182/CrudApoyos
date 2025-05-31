@@ -6,7 +6,8 @@ async function bootstrap() {
 
   // Habilitar CORS
   app.enableCors({
-    origin: 'http://localhost:5173', // URL del frontend (React con Vite)
+    origin: 'http://support-management-system.s3-website-us-east-1.amazonaws.com', // URL del frontend
+
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   });
