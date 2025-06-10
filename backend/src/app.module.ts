@@ -10,11 +10,11 @@ import { ApoyoModule } from './apoyo/apoyo.module'; // Importar el módulo
   imports: [
     TypeOrmModule.forRoot({
     type: 'mysql',
-    host: 'bd-crud-apoyos.cuxojb4u4gko.us-east-1.rds.amazonaws.com', // Endpoint de RDS
-    port: 3306, // 
+    host: '85.31.224.211', // Endpoint de RDS
+    port: 3308, // 
     username: 'admin',         //  
     password: '2YewJnmTwNf00Up',  // Contraseña Maestra
-    database: 'crudApoyos',    // 
+    database: 'DB-Apoyos',    // 
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: false,        // Lo mantenemos en false para producción
     logging: true,
