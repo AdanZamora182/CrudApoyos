@@ -24,11 +24,20 @@ function Login() {
 
       const timer = setTimeout(() => {
         setSuccessMessage('');
-      }, 10000);
+      }, 8000); // 8 segundos
 
       return () => clearTimeout(timer);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 8000); // 8 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +45,10 @@ function Login() {
       ...formData,
       [name]: value
     });
+  };
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -89,6 +102,7 @@ function Login() {
                 onChange={handleChange}
                 placeholder="Ingresa tu nombre de usuario"
                 required
+                autoComplete="off"
               />
             </div>
           </div>
@@ -104,17 +118,19 @@ function Login() {
                 onChange={handleChange}
                 placeholder="Ingresa tu contraseña"
                 required
+                className="form-control"
               />
-              <button 
-                type="button" 
-                className="password-toggle"
-                onMouseDown={() => setShowPassword(true)}
-                onMouseUp={() => setShowPassword(false)}
-                onMouseLeave={() => setShowPassword(false)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
-              </button>
+              <div className="input-group-append">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={handleTogglePassword}
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -126,12 +142,22 @@ function Login() {
             </label>
           </div>
 
-          <button 
-            type="submit" 
-            className="auth-button" 
+          <button
+            type="submit"
+            className="auth-button d-flex align-items-center justify-content-center"
             disabled={loading}
           >
-            {loading ? 'Cargando...' : '🚪 Iniciar Sesión'}
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Cargando...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-box-arrow-in-right me-2"></i>
+                Iniciar Sesión
+              </>
+            )}
           </button>
         </form>
 
@@ -144,3 +170,4 @@ function Login() {
 }
 
 export default Login;
+

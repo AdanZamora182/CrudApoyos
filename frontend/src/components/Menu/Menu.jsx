@@ -72,17 +72,17 @@ function Menu() {
 
   // Add a compact UI class to the main layout
   return (
-    <div className="layout compact-ui">
-      <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
+    <div className="layout responsive-layout">
+      <div className={`sidebar responsive-sidebar ${collapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header responsive-sidebar-header">
           <img 
             src={logoApoyos} 
             alt="Logo Apoyos" 
-            className="sidebar-logo" 
+            className="sidebar-logo responsive-sidebar-logo" 
             onClick={toggleSidebar} 
             title={collapsed ? "Expandir menú" : "Colapsar menú"}
           />
-          {!collapsed && <h2 className="system-title">Sistema de Gestión</h2>}
+          {!collapsed && <h2 className="system-title responsive-system-title">Sistema de Gestión</h2>}
         </div>
         
         <div className="sidebar-menu">
@@ -128,64 +128,77 @@ function Menu() {
         </div>
         
         {/* Footer with user info and logout */}
-        <div className="sidebar-footer">
+        <div className="sidebar-footer responsive-sidebar-footer">
           {!collapsed && (
-            <div className="user-info">
-              <span className="user-name">{user.nombre}</span>
-              <span className="user-role">Administrador</span>
+            <div className="user-info responsive-user-info">
+              <span className="user-name responsive-user-name">{user.nombre}</span>
+              <span className="user-role responsive-user-role">Administrador</span>
             </div>
           )}
           
           <div 
-            className="menu-item logout"
+            className="menu-item logout responsive-logout"
             onClick={handleLogout}
           >
-            <span className="menu-icon">🚪</span>
-            {!collapsed && <span className="menu-text">Cerrar Sesión</span>}
+            <span className="menu-icon responsive-menu-icon">
+              <i className="bi bi-box-arrow-right"></i>
+            </span>
+            {!collapsed && <span className="menu-text responsive-menu-text">Cerrar Sesión</span>}
           </div>
         </div>
       </div>
       
-      <div className={`main-content ${collapsed ? 'expanded' : ''}`}>
-        <div className="content-header">
-          <h1>{title}</h1>
-          <div className="user-welcome">
-            Bienvenido, {user.nombre}
+      <div className={`main-content responsive-main-content ${collapsed ? 'expanded' : ''}`}>
+        <div className="content-header responsive-content-header">
+          <h1 className="responsive-title">{title}</h1>
+          <div className="user-welcome responsive-user-welcome">
+            Bienvenid@, {user.nombre}
           </div>
         </div>
         
-        <div className="content-body">
+        <div className="content-body responsive-content-body">
           {location.pathname === '/menu' ? (
-            <div className="home-section"> {/* Changed from dashboard to home-section */}
-              <div className="welcome-banner"> {/* Changed from dashboard-welcome to welcome-banner */}
+            <div className="home-section responsive-home-section">
+              <div className="welcome-banner responsive-welcome-banner">
                 <h2>Bienvenido al Sistema de Gestión de Apoyos</h2>
                 <p>Seleccione una opción del menú lateral para comenzar a trabajar.</p>
               </div>
               
-              <div className="quick-access-cards"> {/* Changed from dashboard-cards to quick-access-cards */}
-                <div className="access-card" onClick={() => navigateToPage('/cabezas-circulo')}>
-                  <div className="card-icon">👥</div>
+              <div className="quick-access-cards responsive-quick-access-cards">
+                <div className="access-card responsive-access-card" onClick={() => navigateToPage('/cabezas-circulo')}>
+                  <div className="card-icon responsive-card-icon">👥</div>
                   <h3>Cabezas de Círculo</h3>
                   <p>Gestiona los representantes de los beneficiarios</p>
                 </div>
                 
-                <div className="access-card" onClick={() => navigateToPage('/integrantes-circulo')}>
-                  <div className="card-icon">👪</div>
+                <div className="access-card responsive-access-card" onClick={() => navigateToPage('/integrantes-circulo')}>
+                  <div className="card-icon responsive-card-icon">👪</div>
                   <h3>Integrantes de Círculo</h3>
                   <p>Gestiona los beneficiarios de los apoyos</p>
                 </div>
                 
-                <div className="access-card" onClick={() => navigateToPage('/apoyos')}>
-                  <div className="card-icon">🎁</div>
+                <div className="access-card responsive-access-card" onClick={() => navigateToPage('/apoyos')}>
+                  <div className="card-icon responsive-card-icon">🎁</div>
                   <h3>Apoyos</h3>
                   <p>Gestiona los apoyos entregados a beneficiarios</p>
                 </div>
                 
-                <div className="access-card" onClick={() => navigateToPage('/dashboard')}>
-                  <div className="card-icon">📊</div>
+                <div className="access-card responsive-access-card" onClick={() => navigateToPage('/dashboard')}>
+                  <div className="card-icon responsive-card-icon">📊</div>
                   <h3>Dashboard</h3>
                   <p>Visualiza estadísticas y métricas del sistema</p>
                 </div>
+              </div>
+              
+              {/* Add a logout button in the "Inicio" section */}
+              <div className="logout-section">
+                <button 
+                  className="btn btn-danger logout-button responsive-logout-button" 
+                  onClick={handleLogout}
+                >
+                  <i className="bi bi-box-arrow-right me-2"></i>
+                  Cerrar Sesión
+                </button>
               </div>
             </div>
           ) : (

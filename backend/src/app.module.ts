@@ -1,29 +1,37 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HttpModule } from '@nestjs/axios'; 
+import { HttpModule } from '@nestjs/axios';
+import { ConfigModule, ConfigService } from '@nestjs/config'; // Importar ConfigModule y ConfigService
 import { UsuarioModule } from './usuario/usuario.module';
-import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module'; // Importar el módulo
+import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module';
 import { IntegranteCirculoModule } from './integrante-circulo/integrante-circulo.module';
-import { ApoyoModule } from './apoyo/apoyo.module'; // Importar el módulo
+import { ApoyoModule } from './apoyo/apoyo.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-    type: 'mysql',
-    host: '85.31.224.211', // Endpoint de RDS
-    port: 3308, // 
-    username: 'admin',         //  
-    password: '2YewJnmTwNf00Up',  // Contraseña Maestra
-    database: 'DB-Apoyos',    // 
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    synchronize: false,        // Lo mantenemos en false para producción
-    logging: true,
-  }),
-    HttpModule, // Registrar HttpModule
-    UsuarioModule,  // Registrar el módulo
+    ConfigModule.forRoot({
+      isGlobal: true, // Hace que las variables estén disponibles en toda la app
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'mysql',
+        host: config.get<string>('DB_HOST'),
+        port: parseInt(config.get<string>('DB_PORT'), 10),
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASS'),
+        database: config.get<string>('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: false,
+        logging: true,
+      }),
+    }),
+    HttpModule,
+    UsuarioModule,
     CabezaCirculoModule,
-    IntegranteCirculoModule, // Registrar el módulo
-    ApoyoModule, // Registrar el módulo aquí
+    IntegranteCirculoModule,
+    ApoyoModule,
   ],
 })
 export class AppModule {}

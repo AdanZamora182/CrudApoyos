@@ -26,8 +26,8 @@ html, body {
 .auth-card,
 .register-card {
   width: 100%;
-  max-width: 400px;
-  padding: 40px;
+  max-width: 350px;
+  padding: 28px;
   background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -57,111 +57,123 @@ html, body {
 }
 
 .apoyos-logo {
-  height: 80px;
-  margin-bottom: 15px;
+  height: 56px;
+  margin-bottom: 10px;
 }
 
 .title {
   margin: 0;
   color: #333;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
 }
 
 .auth-subtitle {
   color: #666;
-  font-size: 15px;
-  margin-bottom: 25px;
+  font-size: 13px;
+  margin-bottom: 18px;
 }
 
 /* Grupos de formulario */
 .form-group {
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-weight: 500;
   color: #444;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .input-group {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   margin-bottom: 10px;
-}
-
-.input-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-  font-size: 20px;
-  z-index: 1;
-  pointer-events: none;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.8);
-}
-
-input {
   width: 100%;
-  padding: 14px 14px 14px 45px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background-color: rgba(255, 255, 255, 0.7);
 }
 
-input:focus {
+/* Estilos para inputs en input-group */
+.input-group .form-control {
+  flex: 1;
+  border-radius: 6px !important; /* Fuerza el borde redondeado en todos los lados */
+  padding: 9px 40px 9px 12px;
+  font-size: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.input-group .form-control:focus {
   border-color: #5c6bc0;
   box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.15);
   outline: none;
   background-color: rgba(255, 255, 255, 0.9);
 }
 
-input::placeholder {
-  color: #aaa;
+/* Inputs sin botón (mantener estilo original pero ajustar padding) */
+.input-group input:not(.form-control) {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
-/* Estilos para el botón de mostrar/ocultar contraseña */
-.password-toggle {
+.input-group input:not(.form-control):focus {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.15);
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Posicionar el botón como overlay absoluto */
+.input-group-append {
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #666;
-  padding: 5px;
+  z-index: 10;
+  pointer-events: all;
+}
+
+.input-group-append .btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 2;
-  background-color: transparent;
+  border-radius: 4px;
+  pointer-events: all;
+  cursor: pointer;
 }
 
-.password-toggle:hover {
-  color: #5c6bc0;
-}
-
-.password-toggle:active {
-  transform: translateY(-50%) scale(0.95);
-}
-
-.password-toggle:focus {
+.input-group-append .btn:focus {
+  background: transparent !important;
+  box-shadow: none;
   outline: none;
 }
 
-/* Ajuste para el campo de contraseña para dar espacio al botón */
-.form-group:has(.password-toggle) input {
-  padding-right: 40px;
+.input-group-append .btn:hover {
+  background: transparent !important;
+}
+
+.input-group-append .btn i {
+  font-size: 0.9rem;
+  color: #5c6bc0;
+  pointer-events: none;
+}
+
+.input-group-append .btn:hover i {
+  color: #4a5ba8;
 }
 
 /* Checkbox */
@@ -174,7 +186,7 @@ input::placeholder {
 .checkbox-container {
   display: flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 13px;
   color: #555;
   cursor: pointer;
 }
@@ -188,12 +200,12 @@ input::placeholder {
 /* Botón */
 .auth-button {
   width: 100%;
-  padding: 14px 18px;
-  background: linear-gradient(90deg, #5c6bc0, #26c6da);
+  padding: 10px 12px;
+  background: linear-gradient(90deg, #5c6bc0, #26c6da); /* Color consistente para ambos botones */
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -201,7 +213,7 @@ input::placeholder {
 }
 
 .auth-button:hover {
-  background: linear-gradient(90deg, #4a5ba8, #1eafc0);
+  background: linear-gradient(90deg, #4a5ba8, #1eafc0); /* Hover consistente */
   transform: translateY(-2px);
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
@@ -220,10 +232,10 @@ input::placeholder {
 /* Mensajes */
 .error-message,
 .success-message {
-  padding: 12px;
+  padding: 8px;
   border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
   display: flex;
   align-items: center;
 }
@@ -254,9 +266,9 @@ input::placeholder {
 
 /* Footer */
 .auth-footer {
-  margin-top: 30px;
+  margin-top: 18px;
   text-align: center;
-  font-size: 15px;
+  font-size: 13px;
   color: #555;
 }
 
@@ -274,12 +286,12 @@ input::placeholder {
 
 /* Formulario de registro */
 .register-card {
-  max-width: 800px;
+  max-width: 650px;
 }
 
 .register-form .form-row {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -289,7 +301,7 @@ input::placeholder {
 }
 
 .register-form .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .register-form input {
@@ -324,18 +336,52 @@ input::placeholder {
   }
 
   .register-card {
-    max-width: 400px;
+    max-width: 350px;
   }
 }
 
 @media (max-width: 600px) {
   .auth-container {
-    padding: 15px;
+    padding: 8px;
   }
 
   .auth-card,
   .register-card {
-    padding: 25px;
+    padding: 14px;
+  }
+}
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .register-form .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .register-card {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-container {
+    padding: 8px;
+  }
+
+  .auth-card,
+  .register-card {
+    padding: 14px;
   }
 }
 

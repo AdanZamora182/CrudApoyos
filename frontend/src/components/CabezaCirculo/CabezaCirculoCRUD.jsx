@@ -315,17 +315,17 @@ const CabezaCirculoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container full-screen">
-      <div className="neumorphic-controls">
-        <div className="neumorphic-search">
+    <div className="neumorphic-crud-container reduced-container">
+      <div className="neumorphic-controls reduced-controls">
+        <div className="neumorphic-search reduced-search">
           <input
             type="text"
             placeholder="Buscar por Nombre o Clave de Elector..."
             value={searchQuery}
             onChange={handleSearch}
-            className="neumorphic-input search-input"
+            className="neumorphic-input search-input reduced-input"
           />
-          <span className="search-icon">🔍</span>
+          <span className="search-icon reduced-icon">🔍</span>
         </div>
 
         {/* New position for messages */}
@@ -351,12 +351,12 @@ const CabezaCirculoCRUD = () => {
         </div>
       ) : (
         <>
-          <div className="neumorphic-table-container full-width">
-            <table className="neumorphic-table">
+          <div className="neumorphic-table-container reduced-table-container">
+            <table className="neumorphic-table reduced-table">
               <thead>
                 <tr>
-                  <th className="fixed-column">Acciones</th>
-                  <th className="col-name">Nombre</th>
+                  <th className="fixed-column reduced-column">Acciones</th>
+                  <th className="reduced-column">Nombre</th>
                   <th className="col-apellido">Apellido Paterno</th>
                   <th className="col-apellido">Apellido Materno</th>
                   <th className="col-date">Fecha de Nacimiento</th>
@@ -377,24 +377,24 @@ const CabezaCirculoCRUD = () => {
               </thead>
               <tbody>
                 {currentRecords.map((cabeza) => (
-                  <tr key={cabeza.id}>
-                    <td className="fixed-column action-column">
+                  <tr key={cabeza.id} className="reduced-row">
+                    <td className="fixed-column action-column reduced-action-column">
                       <button 
-                        className="action-button edit" 
+                        className="action-button edit reduced-button" 
                         onClick={() => handleEdit(cabeza)}
                         title="Editar"
                       >
                         ✏️
                       </button>
                       <button 
-                        className="action-button delete" 
+                        className="action-button delete reduced-button" 
                         onClick={() => handleDelete(cabeza.id)}
                         title="Eliminar"
                       >
                         🗑️
                       </button>
                     </td>
-                    <td>{cabeza.nombre}</td>
+                    <td className="reduced-cell">{cabeza.nombre}</td>
                     <td>{cabeza.apellidoPaterno}</td>
                     <td>{cabeza.apellidoMaterno}</td>
                     <td>{formatDate(cabeza.fechaNacimiento)}</td>
@@ -418,29 +418,29 @@ const CabezaCirculoCRUD = () => {
           </div>
           
           {/* Pagination */}
-          <div className="pagination-container">
-            <div className="pagination-info">
+          <div className="pagination-container responsive-pagination-container">
+            <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredCabezas.length)} de {filteredCabezas.length} registros
             </div>
-            <div className="pagination-controls">
+            <div className="pagination-controls responsive-pagination-controls">
               <button 
                 onClick={prevPage} 
                 disabled={currentPage === 1} 
-                className="pagination-button"
+                className="pagination-button responsive-pagination-button"
                 title="Página anterior"
               >
                 ◀
               </button>
               
               {/* Show page numbers */}
-              <div className="page-numbers">
+              <div className="page-numbers responsive-page-numbers">
                 {renderPageNumbers()}
               </div>
               
               <button 
                 onClick={nextPage} 
                 disabled={currentPage === totalPages} 
-                className="pagination-button"
+                className="pagination-button responsive-pagination-button"
                 title="Página siguiente"
               >
                 ▶

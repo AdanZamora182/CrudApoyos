@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ReCAPTCHA from 'react-google-recaptcha'; // Importar reCAPTCHA
+import ReCAPTCHA from 'react-google-recaptcha';
 import './Auth.css';
-import { registrarUsuario } from '../../api'; //
+import { registrarUsuario } from '../../api';
 
 import logoApoyos from '../../assets/logoApoyos.png';
 
@@ -27,7 +27,7 @@ function Register() {
     if (error) {
       const timer = setTimeout(() => {
         setError('');
-      }, 10000);
+      }, 8000); // 8 segundos
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -178,23 +178,24 @@ function Register() {
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
-                  name="password" // El 'name' debe coincidir con la clave en el estado formData
+                  name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Contraseña"
                   autoComplete="off"
                   required
+                  className="form-control"
                 />
-                <button 
-                  type="button" 
-                  className="password-toggle"
-                  onMouseDown={() => setShowPassword(true)}
-                  onMouseUp={() => setShowPassword(false)}
-                  onMouseLeave={() => setShowPassword(false)}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
-                </button>
+                <div className="input-group-append">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -204,23 +205,24 @@ function Register() {
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
-                  name="confirmPassword" // El 'name' debe coincidir con la clave en el estado formData
+                  name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirmar contraseña"
                   autoComplete="off"
                   required
+                  className="form-control"
                 />
-                <button 
-                  type="button" 
-                  className="password-toggle"
-                  onMouseDown={() => setShowConfirmPassword(true)}
-                  onMouseUp={() => setShowConfirmPassword(false)}
-                  onMouseLeave={() => setShowConfirmPassword(false)}
-                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                >
-                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
-                </button>
+                <div className="input-group-append">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -248,8 +250,22 @@ function Register() {
             />
           </div>
 
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Registrando...' : 'Crear Cuenta'}
+          <button
+            type="submit"
+            className="auth-button d-flex align-items-center justify-content-center"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Registrando...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-person-plus-fill me-2"></i>
+                Crear Cuenta
+              </>
+            )}
           </button>
         </form>
 

@@ -405,17 +405,17 @@ const ApoyoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container full-screen">
-      <div className="neumorphic-controls">
-        <div className="neumorphic-search">
+    <div className="neumorphic-crud-container responsive-container">
+      <div className="neumorphic-controls responsive-controls">
+        <div className="neumorphic-search responsive-search">
           <input
             type="text"
             placeholder="Buscar por Tipo de Apoyo o Beneficiario..."
             value={searchQuery}
             onChange={handleSearch}
-            className="neumorphic-input search-input"
+            className="neumorphic-input search-input responsive-input"
           />
-          <span className="search-icon">🔍</span>
+          <span className="search-icon responsive-icon">🔍</span>
         </div>
 
         {/* Message display */}
@@ -441,14 +441,14 @@ const ApoyoCRUD = () => {
         </div>
       ) : (
         <>
-          <div className="neumorphic-table-container full-width">
-            <table className="neumorphic-table">
+          <div className="neumorphic-table-container responsive-table-container">
+            <table className="neumorphic-table responsive-table">
               <thead>
                 <tr>
-                  <th className="fixed-column">Acciones</th>
-                  <th>Tipo de Apoyo</th>
-                  <th>Cantidad</th>
-                  <th>Fecha de Entrega</th>
+                  <th className="fixed-column responsive-column">Acciones</th>
+                  <th className="responsive-column">Tipo de Apoyo</th>
+                  <th> cantidad</th>
+                  <th>fecha de entrega</th>
                   <th>Beneficiario</th>
                   <th>Tipo de Beneficiario</th>
                   <th>Clave de Elector</th>
@@ -462,31 +462,31 @@ const ApoyoCRUD = () => {
               </thead>
               <tbody>
                 {currentRecords.map((apoyo) => (
-                  <tr key={apoyo.id}>
-                    <td className="fixed-column action-column">
+                  <tr key={apoyo.id} className="responsive-row">
+                    <td className="fixed-column action-column responsive-action-column">
                       <button 
-                        className="action-button view" 
+                        className="action-button view responsive-button" 
                         onClick={() => handleViewDetails(apoyo)}
                         title="Ver Detalles"
                       >
                         👁️
                       </button>
                       <button 
-                        className="action-button edit" 
+                        className="action-button edit responsive-button" 
                         onClick={() => handleEdit(apoyo)}
                         title="Editar"
                       >
                         ✏️
                       </button>
                       <button 
-                        className="action-button delete" 
+                        className="action-button delete responsive-button" 
                         onClick={() => handleDelete(apoyo.id)}
                         title="Eliminar"
                       >
                         🗑️
                       </button>
                     </td>
-                    <td>{apoyo.tipoApoyo}</td>
+                    <td className="responsive-cell">{apoyo.tipoApoyo}</td>
                     <td>{apoyo.cantidad}</td>
                     <td>{formatDate(apoyo.fechaEntrega)}</td>
                     <td>
@@ -559,29 +559,29 @@ const ApoyoCRUD = () => {
           </div>
           
           {/* Pagination controls */}
-          <div className="pagination-container">
-            <div className="pagination-info">
+          <div className="pagination-container responsive-pagination-container">
+            <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredApoyos.length)} de {filteredApoyos.length} apoyos
             </div>
-            <div className="pagination-controls">
+            <div className="pagination-controls responsive-pagination-controls">
               <button 
                 onClick={prevPage} 
                 disabled={currentPage === 1} 
-                className="pagination-button"
+                className="pagination-button responsive-pagination-button"
                 title="Página anterior"
               >
                 ◀
               </button>
               
               {/* Show page numbers */}
-              <div className="page-numbers">
+              <div className="page-numbers responsive-page-numbers">
                 {renderPageNumbers()}
               </div>
               
               <button 
                 onClick={nextPage} 
                 disabled={currentPage === totalPages} 
-                className="pagination-button"
+                className="pagination-button responsive-pagination-button"
                 title="Página siguiente"
               >
                 ▶

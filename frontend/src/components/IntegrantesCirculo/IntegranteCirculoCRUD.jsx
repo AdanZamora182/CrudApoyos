@@ -364,17 +364,17 @@ const IntegranteCirculoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container full-screen">
-      <div className="neumorphic-controls">
-        <div className="neumorphic-search">
+    <div className="neumorphic-crud-container responsive-container">
+      <div className="neumorphic-controls responsive-controls">
+        <div className="neumorphic-search responsive-search">
           <input
             type="text"
             placeholder="Buscar por Nombre o Clave de Elector..."
             value={searchQuery}
             onChange={handleSearch}
-            className="neumorphic-input search-input"
+            className="neumorphic-input search-input responsive-input"
           />
-          <span className="search-icon">🔍</span>
+          <span className="search-icon responsive-icon">🔍</span>
         </div>
 
         {/* New position for messages */}
@@ -400,12 +400,12 @@ const IntegranteCirculoCRUD = () => {
         </div>
       ) : (
         <>
-          <div className="neumorphic-table-container full-width">
-            <table className="neumorphic-table">
+          <div className="neumorphic-table-container responsive-table-container">
+            <table className="neumorphic-table responsive-table">
               <thead>
                 <tr>
-                  <th className="fixed-column">Acciones</th>
-                  <th className="col-name">Nombre</th>
+                  <th className="fixed-column responsive-column">Acciones</th>
+                  <th className="col-name responsive-column">Nombre</th>
                   <th className="col-apellido">Apellido Paterno</th>
                   <th className="col-apellido">Apellido Materno</th>
                   <th className="col-date">Fecha de Nacimiento</th>
@@ -422,31 +422,31 @@ const IntegranteCirculoCRUD = () => {
               </thead>
               <tbody>
                 {currentRecords.map((integrante) => (
-                  <tr key={integrante.id}>
-                    <td className="fixed-column action-column">
+                  <tr key={integrante.id} className="responsive-row">
+                    <td className="fixed-column action-column responsive-action-column">
                       <button 
-                        className="action-button view" 
+                        className="action-button view responsive-button" 
                         onClick={() => handleViewDetails(integrante)}
                         title="Ver Detalles"
                       >
                         👁️
                       </button>
                       <button 
-                        className="action-button edit" 
+                        className="action-button edit responsive-button" 
                         onClick={() => handleEdit(integrante)}
                         title="Editar"
                       >
                         ✏️
                       </button>
                       <button 
-                        className="action-button delete" 
+                        className="action-button delete responsive-button" 
                         onClick={() => handleDelete(integrante.id)}
                         title="Eliminar"
                       >
                         🗑️
                       </button>
                     </td>
-                    <td>{integrante.nombre}</td>
+                    <td className="responsive-cell">{integrante.nombre}</td>
                     <td>{integrante.apellidoPaterno}</td>
                     <td>{integrante.apellidoMaterno}</td>
                     <td>{formatDate(integrante.fechaNacimiento)}</td>
@@ -474,29 +474,29 @@ const IntegranteCirculoCRUD = () => {
           </div>
           
           {/* Pagination */}
-          <div className="pagination-container">
-            <div className="pagination-info">
+          <div className="pagination-container responsive-pagination-container">
+            <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredIntegrantes.length)} de {filteredIntegrantes.length} registros
             </div>
-            <div className="pagination-controls">
+            <div className="pagination-controls responsive-pagination-controls">
               <button 
                 onClick={prevPage} 
                 disabled={currentPage === 1} 
-                className="pagination-button"
+                className="pagination-button responsive-pagination-button"
                 title="Página anterior"
               >
                 ◀
               </button>
               
               {/* Show page numbers */}
-              <div className="page-numbers">
+              <div className="page-numbers responsive-page-numbers">
                 {renderPageNumbers()}
               </div>
               
               <button 
                 onClick={nextPage} 
                 disabled={currentPage === totalPages} 
-                className="pagination-button"
+                className="pagination-button responsive-pagination-button"
                 title="Página siguiente"
               >
                 ▶

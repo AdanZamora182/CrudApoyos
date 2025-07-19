@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ApoyoForm from "./ApoyoForm";
-import ApoyoCRUD from "./ApoyoCRUD";
+import ApoyoCRUD from "./ApoyoCrud";
 import { useNavigate } from "react-router-dom";
 import "./ApoyoForm.css";
 
