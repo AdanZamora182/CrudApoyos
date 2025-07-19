@@ -384,14 +384,14 @@ const CabezaCirculoCRUD = () => {
                         onClick={() => handleEdit(cabeza)}
                         title="Editar"
                       >
-                        ✏️
+                        <i className="bi bi-pencil-square"></i>
                       </button>
                       <button 
                         className="action-button delete reduced-button" 
                         onClick={() => handleDelete(cabeza.id)}
                         title="Eliminar"
                       >
-                        🗑️
+                        <i className="bi bi-trash3"></i>
                       </button>
                     </td>
                     <td className="reduced-cell">{cabeza.nombre}</td>
@@ -459,7 +459,7 @@ const CabezaCirculoCRUD = () => {
                 className="neumorphic-button icon-button small close" 
                 onClick={() => setSelectedCabeza(null)}
               >
-                ❌
+                <i className="bi bi-x-lg"></i>
               </button>
             </div>
             <form
@@ -678,10 +678,10 @@ const CabezaCirculoCRUD = () => {
 
               <div className="form-actions">
                 <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedCabeza(null)}>
-                  ❌ Cancelar
+                  <i className="bi bi-x-circle me-2"></i>Cancelar
                 </button>
                 <button type="submit" className="neumorphic-button primary">
-                  💾 Guardar Cambios
+                  <i className="bi bi-floppy me-2"></i>Guardar Cambios
                 </button>
               </div>
             </form>
