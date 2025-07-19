@@ -469,21 +469,21 @@ const ApoyoCRUD = () => {
                         onClick={() => handleViewDetails(apoyo)}
                         title="Ver Detalles"
                       >
-                        👁️
+                        <i className="bi bi-eye"></i>
                       </button>
                       <button 
                         className="action-button edit responsive-button" 
                         onClick={() => handleEdit(apoyo)}
                         title="Editar"
                       >
-                        ✏️
+                        <i className="bi bi-pencil-square"></i>
                       </button>
                       <button 
                         className="action-button delete responsive-button" 
                         onClick={() => handleDelete(apoyo.id)}
                         title="Eliminar"
                       >
-                        🗑️
+                        <i className="bi bi-trash3"></i>
                       </button>
                     </td>
                     <td className="responsive-cell">{apoyo.tipoApoyo}</td>
@@ -601,7 +601,7 @@ const ApoyoCRUD = () => {
                 className="neumorphic-button icon-button small close" 
                 onClick={() => setSelectedApoyo(null)}
               >
-                ❌
+                <i className="bi bi-x-lg"></i>
               </button>
             </div>
             <form
@@ -731,10 +731,10 @@ const ApoyoCRUD = () => {
               
               <div className="form-actions">
                 <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedApoyo(null)}>
-                  Cancelar
+                  <i className="bi bi-x-circle me-2"></i>Cancelar
                 </button>
                 <button type="submit" className="neumorphic-button primary">
-                  Guardar Cambios
+                  <i className="bi bi-floppy me-2"></i>Guardar Cambios
                 </button>
               </div>
             </form>
@@ -752,7 +752,7 @@ const ApoyoCRUD = () => {
                 className="neumorphic-button icon-button small close" 
                 onClick={() => setViewDetailsApoyo(null)}
               >
-                ❌
+                <i className="bi bi-x-lg"></i>
               </button>
             </div>
             
@@ -890,7 +890,7 @@ const ApoyoCRUD = () => {
                   className="neumorphic-button cancel" 
                   onClick={() => setViewDetailsApoyo(null)}
                 >
-                  Cerrar
+                  <i className="bi bi-check-circle me-2"></i>Cerrar
                 </button>
               </div>
             </div>

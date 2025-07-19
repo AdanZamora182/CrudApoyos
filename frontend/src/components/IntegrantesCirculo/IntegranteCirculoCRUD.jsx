@@ -425,25 +425,25 @@ const IntegranteCirculoCRUD = () => {
                   <tr key={integrante.id} className="responsive-row">
                     <td className="fixed-column action-column responsive-action-column">
                       <button 
-                        className="action-button view responsive-button" 
+                        className="action-button view responsive-button"
                         onClick={() => handleViewDetails(integrante)}
                         title="Ver Detalles"
                       >
-                        👁️
+                        <i className="bi bi-eye"></i>
                       </button>
                       <button 
-                        className="action-button edit responsive-button" 
+                        className="action-button edit responsive-button"
                         onClick={() => handleEdit(integrante)}
                         title="Editar"
                       >
-                        ✏️
+                        <i className="bi bi-pencil-square"></i>
                       </button>
                       <button 
-                        className="action-button delete responsive-button" 
+                        className="action-button delete responsive-button"
                         onClick={() => handleDelete(integrante.id)}
                         title="Eliminar"
                       >
-                        🗑️
+                        <i className="bi bi-trash3"></i>
                       </button>
                     </td>
                     <td className="responsive-cell">{integrante.nombre}</td>
@@ -515,7 +515,7 @@ const IntegranteCirculoCRUD = () => {
                 className="neumorphic-button icon-button small close" 
                 onClick={() => setSelectedIntegrante(null)}
               >
-                ❌
+                <i className="bi bi-x-lg"></i>
               </button>
             </div>
             <form
@@ -726,10 +726,10 @@ const IntegranteCirculoCRUD = () => {
 
               <div className="form-actions">
                 <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedIntegrante(null)}>
-                  ❌ Cancelar
+                  <i className="bi bi-x-circle me-2"></i>Cancelar
                 </button>
                 <button type="submit" className="neumorphic-button primary">
-                  💾 Guardar Cambios
+                  <i className="bi bi-floppy me-2"></i>Guardar Cambios
                 </button>
               </div>
             </form>
@@ -747,7 +747,7 @@ const IntegranteCirculoCRUD = () => {
                 className="neumorphic-button icon-button small close" 
                 onClick={() => setViewDetailsIntegrante(null)}
               >
-                ❌
+                <i className="bi bi-x-lg"></i>
               </button>
             </div>
             
@@ -849,7 +849,7 @@ const IntegranteCirculoCRUD = () => {
                   className="neumorphic-button primary" 
                   onClick={() => setViewDetailsIntegrante(null)}
                 >
-                  Cerrar
+                  <i className="bi bi-check-circle me-2"></i>Cerrar
                 </button>
               </div>
             </div>

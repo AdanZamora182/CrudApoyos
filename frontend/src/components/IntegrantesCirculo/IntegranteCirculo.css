@@ -440,6 +440,7 @@ input:focus {
   text-overflow: ellipsis;
   max-width: 200px;
   font-size: 0.85rem;
+  height: auto; /* Permitir altura automática */
 }
 
 /* Action buttons */
@@ -480,28 +481,56 @@ input:focus {
 }
 
 .action-button.edit {
-  color: var(--primary-color);
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .action-button.edit:hover {
-  background-color: rgba(92, 107, 192, 0.07);
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .action-button.delete {
-  color: var(--danger-color);
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .action-button.delete:hover {
-  background-color: rgba(244, 67, 54, 0.07);
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Add styles for the "view" action button */
 .action-button.view {
-  color: var(--secondary-color);
+  background: linear-gradient(135deg, #0dcaf0, #0a95a0);
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(13, 202, 240, 0.1);
 }
 
 .action-button.view:hover {
-  background-color: rgba(38, 198, 218, 0.07);
+  background: linear-gradient(135deg, #0a95a0, #0dcaf0);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(13, 202, 240, 0.15);
+}
+
+.action-button i {
+  font-size: 14px;
+  color: white;
 }
 
 /* Loader */
