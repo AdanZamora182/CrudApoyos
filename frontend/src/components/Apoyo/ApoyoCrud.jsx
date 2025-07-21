@@ -445,7 +445,6 @@ const ApoyoCRUD = () => {
             <table className="neumorphic-table responsive-table">
               <thead>
                 <tr>
-                  <th className="fixed-column responsive-column">Acciones</th>
                   <th className="responsive-column">Tipo de Apoyo</th>
                   <th> cantidad</th>
                   <th>fecha de entrega</th>
@@ -458,34 +457,12 @@ const ApoyoCRUD = () => {
                   <th>No. Interior</th>
                   <th>Colonia</th>
                   <th>Código Postal</th>
+                  <th className="fixed-column responsive-column">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {currentRecords.map((apoyo) => (
                   <tr key={apoyo.id} className="responsive-row">
-                    <td className="fixed-column action-column responsive-action-column">
-                      <button 
-                        className="action-button view responsive-button" 
-                        onClick={() => handleViewDetails(apoyo)}
-                        title="Ver Detalles"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                      <button 
-                        className="action-button edit responsive-button" 
-                        onClick={() => handleEdit(apoyo)}
-                        title="Editar"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button 
-                        className="action-button delete responsive-button" 
-                        onClick={() => handleDelete(apoyo.id)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
                     <td className="responsive-cell">{apoyo.tipoApoyo}</td>
                     <td>{apoyo.cantidad}</td>
                     <td>{formatDate(apoyo.fechaEntrega)}</td>
@@ -551,6 +528,29 @@ const ApoyoCRUD = () => {
                         : apoyo.cabeza 
                           ? apoyo.cabeza.codigoPostal 
                           : "-"}
+                    </td>
+                    <td className="fixed-column action-column responsive-action-column">
+                      <button 
+                        className="action-button view responsive-button" 
+                        onClick={() => handleViewDetails(apoyo)}
+                        title="Ver Detalles"
+                      >
+                        <i className="bi bi-eye"></i>
+                      </button>
+                      <button 
+                        className="action-button edit responsive-button" 
+                        onClick={() => handleEdit(apoyo)}
+                        title="Editar"
+                      >
+                        <i className="bi bi-pencil-square"></i>
+                      </button>
+                      <button 
+                        className="action-button delete responsive-button" 
+                        onClick={() => handleDelete(apoyo.id)}
+                        title="Eliminar"
+                      >
+                        <i className="bi bi-trash3"></i>
+                      </button>
                     </td>
                   </tr>
                 ))}

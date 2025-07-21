@@ -355,7 +355,6 @@ const CabezaCirculoCRUD = () => {
             <table className="neumorphic-table reduced-table">
               <thead>
                 <tr>
-                  <th className="fixed-column reduced-column">Acciones</th>
                   <th className="reduced-column">Nombre</th>
                   <th className="col-apellido">Apellido Paterno</th>
                   <th className="col-apellido">Apellido Materno</th>
@@ -373,27 +372,12 @@ const CabezaCirculoCRUD = () => {
                   <th className="col-address">Otra Red Social</th>
                   <th className="col-address">Estructura Territorial</th>
                   <th className="col-address">Posición Estructura</th>
+                  <th className="fixed-column reduced-column">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {currentRecords.map((cabeza) => (
                   <tr key={cabeza.id} className="reduced-row">
-                    <td className="fixed-column action-column reduced-action-column">
-                      <button 
-                        className="action-button edit reduced-button" 
-                        onClick={() => handleEdit(cabeza)}
-                        title="Editar"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button 
-                        className="action-button delete reduced-button" 
-                        onClick={() => handleDelete(cabeza.id)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
                     <td className="reduced-cell">{cabeza.nombre}</td>
                     <td>{cabeza.apellidoPaterno}</td>
                     <td>{cabeza.apellidoMaterno}</td>
@@ -411,6 +395,22 @@ const CabezaCirculoCRUD = () => {
                     <td>{cabeza.otraRedSocial || "-"}</td>
                     <td>{cabeza.estructuraTerritorial}</td>
                     <td>{cabeza.posicionEstructura}</td>
+                    <td className="fixed-column action-column reduced-action-column">
+                      <button 
+                        className="action-button edit reduced-button" 
+                        onClick={() => handleEdit(cabeza)}
+                        title="Editar"
+                      >
+                        <i className="bi bi-pencil-square"></i>
+                      </button>
+                      <button 
+                        className="action-button delete reduced-button" 
+                        onClick={() => handleDelete(cabeza.id)}
+                        title="Eliminar"
+                      >
+                        <i className="bi bi-trash3"></i>
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
