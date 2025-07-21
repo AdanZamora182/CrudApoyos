@@ -364,8 +364,8 @@ const IntegranteCirculoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container responsive-container">
-      <div className="neumorphic-controls responsive-controls">
+    <div className="neumorphic-crud-container responsive-container" style={{ background: 'none', boxShadow: 'none' }}>
+      <div className="neumorphic-controls responsive-controls" style={{ background: 'none', boxShadow: 'none', border: 'none' }}>
         <div className="neumorphic-search responsive-search">
           <input
             type="text"

@@ -26,7 +26,7 @@ const ApoyoPage = () => {
 
   return (
     <div className="integrated-container compact-ui">
-      <div className="section-selector">
+      <div className="section-selector" style={{ background: 'none', boxShadow: 'none', border: 'none' }}>
         <button 
           className="neumorphic-button home-button"
           onClick={() => navigate('/menu')}
