@@ -555,6 +555,14 @@ const ApoyoCRUD = () => {
                     </td>
                   </tr>
                 ))}
+                {/* Rellenar filas vacías si hay menos de 12 resultados */}
+                {Array.from({ length: recordsPerPage - currentRecords.length }).map((_, idx) => (
+                  <tr key={`empty-row-${idx}`} className="responsive-row empty-row">
+                    {Array.from({ length: 13 }).map((_, cellIdx) => (
+                      <td key={cellIdx}>&nbsp;</td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

@@ -340,7 +340,9 @@
               inset -2px -2px 5px rgba(255, 255, 255, 0.5);
 }
 
-/* ...existing code... */
+.empty-row {
+  height: 35px;
+}
 
   @media (max-width: 768px) {
     .form-container {
