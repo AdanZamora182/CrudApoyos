@@ -247,6 +247,18 @@ const IntegranteCirculoCRUD = () => {
     localStorage.setItem('integranteCirculoCurrentPage', '1');
   }, [searchQuery]);
 
+  const jumpBack = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 6));
+    localStorage.setItem('integranteCirculoCurrentPage', Math.max(1, currentPage - 6).toString());
+  };
+  const jumpForward = () => {
+    setCurrentPage((prev) => {
+      const next = prev + 6;
+      return next > totalPages ? totalPages : next;
+    });
+    localStorage.setItem('integranteCirculoCurrentPage', Math.min(totalPages, currentPage + 6).toString());
+  };
+
   // Improved page number display logic for pagination
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -487,7 +499,15 @@ const IntegranteCirculoCRUD = () => {
             <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredIntegrantes.length)} de {filteredIntegrantes.length} registros
             </div>
-            <div className="pagination-controls responsive-pagination-controls">
+            <div className="pagination-controls responsive-pagination-controls flex-wrap justify-content-center">
+              <button 
+                onClick={jumpBack} 
+                disabled={currentPage <= 6} 
+                className="pagination-button responsive-pagination-button"
+                title="Salto atrás"
+              >
+                <i className="bi bi-chevron-double-left"></i>
+              </button>
               <button 
                 onClick={prevPage} 
                 disabled={currentPage === 1} 
@@ -509,6 +529,14 @@ const IntegranteCirculoCRUD = () => {
                 title="Página siguiente"
               >
                 <i className="bi bi-chevron-right"></i>
+              </button>
+              <button 
+                onClick={jumpForward} 
+                disabled={currentPage === totalPages} 
+                className="pagination-button responsive-pagination-button"
+                title="Salto adelante"
+              >
+                <i className="bi bi-chevron-double-right"></i>
               </button>
             </div>
           </div>

@@ -203,114 +203,44 @@ const CabezaCirculoCRUD = () => {
     localStorage.setItem('cabezaCirculoCurrentPage', '1');
   }, [searchQuery]);
 
-  // Improved page number display logic for pagination
+  const jumpBack = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 6));
+    localStorage.setItem('cabezaCirculoCurrentPage', Math.max(1, currentPage - 6).toString());
+  };
+  const jumpForward = () => {
+    setCurrentPage((prev) => {
+      const next = prev + 6;
+      return next > totalPages ? totalPages : next;
+    });
+    localStorage.setItem('cabezaCirculoCurrentPage', Math.min(totalPages, currentPage + 6).toString());
+  };
+
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    const maxVisiblePages = 7; // Maximum number of page buttons to show
-    
-    if (totalPages <= maxVisiblePages) {
-      // If we have fewer pages than our max, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(
-          <button
-            key={i}
-            onClick={() => paginate(i)}
-            className={`page-number ${currentPage === i ? 'active' : ''}`}
-          >
-            {i}
-          </button>
-        );
-      }
-    } else {
-      // Always show first page
-      pageNumbers.push(
-        <button
-          key={1}
-          onClick={() => paginate(1)}
-          className={`page-number ${currentPage === 1 ? 'active' : ''}`}
-        >
-          1
-        </button>
-      );
+    const maxVisiblePages = 7;
+    let startPage = 1;
+    let endPage = Math.min(totalPages, maxVisiblePages);
 
-      // If current page is close to the beginning
-      if (currentPage < maxVisiblePages - 2) {
-        for (let i = 2; i < maxVisiblePages; i++) {
-          pageNumbers.push(
-            <button
-              key={i}
-              onClick={() => paginate(i)}
-              className={`page-number ${currentPage === i ? 'active' : ''}`}
-            >
-              {i}
-            </button>
-          );
-        }
-        // Show ellipsis and last page
-        pageNumbers.push(<span key="ellipsis-end" className="ellipsis">...</span>);
-        pageNumbers.push(
-          <button
-            key={totalPages}
-            onClick={() => paginate(totalPages)}
-            className={`page-number ${currentPage === totalPages ? 'active' : ''}`}
-          >
-            {totalPages}
-          </button>
-        );
-      } 
-      // If current page is close to the end
-      else if (currentPage > totalPages - (maxVisiblePages - 3)) {
-        // Show ellipsis after first page
-        pageNumbers.push(<span key="ellipsis-start" className="ellipsis">...</span>);
-        
-        // Show the last several pages
-        for (let i = totalPages - (maxVisiblePages - 2); i <= totalPages; i++) {
-          pageNumbers.push(
-            <button
-              key={i}
-              onClick={() => paginate(i)}
-              className={`page-number ${currentPage === i ? 'active' : ''}`}
-            >
-              {i}
-            </button>
-          );
-        }
-      } 
-      // If current page is in the middle
-      else {
-        // Show ellipsis after first page
-        pageNumbers.push(<span key="ellipsis-start" className="ellipsis">...</span>);
-        
-        // Show pages around current page
-        const startPage = currentPage - 2;
-        const endPage = currentPage + 2;
-        
-        for (let i = startPage; i <= endPage; i++) {
-          pageNumbers.push(
-            <button
-              key={i}
-              onClick={() => paginate(i)}
-              className={`page-number ${currentPage === i ? 'active' : ''}`}
-            >
-              {i}
-            </button>
-          );
-        }
-        
-        // Show ellipsis and last page
-        pageNumbers.push(<span key="ellipsis-end" className="ellipsis">...</span>);
-        pageNumbers.push(
-          <button
-            key={totalPages}
-            onClick={() => paginate(totalPages)}
-            className={`page-number ${currentPage === totalPages ? 'active' : ''}`}
-          >
-            {totalPages}
-          </button>
-        );
+    if (currentPage > 4 && totalPages > maxVisiblePages) {
+      startPage = currentPage - 3;
+      endPage = currentPage + 3;
+      if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
       }
     }
-    
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`page-number ${currentPage === i ? 'active' : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
     return pageNumbers;
   };
 
@@ -432,7 +362,15 @@ const CabezaCirculoCRUD = () => {
             <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredCabezas.length)} de {filteredCabezas.length} registros
             </div>
-            <div className="pagination-controls responsive-pagination-controls">
+            <div className="pagination-controls responsive-pagination-controls flex-wrap justify-content-center">
+              <button 
+                onClick={jumpBack} 
+                disabled={currentPage <= 6} 
+                className="pagination-button responsive-pagination-button"
+                title="Salto atrás"
+              >
+                <i className="bi bi-chevron-double-left"></i>
+              </button>
               <button 
                 onClick={prevPage} 
                 disabled={currentPage === 1} 
@@ -441,12 +379,9 @@ const CabezaCirculoCRUD = () => {
               >
                 <i className="bi bi-chevron-left"></i>
               </button>
-              
-              {/* Show page numbers */}
               <div className="page-numbers responsive-page-numbers">
                 {renderPageNumbers()}
               </div>
-              
               <button 
                 onClick={nextPage} 
                 disabled={currentPage === totalPages} 
@@ -454,6 +389,14 @@ const CabezaCirculoCRUD = () => {
                 title="Página siguiente"
               >
                 <i className="bi bi-chevron-right"></i>
+              </button>
+              <button 
+                onClick={jumpForward} 
+                disabled={currentPage === totalPages} 
+                className="pagination-button responsive-pagination-button"
+                title="Salto adelante"
+              >
+                <i className="bi bi-chevron-double-right"></i>
               </button>
             </div>
           </div>
