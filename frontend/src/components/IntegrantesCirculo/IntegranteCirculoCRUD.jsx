@@ -404,7 +404,6 @@ const IntegranteCirculoCRUD = () => {
             <table className="neumorphic-table responsive-table">
               <thead>
                 <tr>
-                  <th className="fixed-column responsive-column">Acciones</th>
                   <th className="col-name responsive-column">Nombre</th>
                   <th className="col-apellido">Apellido Paterno</th>
                   <th className="col-apellido">Apellido Materno</th>
@@ -418,11 +417,33 @@ const IntegranteCirculoCRUD = () => {
                   <th className="col-number">Teléfono</th>
                   <th className="col-leader">Líder</th>
                   <th className="col-address">Clave de Elector Líder</th>
+                  <th className="fixed-column responsive-column">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {currentRecords.map((integrante) => (
                   <tr key={integrante.id} className="responsive-row">
+                    <td className="responsive-cell">{integrante.nombre}</td>
+                    <td>{integrante.apellidoPaterno}</td>
+                    <td>{integrante.apellidoMaterno}</td>
+                    <td>{formatDate(integrante.fechaNacimiento)}</td>
+                    <td>{integrante.calle}</td>
+                    <td>{integrante.noExterior}</td>
+                    <td>{integrante.noInterior || "-"}</td>
+                    <td>{integrante.colonia}</td>
+                    <td>{integrante.codigoPostal}</td>
+                    <td>{integrante.claveElector}</td>
+                    <td>{integrante.telefono}</td>
+                    <td>
+                      {integrante.lider ? 
+                        `${integrante.lider.nombre} ${integrante.lider.apellidoPaterno} ${integrante.lider.apellidoMaterno}` : 
+                        "-"}
+                    </td>
+                    <td>
+                      {integrante.lider ? 
+                        `${integrante.lider.claveElector}` : 
+                        "-"}
+                    </td>
                     <td className="fixed-column action-column responsive-action-column">
                       <button 
                         className="action-button view responsive-button"
@@ -445,27 +466,6 @@ const IntegranteCirculoCRUD = () => {
                       >
                         <i className="bi bi-trash3"></i>
                       </button>
-                    </td>
-                    <td className="responsive-cell">{integrante.nombre}</td>
-                    <td>{integrante.apellidoPaterno}</td>
-                    <td>{integrante.apellidoMaterno}</td>
-                    <td>{formatDate(integrante.fechaNacimiento)}</td>
-                    <td>{integrante.calle}</td>
-                    <td>{integrante.noExterior}</td>
-                    <td>{integrante.noInterior || "-"}</td>
-                    <td>{integrante.colonia}</td>
-                    <td>{integrante.codigoPostal}</td>
-                    <td>{integrante.claveElector}</td>
-                    <td>{integrante.telefono}</td>
-                    <td>
-                      {integrante.lider ? 
-                        `${integrante.lider.nombre} ${integrante.lider.apellidoPaterno} ${integrante.lider.apellidoMaterno}` : 
-                        "-"}
-                    </td>
-                    <td>
-                      {integrante.lider ? 
-                        `${integrante.lider.claveElector}` : 
-                        "-"}
                     </td>
                   </tr>
                 ))}
