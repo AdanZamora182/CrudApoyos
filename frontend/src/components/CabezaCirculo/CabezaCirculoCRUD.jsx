@@ -317,15 +317,17 @@ const CabezaCirculoCRUD = () => {
   return (
     <div className="neumorphic-crud-container reduced-container">
       <div className="neumorphic-controls reduced-controls">
-        <div className="neumorphic-search reduced-search">
+        <div className="neumorphic-search reduced-search w-100 w-md-50 position-relative">
           <input
             type="text"
             placeholder="Buscar por Nombre o Clave de Elector..."
             value={searchQuery}
             onChange={handleSearch}
-            className="neumorphic-input search-input reduced-input"
+            className="neumorphic-input search-input reduced-input w-100 pe-5"
           />
-          <span className="search-icon reduced-icon">🔍</span>
+          <span className="search-icon reduced-icon position-absolute end-0 top-50 translate-middle-y me-2">
+            <i className="bi bi-search"></i>
+          </span>
         </div>
 
         {/* New position for messages */}
@@ -418,7 +420,7 @@ const CabezaCirculoCRUD = () => {
           </div>
           
           {/* Pagination */}
-          <div className="pagination-container responsive-pagination-container">
+          <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
             <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredCabezas.length)} de {filteredCabezas.length} registros
             </div>
@@ -429,7 +431,7 @@ const CabezaCirculoCRUD = () => {
                 className="pagination-button responsive-pagination-button"
                 title="Página anterior"
               >
-                ◀
+                <i className="bi bi-chevron-left"></i>
               </button>
               
               {/* Show page numbers */}
@@ -443,7 +445,7 @@ const CabezaCirculoCRUD = () => {
                 className="pagination-button responsive-pagination-button"
                 title="Página siguiente"
               >
-                ▶
+                <i className="bi bi-chevron-right"></i>
               </button>
             </div>
           </div>

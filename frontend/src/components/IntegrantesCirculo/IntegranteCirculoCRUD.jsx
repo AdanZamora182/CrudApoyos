@@ -364,19 +364,20 @@ const IntegranteCirculoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container responsive-container" style={{ background: 'none', boxShadow: 'none' }}>
-      <div className="neumorphic-controls responsive-controls" style={{ background: 'none', boxShadow: 'none', border: 'none' }}>
-        <div className="neumorphic-search responsive-search">
+    <div className="neumorphic-crud-container responsive-container">
+      <div className="neumorphic-controls responsive-controls">
+        <div className="neumorphic-search responsive-search w-100 w-md-50 position-relative">
           <input
             type="text"
             placeholder="Buscar por Nombre o Clave de Elector..."
             value={searchQuery}
             onChange={handleSearch}
-            className="neumorphic-input search-input responsive-input"
+            className="neumorphic-input search-input responsive-input w-100 pe-5"
           />
-          <span className="search-icon responsive-icon">🔍</span>
+          <span className="search-icon responsive-icon position-absolute end-0 top-50 translate-middle-y me-2">
+            <i className="bi bi-search"></i>
+          </span>
         </div>
-
         {/* New position for messages */}
         {message.text && (
           <div className="inline-message-container">
@@ -474,7 +475,7 @@ const IntegranteCirculoCRUD = () => {
           </div>
           
           {/* Pagination */}
-          <div className="pagination-container responsive-pagination-container">
+          <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
             <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredIntegrantes.length)} de {filteredIntegrantes.length} registros
             </div>
@@ -485,7 +486,7 @@ const IntegranteCirculoCRUD = () => {
                 className="pagination-button responsive-pagination-button"
                 title="Página anterior"
               >
-                ◀
+                <i className="bi bi-chevron-left"></i>
               </button>
               
               {/* Show page numbers */}
@@ -499,7 +500,7 @@ const IntegranteCirculoCRUD = () => {
                 className="pagination-button responsive-pagination-button"
                 title="Página siguiente"
               >
-                ▶
+                <i className="bi bi-chevron-right"></i>
               </button>
             </div>
           </div>

@@ -405,19 +405,20 @@ const ApoyoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container responsive-container" style={{ background: 'none', boxShadow: 'none' }}>
-      <div className="neumorphic-controls responsive-controls" style={{ background: 'none', boxShadow: 'none', border: 'none' }}>
-        <div className="neumorphic-search responsive-search">
+    <div className="neumorphic-crud-container responsive-container">
+      <div className="neumorphic-controls responsive-controls">
+        <div className="neumorphic-search responsive-search w-100 w-md-50 position-relative">
           <input
             type="text"
             placeholder="Buscar por Tipo de Apoyo o Beneficiario..."
             value={searchQuery}
             onChange={handleSearch}
-            className="neumorphic-input search-input responsive-input"
+            className="neumorphic-input search-input responsive-input w-100 pe-5"
           />
-          <span className="search-icon responsive-icon">🔍</span>
+          <span className="search-icon responsive-icon position-absolute end-0 top-50 translate-middle-y me-2">
+            <i className="bi bi-search"></i>
+          </span>
         </div>
-
         {/* Message display */}
         {message.text && (
           <div className="inline-message-container">
@@ -559,7 +560,7 @@ const ApoyoCRUD = () => {
           </div>
           
           {/* Pagination controls */}
-          <div className="pagination-container responsive-pagination-container">
+          <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
             <div className="pagination-info responsive-pagination-info">
               Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredApoyos.length)} de {filteredApoyos.length} apoyos
             </div>
@@ -570,7 +571,7 @@ const ApoyoCRUD = () => {
                 className="pagination-button responsive-pagination-button"
                 title="Página anterior"
               >
-                ◀
+                <i className="bi bi-chevron-left"></i>
               </button>
               
               {/* Show page numbers */}
@@ -584,7 +585,7 @@ const ApoyoCRUD = () => {
                 className="pagination-button responsive-pagination-button"
                 title="Página siguiente"
               >
-                ▶
+                <i className="bi bi-chevron-right"></i>
               </button>
             </div>
           </div>
