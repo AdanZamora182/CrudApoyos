@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css'; // Importa Bootstrap
 import "./CabezaCirculo.css";
 import { createCabezaCirculo } from "../../api";
 
@@ -112,6 +113,10 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
         type: "error",
         text: "Por favor, complete correctamente todos los campos obligatorios.",
       });
+      // Oculta el mensaje automáticamente después de 7 segundos solo para este error
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 7000);
       return;
     }
 
@@ -176,261 +181,282 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
 
   // En el render
   return (
-    <div className={`form-container ${hideHeaderState ? "integrated-form compact-ui" : ""}`}>
+    <div className={`container mt-3`}>
       {!hideHeaderState && (
-        <div className="form-header">
-          <h1 className="form-title">Registro de Cabeza de Círculo</h1>
-          {/* Eliminado el botón "Volver al Menú" */}
+        <div className="mb-4">
+          <h1 className="h4 text-primary">Registro de Cabeza de Círculo</h1>
         </div>
       )}
-      
-      {message.text && <div className={`form-message form-message-${message.type}`}>{message.text}</div>}
-      
+
+      {message.text && (
+        message.text === "Por favor, complete correctamente todos los campos obligatorios." ? (
+          <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
+            <small>
+              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+              {message.text}
+            </small>
+          </div>
+        ) : (
+          <div className={`alert alert-${message.type === "success" ? "success" : "danger"} mb-3`}>
+            {message.text}
+          </div>
+        )
+      )}
       <form onSubmit={handleSubmit}>
-        <div className="form-section">
-          <h3 className="form-section-title">Información Personal</h3>
-          <div className="form-row">
-            <div className="form-col">
-              <label>Nombre(s)</label>
+        {/* Información Personal */}
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Información Personal</h5>
+          <div className="row">
+            <div className="col-md-4 mb-2">
+              <label className="form-label">Nombre(s)</label>
               <input
                 type="text"
                 name="nombre"
                 value={formData.nombre}
                 onChange={handleChange}
-                className={errors.nombre ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.nombre ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.nombre && <span className="error-text">{errors.nombre}</span>}
+              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
             </div>
-            <div className="form-col">
-              <label>Apellido Paterno</label>
+            <div className="col-md-4 mb-2">
+              <label className="form-label">Apellido Paterno</label>
               <input
                 type="text"
                 name="apellidoPaterno"
                 value={formData.apellidoPaterno}
                 onChange={handleChange}
-                className={errors.apellidoPaterno ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.apellidoPaterno ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.apellidoPaterno && <span className="error-text">{errors.apellidoPaterno}</span>}
+              {errors.apellidoPaterno && <div className="invalid-feedback">{errors.apellidoPaterno}</div>}
             </div>
-            <div className="form-col">
-              <label>Apellido Materno</label>
+            <div className="col-md-4 mb-2">
+              <label className="form-label">Apellido Materno</label>
               <input
                 type="text"
                 name="apellidoMaterno"
                 value={formData.apellidoMaterno}
                 onChange={handleChange}
-                className={errors.apellidoMaterno ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.apellidoMaterno ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.apellidoMaterno && <span className="error-text">{errors.apellidoMaterno}</span>}
+              {errors.apellidoMaterno && <div className="invalid-feedback">{errors.apellidoMaterno}</div>}
             </div>
           </div>
-
-          <div className="form-row">
-            <div className="form-col">
-              <label>Fecha de Nacimiento</label>
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Fecha de Nacimiento</label>
               <input
                 type="date"
                 name="fechaNacimiento"
                 value={formData.fechaNacimiento}
                 onChange={handleChange}
-                className={errors.fechaNacimiento ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.fechaNacimiento ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.fechaNacimiento && <span className="error-text">{errors.fechaNacimiento}</span>}
+              {errors.fechaNacimiento && <div className="invalid-feedback">{errors.fechaNacimiento}</div>}
             </div>
-            <div className="form-col">
-              <label>Teléfono</label>
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Teléfono</label>
               <input
-                type="text" // Usar text para permitir validación más flexible, luego convertir a número
+                type="text"
                 name="telefono"
                 value={formData.telefono}
                 onChange={handleChange}
-                className={errors.telefono ? "input-error" : ""}
-                maxLength="10" // Restrict length if needed
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.telefono ? " is-invalid" : ""}`}
+                maxLength="10"
+                autoComplete="off"
               />
-              {errors.telefono && <span className="error-text">{errors.telefono}</span>}
+              {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
             </div>
           </div>
         </div>
 
-        <div className="form-section">
-          <h3 className="form-section-title">Dirección</h3>
-          <div className="form-row">
-            <div className="form-col">
-              <label>Calle</label>
+        {/* Dirección */}
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Dirección</h5>
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Calle</label>
               <input
                 type="text"
                 name="calle"
                 value={formData.calle}
                 onChange={handleChange}
-                className={errors.calle ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.calle ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.calle && <span className="error-text">{errors.calle}</span>}
+              {errors.calle && <div className="invalid-feedback">{errors.calle}</div>}
             </div>
-            <div className="form-col">
-              <label>Colonia</label>
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Colonia</label>
               <input
                 type="text"
                 name="colonia"
                 value={formData.colonia}
                 onChange={handleChange}
-                className={errors.colonia ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.colonia ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.colonia && <span className="error-text">{errors.colonia}</span>}
+              {errors.colonia && <div className="invalid-feedback">{errors.colonia}</div>}
             </div>
           </div>
-
-          <div className="form-row">
-            <div className="form-col">
-              <label>No. Exterior</label>
+          <div className="row">
+            <div className="col-md-4 mb-2">
+              <label className="form-label">No. Exterior</label>
               <input
-                type="text" // Usar text para permitir vacío y validación más flexible
+                type="text"
                 name="noExterior"
                 value={formData.noExterior}
                 onChange={handleChange}
-                className={errors.noExterior ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.noExterior ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.noExterior && <span className="error-text">{errors.noExterior}</span>}
+              {errors.noExterior && <div className="invalid-feedback">{errors.noExterior}</div>}
             </div>
-            <div className="form-col">
-              <label>No. Interior (opcional)</label> {/* Eliminado "(opcional)" */}
+            <div className="col-md-4 mb-2">
+              <label className="form-label">No. Interior (opcional)</label>
               <input
-                type="text" // Usar text para permitir validación más flexible
+                type="text"
                 name="noInterior"
                 value={formData.noInterior}
                 onChange={handleChange}
-                className={errors.noInterior ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.noInterior ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.noInterior && <span className="error-text">{errors.noInterior}</span>}
+              {errors.noInterior && <div className="invalid-feedback">{errors.noInterior}</div>}
             </div>
-            <div className="form-col">
-              <label>Código Postal</label>
+            <div className="col-md-4 mb-2">
+              <label className="form-label">Código Postal</label>
               <input
-                type="text" // Usar text para permitir validación más flexible
+                type="text"
                 name="codigoPostal"
                 value={formData.codigoPostal}
                 onChange={handleChange}
-                className={errors.codigoPostal ? "input-error" : ""}
-                maxLength="5" // Restrict to 5 characters
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.codigoPostal ? " is-invalid" : ""}`}
+                maxLength="5"
+                autoComplete="off"
               />
-              {errors.codigoPostal && <span className="error-text">{errors.codigoPostal}</span>}
+              {errors.codigoPostal && <div className="invalid-feedback">{errors.codigoPostal}</div>}
             </div>
           </div>
-
-          <div className="form-row">
-            <div className="form-col">
-              <label>Municipio (opcional)</label>
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Municipio (opcional)</label>
               <input
                 type="text"
                 name="municipio"
                 value={formData.municipio}
                 onChange={handleChange}
-                className={errors.municipio ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.municipio ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.municipio && <span className="error-text">{errors.municipio}</span>}
+              {errors.municipio && <div className="invalid-feedback">{errors.municipio}</div>}
             </div>
           </div>
         </div>
 
-        <div className="form-section">
-          <h3 className="form-section-title">Información Electoral y Contacto</h3>
-          <div className="form-row">
-            <div className="form-col">
-              <label>Clave de Elector</label>
+        {/* Información Electoral y Contacto */}
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Información Electoral y Contacto</h5>
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Clave de Elector</label>
               <input
                 type="text"
                 name="claveElector"
                 value={formData.claveElector}
                 onChange={handleChange}
-                className={errors.claveElector ? "input-error" : ""}
-                maxLength="18" // Restrict to 18 characters
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.claveElector ? " is-invalid" : ""}`}
+                maxLength="18"
+                autoComplete="off"
               />
-              {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}
+              {errors.claveElector && <div className="invalid-feedback">{errors.claveElector}</div>}
             </div>
-            <div className="form-col">
-              <label>Email</label>
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={errors.email ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.email ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.email && <span className="error-text">{errors.email}</span>}
+              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
             </div>
           </div>
-
-          <div className="form-row">
-            <div className="form-col">
-              <label>Facebook (opcional)</label>
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Facebook (opcional)</label>
               <input
                 type="text"
                 name="facebook"
                 value={formData.facebook}
                 onChange={handleChange}
-                autoComplete="off" // Desactiva el autocompletado
+                className="form-control form-control-sm"
+                autoComplete="off"
               />
             </div>
-            <div className="form-col">
-              <label>Otra Red Social (opcional)</label>
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Otra Red Social (opcional)</label>
               <input
                 type="text"
                 name="otraRedSocial"
                 value={formData.otraRedSocial}
                 onChange={handleChange}
-                autoComplete="off" // Desactiva el autocompletado
+                className="form-control form-control-sm"
+                autoComplete="off"
               />
             </div>
           </div>
         </div>
 
-        <div className="form-section">
-          <h3 className="form-section-title">Estructura</h3>
-          <div className="form-row">
-            <div className="form-col">
-              <label>Estructura Territorial</label>
+        {/* Estructura */}
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Estructura</h5>
+          <div className="row">
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Estructura Territorial</label>
               <input
                 type="text"
                 name="estructuraTerritorial"
                 value={formData.estructuraTerritorial}
                 onChange={handleChange}
-                className={errors.estructuraTerritorial ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.estructuraTerritorial ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.estructuraTerritorial && <span className="error-text">{errors.estructuraTerritorial}</span>}
+              {errors.estructuraTerritorial && <div className="invalid-feedback">{errors.estructuraTerritorial}</div>}
             </div>
-            <div className="form-col">
-              <label>Posición en Estructura</label>
+            <div className="col-md-6 mb-2">
+              <label className="form-label">Posición en Estructura</label>
               <input
                 type="text"
                 name="posicionEstructura"
                 value={formData.posicionEstructura}
                 onChange={handleChange}
-                className={errors.posicionEstructura ? "input-error" : ""}
-                autoComplete="off" // Desactiva el autocompletado
+                className={`form-control form-control-sm${errors.posicionEstructura ? " is-invalid" : ""}`}
+                autoComplete="off"
               />
-              {errors.posicionEstructura && <span className="error-text">{errors.posicionEstructura}</span>}
+              {errors.posicionEstructura && <div className="invalid-feedback">{errors.posicionEstructura}</div>}
             </div>
           </div>
         </div>
 
-        <div className="form-actions">
-          <button type="button" className="form-button form-button-secondary" onClick={handleReset}>
+        <div className="d-flex justify-content-end gap-2 mt-4 mb-4">
+          <button
+            type="button"
+            className="form-button form-button-secondary"
+            onClick={handleReset}
+          >
             Limpiar
           </button>
-          <button type="submit" className="form-button form-button-primary" disabled={loading}>
+          <button
+            type="submit"
+            className="form-button form-button-primary"
+            disabled={loading}
+          >
             {loading ? "Registrando..." : "Registrar"}
           </button>
         </div>
