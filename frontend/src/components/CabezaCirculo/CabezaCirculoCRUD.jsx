@@ -359,9 +359,6 @@ const CabezaCirculoCRUD = () => {
           
           {/* Pagination */}
           <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
-            <div className="pagination-info responsive-pagination-info">
-              Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredCabezas.length)} de {filteredCabezas.length} registros
-            </div>
             <div className="pagination-controls responsive-pagination-controls flex-wrap justify-content-center">
               <button 
                 onClick={jumpBack} 
@@ -398,6 +395,9 @@ const CabezaCirculoCRUD = () => {
               >
                 <i className="bi bi-chevron-double-right"></i>
               </button>
+            </div>
+            <div className="pagination-info responsive-pagination-info">
+              Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredCabezas.length)} de {filteredCabezas.length} registros
             </div>
           </div>
         </>

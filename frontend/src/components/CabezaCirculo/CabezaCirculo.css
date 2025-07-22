@@ -763,28 +763,33 @@ body {
 /* Pagination styles */
 .pagination-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-top: 12px; /* Reduced from 15px */
-  padding: 6px 12px; /* Reduced from 8px 15px */
+  margin-top: 12px;
+  padding: 6px 12px;
   background-color: var(--background-color);
   border-radius: 10px;
   box-shadow: 
     3px 3px 6px var(--shadow-dark),
     -3px -3px 6px var(--shadow-light);
+  position: relative;
 }
 
 .pagination-info {
   font-size: 14px;
   color: var(--dark-color);
+  position: absolute;
+  right: 12px;
 }
 
 .pagination-controls {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-content: center;
 }
 
+/* Pagination button styles */
 .pagination-button {
   width: 30px; /* Reduced from 34px */
   height: 30px; /* Reduced from 34px */
@@ -1060,5 +1065,26 @@ body {
   .inline-message {
     width: 100%;
     text-align: center;
+  }
+}
+
+/* Responsive adjustments for pagination */
+@media (max-width: 768px) {
+  .pagination-container {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .pagination-info {
+    position: static;
+    order: 2;
+    text-align: center;
+  }
+  
+  .pagination-controls {
+    order: 1;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
