@@ -132,6 +132,9 @@ const ApoyoForm = ({ hideHeader = false }) => {
         type: "error",
         text: "Por favor, complete todos los campos obligatorios.",
       });
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 7000);
       return;
     }
 
@@ -186,18 +189,34 @@ const ApoyoForm = ({ hideHeader = false }) => {
   };
 
   return (
-    <div className={`form-container ${hideHeaderState ? "integrated-form compact-ui" : ""}`}>
+    <div className={`container mt-3`}>
       {!hideHeaderState && (
-        <div className="form-header">
-          <h1 className="form-title">Registro de Apoyo</h1>
+        <div className="mb-4">
+          <h1 className="h4 text-primary">Registro de Apoyo</h1>
         </div>
       )}
 
-      {message.text && <div className={`form-message form-message-${message.type}`}>{message.text}</div>}
+      {message.text && (
+        message.text === "Por favor, complete todos los campos obligatorios." ? (
+          <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
+            <small>
+              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+              {message.text}
+            </small>
+          </div>
+        ) : (
+          <div className={`form-message form-message-${message.type}`}>
+            {message.type === "error" && (
+              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+            )}
+            {message.text}
+          </div>
+        )
+      )}
 
       <form onSubmit={handleSubmit}>
-        <div className="form-section">
-          <h3 className="form-section-title">Información del Apoyo</h3>
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Información del Apoyo</h5>
           <div className="form-row">
             <div className="form-col">
               <label>Cantidad</label>
@@ -206,10 +225,14 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 name="cantidad"
                 value={formData.cantidad}
                 onChange={handleChange}
-                className={errors.cantidad ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.cantidad ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.cantidad && <span className="error-text">{errors.cantidad}</span>}
+              {errors.cantidad && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  {errors.cantidad}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>Tipo de Apoyo</label>
@@ -217,7 +240,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 name="tipoApoyo"
                 value={formData.tipoApoyo}
                 onChange={handleChange}
-                className={errors.tipoApoyo ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.tipoApoyo ? " is-invalid" : ""}`}
               >
                 <option value="">Seleccione una opción</option>
                 {predefinedOptions.map((option) => (
@@ -226,25 +249,11 @@ const ApoyoForm = ({ hideHeader = false }) => {
                   </option>
                 ))}
               </select>
-              {formData.tipoApoyo === "Otro" && (
-                <div className="custom-input-container">
-                  <input
-                    type="text"
-                    name="tipoApoyoCustom"
-                    placeholder="Especifique el tipo de apoyo"
-                    value={formData.tipoApoyoCustom || ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        tipoApoyoCustom: e.target.value,
-                      })
-                    }
-                    className={`custom-input ${errors.tipoApoyo ? "input-error" : ""}`}
-                    autoComplete="off"
-                  />
-                </div>
+              {errors.tipoApoyo && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  {errors.tipoApoyo}
+                </span>
               )}
-              {errors.tipoApoyo && <span className="error-text">{errors.tipoApoyo}</span>}
             </div>
           </div>
           <div className="form-row">
@@ -258,14 +267,18 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 className={errors.fechaEntrega ? "input-error" : ""}
                 autoComplete="off"
               />
-              {errors.fechaEntrega && <span className="error-text">{errors.fechaEntrega}</span>}
+              {errors.fechaEntrega && (
+                <span className="error-text">
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.fechaEntrega}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Replace the Asociar Beneficiario section with this fixed-height version */}
-        <div className="form-section">
-          <h3 className="form-section-title">Asociar Beneficiario</h3>
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Asociar Beneficiario</h5>
           <div className="beneficiary-container">
             <div className="form-row">
               <div className="form-col" style={{ position: "relative" }}>
@@ -313,7 +326,12 @@ const ApoyoForm = ({ hideHeader = false }) => {
               )}
             </div>
 
-            {errors.beneficiarioId && <span className="error-text">{errors.beneficiarioId}</span>}
+            {errors.beneficiarioId && (
+              <span className="error-text">
+                <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                {errors.beneficiarioId}
+              </span>
+            )}
           </div>
         </div>
 

@@ -130,6 +130,9 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
         type: "error",
         text: "Por favor, complete correctamente todos los campos obligatorios.",
       });
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 7000);
       return;
     }
 
@@ -192,18 +195,34 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   };
 
   return (
-    <div className={`form-container ${hideHeaderState ? "integrated-form compact-ui" : ""}`}>
+    <div className={`container mt-3`}>
       {!hideHeaderState && (
-        <div className="form-header">
-          <h1 className="form-title">Registro de Integrante de Círculo</h1>
+        <div className="mb-4">
+          <h1 className="h4 text-primary">Registro de Integrante de Círculo</h1>
         </div>
       )}
-      
-      {message.text && <div className={`form-message form-message-${message.type}`}>{message.text}</div>}
-      
+
+      {message.text && (
+        message.text === "Por favor, complete correctamente todos los campos obligatorios." ? (
+          <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
+            <small>
+              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+              {message.text}
+            </small>
+          </div>
+        ) : (
+          <div className={`form-message form-message-${message.type}`}>
+            {message.type === "error" && (
+              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+            )}
+            {message.text}
+          </div>
+        )
+      )}
+
       <form onSubmit={handleSubmit}>
-        <div className="form-section">
-          <h3 className="form-section-title">Información Personal</h3>
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Información Personal</h5>
           <div className="form-row">
             <div className="form-col">
               <label>Nombre(s)</label>
@@ -212,10 +231,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="nombre"
                 value={formData.nombre}
                 onChange={handleChange}
-                className={errors.nombre ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.nombre ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.nombre && <span className="error-text">{errors.nombre}</span>}
+              {errors.nombre && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.nombre}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>Apellido Paterno</label>
@@ -224,10 +248,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="apellidoPaterno"
                 value={formData.apellidoPaterno}
                 onChange={handleChange}
-                className={errors.apellidoPaterno ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.apellidoPaterno ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.apellidoPaterno && <span className="error-text">{errors.apellidoPaterno}</span>}
+              {errors.apellidoPaterno && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.apellidoPaterno}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>Apellido Materno</label>
@@ -236,13 +265,17 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="apellidoMaterno"
                 value={formData.apellidoMaterno}
                 onChange={handleChange}
-                className={errors.apellidoMaterno ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.apellidoMaterno ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.apellidoMaterno && <span className="error-text">{errors.apellidoMaterno}</span>}
+              {errors.apellidoMaterno && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.apellidoMaterno}
+                </span>
+              )}
             </div>
           </div>
-
           <div className="form-row">
             <div className="form-col">
               <label>Fecha de Nacimiento</label>
@@ -251,10 +284,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="fechaNacimiento"
                 value={formData.fechaNacimiento}
                 onChange={handleChange}
-                className={errors.fechaNacimiento ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.fechaNacimiento ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.fechaNacimiento && <span className="error-text">{errors.fechaNacimiento}</span>}
+              {errors.fechaNacimiento && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.fechaNacimiento}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>Teléfono</label>
@@ -263,17 +301,21 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="telefono"
                 value={formData.telefono}
                 onChange={handleChange}
-                className={errors.telefono ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.telefono ? " is-invalid" : ""}`}
                 maxLength="10"
                 autoComplete="off"
               />
-              {errors.telefono && <span className="error-text">{errors.telefono}</span>}
+              {errors.telefono && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.telefono}
+                </span>
+              )}
             </div>
           </div>
         </div>
-
-        <div className="form-section">
-          <h3 className="form-section-title">Dirección</h3>
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Dirección</h5>
           <div className="form-row">
             <div className="form-col">
               <label>Calle</label>
@@ -282,10 +324,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="calle"
                 value={formData.calle}
                 onChange={handleChange}
-                className={errors.calle ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.calle ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.calle && <span className="error-text">{errors.calle}</span>}
+              {errors.calle && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.calle}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>Colonia</label>
@@ -294,13 +341,17 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="colonia"
                 value={formData.colonia}
                 onChange={handleChange}
-                className={errors.colonia ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.colonia ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.colonia && <span className="error-text">{errors.colonia}</span>}
+              {errors.colonia && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.colonia}
+                </span>
+              )}
             </div>
           </div>
-
           <div className="form-row">
             <div className="form-col">
               <label>No. Exterior</label>
@@ -309,10 +360,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="noExterior"
                 value={formData.noExterior}
                 onChange={handleChange}
-                className={errors.noExterior ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.noExterior ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.noExterior && <span className="error-text">{errors.noExterior}</span>}
+              {errors.noExterior && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.noExterior}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>No. Interior (opcional)</label>
@@ -321,10 +377,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="noInterior"
                 value={formData.noInterior}
                 onChange={handleChange}
-                className={errors.noInterior ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.noInterior ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.noInterior && <span className="error-text">{errors.noInterior}</span>}
+              {errors.noInterior && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.noInterior}
+                </span>
+              )}
             </div>
             <div className="form-col">
               <label>Código Postal</label>
@@ -333,17 +394,21 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="codigoPostal"
                 value={formData.codigoPostal}
                 onChange={handleChange}
-                className={errors.codigoPostal ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.codigoPostal ? " is-invalid" : ""}`}
                 maxLength="5"
                 autoComplete="off"
               />
-              {errors.codigoPostal && <span className="error-text">{errors.codigoPostal}</span>}
+              {errors.codigoPostal && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.codigoPostal}
+                </span>
+              )}
             </div>
           </div>
         </div>
-
-        <div className="form-section">
-          <h3 className="form-section-title">Información Electoral</h3>
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Información Electoral</h5>
           <div className="form-row">
             <div className="form-col">
               <label>Clave de Elector</label>
@@ -352,18 +417,22 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 name="claveElector"
                 value={formData.claveElector}
                 onChange={handleChange}
-                className={errors.claveElector ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.claveElector ? " is-invalid" : ""}`}
                 maxLength="18"
                 autoComplete="off"
               />
-              {errors.claveElector && <span className="error-text">{errors.claveElector}</span>}
+              {errors.claveElector && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.claveElector}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Replace the Asociar Cabeza de Círculo section with this updated version */}
-        <div className="form-section">
-          <h3 className="form-section-title">Asociar Cabeza de Círculo</h3>
+        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
+          <h5 className="mb-2 heading-morado">Asociar Cabeza de Círculo</h5>
           <div className="leader-section">
             <div className="form-row">
               <div className="form-col" style={{ position: "relative" }}>
@@ -399,7 +468,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                     type="text"
                     value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
                     readOnly
-                    className="selected-lider"
+                    className="selected-beneficiary"
                   />
                 </div>
               </div>
@@ -409,7 +478,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
-        <div className="form-actions">
+        <div className="d-flex justify-content-end gap-2 mt-4 mb-4">
           <button type="button" className="form-button form-button-secondary" onClick={handleReset}>
             Limpiar
           </button>

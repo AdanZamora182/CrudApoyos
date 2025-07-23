@@ -36,9 +36,9 @@
 
 /* Form container */
 .form-container {
-  max-width: 1000px;
+  max-width: 900px; /* Reduce el ancho máximo para igualar a CabezaCirculo.css */
   margin: 20px auto;
-  padding: 30px;
+  padding: 16px 8px 16px 8px; /* Reduce el padding */
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -89,12 +89,16 @@
 
 /* Form sections */
 .form-section {
-  margin-bottom: 15px; /* Reduced from 20px */
+  margin-bottom: 15px;
   border: 1px solid #eee;
   border-radius: 8px;
-  padding: 12px; /* Reduced from 15px */
+  padding: 12px 8px;
   background-color: #fafafa;
   overflow: hidden;
+  min-width: 320px;      /* Igual que CabezaCirculo.css */
+  max-width: 900px;      /* Igual que CabezaCirculo.css */
+  min-height: 120px;     /* Igual que CabezaCirculo.css */
+  box-sizing: border-box;
 }
 
 .form-section-title {
@@ -107,14 +111,20 @@
 
 /* Add styles for the leader section to maintain consistent height */
 .leader-section {
-  min-height: 180px; /* Increased from 140px to provide more space */
+  min-height: 220px;
   display: flex;
   flex-direction: column;
+  gap: 15px; /* Igual que .beneficiary-container en ApoyoForm.jsx */
 }
 
 .leader-placeholder {
-  height: 90px; /* Increased from 70px to match the increased leader section height */
-  margin-top: 12px;
+  height: 70px; /* Igual que .empty-beneficiary-placeholder en ApoyoForm */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
 }
 
 /* Styles for the leader selection in edit modal */
@@ -157,8 +167,8 @@
 /* Form layout */
 .form-row {
   display: flex;
-  gap: 15px; /* Reduced from 20px */
-  margin-bottom: 12px; /* Reduced from 15px */
+  gap: 10px; /* Reduce el gap */
+  margin-bottom: 8px; /* Reduce el margen inferior */
 }
 
 .form-col {
@@ -168,18 +178,19 @@
 /* Form inputs */
 label {
   display: block;
-  font-size: 13px; /* Reduced size */
+  font-size: 13px; /* Reduce el tamaño de fuente */
   color: #333;
-  margin-bottom: 5px; /* Reduced from 8px */
+  margin-bottom: 5px; /* Reduce el margen inferior */
   font-weight: 500;
 }
 
-input {
+input,
+select {
   width: 100%;
-  padding: 8px 12px; /* Reduced from 10px 12px */
+  padding: 6px 8px; /* Reduce el padding */
   border: 1px solid #ddd;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 13px; /* Reduce el tamaño de fuente */
   transition: all 0.3s;
 }
 
@@ -204,10 +215,10 @@ input:focus {
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 15px;
-  margin-top: 25px;
-  padding-right: 15px; /* Add padding to create space from the scrollbar */
-  margin-bottom: 20px; /* Add some bottom margin for better spacing */
+  gap: 10px;
+  margin-top: 15px; /* Reduce el margen superior */
+  margin-bottom: 10px; /* Reduce el margen inferior */
+  padding-right: 8px; /* Reduce el padding derecho */
 }
 
 .form-button {
@@ -291,7 +302,10 @@ input:focus {
   white-space: nowrap; /* Prevent text wrapping */
   overflow: hidden; /* Hide overflowing text */
   text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-  height: 44px; /* Fixed height for each item */
+  height: 33.5px;      /* Altura uniforme como se solicita */
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   box-sizing: border-box;

@@ -9,9 +9,9 @@
   }
   
   .form-container {
-    max-width: 1000px;
+    max-width: 900px; /* Reduce el ancho máximo para igualar a CabezaCirculo.css */
     margin: 20px auto;
-    padding: 30px;
+    padding: 16px 8px 16px 8px; /* Reduce el padding */
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -65,11 +65,16 @@
   }
   
   .form-section {
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     border: 1px solid #eee;
     border-radius: 8px;
-    padding: 20px;
+    padding: 12px 8px;
     background-color: #fafafa;
+    overflow: hidden;
+    min-width: 320px;      /* Igual que CabezaCirculo.css */
+    max-width: 900px;      /* Igual que CabezaCirculo.css */
+    min-height: 120px;     /* Igual que CabezaCirculo.css */
+    box-sizing: border-box;
   }
   
   .form-section-title {
@@ -82,8 +87,8 @@
   
   .form-row {
     display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
+    gap: 10px; /* Reduce el gap */
+    margin-bottom: 8px; /* Reduce el margen inferior */
   }
   
   .form-col {
@@ -92,18 +97,19 @@
   
   label {
     display: block;
-    font-size: 14px;
+    font-size: 13px; /* Reduce el tamaño de fuente */
     color: #333;
-    margin-bottom: 8px;
+    margin-bottom: 5px; /* Reduce el margen inferior */
     font-weight: 500;
   }
   
-  input {
+  input,
+  select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 6px 8px; /* Reduce el padding */
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 13px; /* Reduce el tamaño de fuente */
     transition: all 0.3s;
   }
   
@@ -128,7 +134,9 @@
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 15px; /* Reduce el margen superior */
+    margin-bottom: 10px; /* Reduce el margen inferior */
+    padding-right: 8px; /* Reduce el padding derecho */
   }
   
   .form-button {
@@ -342,6 +350,14 @@
 
 .empty-row {
   height: 35px;
+}
+
+select.form-control.form-control-sm {
+  height: 33.5px !important;
+  min-height: 33.5px !important;
+  max-height: 33.5px !important;
+  line-height: 1.5;
+  /* Mantén el resto de los estilos de Bootstrap */
 }
 
   @media (max-width: 768px) {
