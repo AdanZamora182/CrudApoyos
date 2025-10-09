@@ -666,141 +666,112 @@ input:focus {
   max-width: 600px;
   background-color: var(--background-color);
   border-radius: 20px;
-  padding: 25px;
+  padding: 0; /* Remove padding to handle it in sections */
   box-shadow: 
     20px 20px 60px rgba(0, 0, 0, 0.2),
     -20px -20px 60px rgba(255, 255, 255, 0.1);
   animation: modalIn 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
 .large-modal {
   width: 90%;
   max-width: 1200px;
   max-height: 90vh;
-  overflow-y: auto;
 }
 
-@keyframes modalIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal-section {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 
-    inset 3px 3px 7px var(--shadow-dark),
-    inset -3px -3px 7px var(--shadow-light);
-}
-
-/* Pagination styles */
-.pagination-container {
+/* Fixed modal header */
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--background-color);
+  padding: 12px 25px 10px 25px; /* Reduced padding from 20px 25px 15px 25px */
+  border-radius: 20px 20px 0 0;
+  border-bottom: 1px solid rgba(209, 217, 230, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 12px;
-  padding: 6px 12px;
-  background-color: var(--background-color);
-  border-radius: 10px;
-  box-shadow: 
-    3px 3px 6px var(--shadow-dark),
-    -3px -3px 6px var(--shadow-light);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  min-height: 50px; /* Set a minimum height to make it more compact */
 }
 
-.pagination-info {
-  font-size: 14px;
-  color: var(--dark-color);
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pagination-button {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background-color: var(--background-color);
+.modal-header h3 {
+  margin: 0;
   color: var(--primary-color);
-  border-radius: 8px;
+  font-size: 1.3rem; /* Reduced from 1.5rem */
+  font-weight: 600;
+  line-height: 1.2; /* Tighter line height */
+}
+
+/* Universal close button style for all modals */
+.modal-header .close,
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 1.1rem; /* Slightly reduced from 1.2rem */
   cursor: pointer;
-  font-weight: bold;
-  box-shadow: 
-    3px 3px 6px var(--shadow-dark),
-    -3px -3px 6px var(--shadow-light);
+  color: var(--dark-color);
+  padding: 4px; /* Reduced from 5px */
+  border-radius: 50%;
   transition: all 0.2s ease;
-}
-
-.pagination-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.pagination-button:active:not(:disabled) {
-  box-shadow: 
-    inset 2px 2px 4px var(--shadow-dark),
-    inset -2px -2px 4px var(--shadow-light);
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-numbers {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-
-.page-number {
-  width: 28px;
-  height: 28px;
+  width: 30px; /* Set fixed width */
+  height: 30px; /* Set fixed height */
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background-color: var(--background-color);
-  color: var(--dark-color);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  box-shadow: 
-    2px 2px 4px var(--shadow-dark),
-    -2px -2px 4px var(--shadow-light);
-  transition: all 0.2s ease;
 }
 
-.page-number:hover {
-  background-color: rgba(92, 107, 192, 0.1);
+.modal-header .close:hover,
+.modal-close-button:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--danger-color);
 }
 
-.page-number.active {
-  background-color: var(--primary-color);
-  color: white;
-  box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.1),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.1);
+/* Scrollable modal body */
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  padding: 15px 25px 25px 25px; /* Reduced top padding from 0 */
+  max-height: calc(90vh - 60px); /* Account for the reduced header height */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: var(--primary-color) var(--background-color); /* For Firefox */
 }
 
-.ellipsis {
-  width: 20px;
-  text-align: center;
-  color: var(--dark-color);
-  font-size: 14px;
+/* Custom scrollbar for webkit browsers */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Adjust table container to account for pagination */
-.neumorphic-table-container.full-width {
-  max-height: calc(100vh - 250px);
-  margin-top: 15px;
-  overflow-x: auto;
-  scrollbar-width: thin;
+.modal-body::-webkit-scrollbar-track {
+  background: var(--background-color);
+  border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+  opacity: 0.7;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #4a5ba8;
+  opacity: 1;
+}
+
+.edit-form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-sections {
+  flex: 1;
+  overflow: visible; /* Allow natural flow */
+  padding-bottom: 20px;
 }
 
 /* Responsive Design */
@@ -851,7 +822,7 @@ input:focus {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 0 10px;
+  padding: 0 10px 20px 10px; /* Add bottom padding to the container */
   max-height: 75vh;
   overflow-y: auto;
 }
@@ -904,7 +875,9 @@ input:focus {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+  margin-bottom: 20px; /* Add bottom margin */
   padding-right: 15px;
+  padding-bottom: 15px; /* Add bottom padding for extra spacing */
 }
 
 /* Make sure full-width detail items span all columns */

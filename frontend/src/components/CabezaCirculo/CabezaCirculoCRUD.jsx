@@ -409,235 +409,237 @@ const CabezaCirculoCRUD = () => {
             <div className="modal-header">
               <h3>Editar Registro</h3>
               <button 
-                className="neumorphic-button icon-button small close" 
+                className="close" 
                 onClick={() => setSelectedCabeza(null)}
               >
                 <i className="bi bi-x-lg"></i>
               </button>
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleUpdateSubmit(selectedCabeza);
-              }}
-              className="edit-form"
-            >
-              <div className="modal-sections">
-                <div className="modal-section">
-                  <h4 className="section-title">Información Personal</h4>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Nombre(s)</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.nombre || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, nombre: e.target.value })}
-                        required
-                      />
+            <div className="modal-content-wrapper">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleUpdateSubmit(selectedCabeza);
+                }}
+                className="edit-form"
+              >
+                <div className="modal-sections">
+                  <div className="modal-section">
+                    <h4 className="section-title">Información Personal</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Nombre(s)</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.nombre || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, nombre: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Apellido Paterno</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.apellidoPaterno || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, apellidoPaterno: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Apellido Materno</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.apellidoMaterno || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, apellidoMaterno: e.target.value })}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>Apellido Paterno</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.apellidoPaterno || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, apellidoPaterno: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Apellido Materno</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.apellidoMaterno || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, apellidoMaterno: e.target.value })}
-                        required
-                      />
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Fecha de Nacimiento</label>
+                        <input
+                          type="date"
+                          className="neumorphic-input"
+                          value={formatDate(selectedCabeza.fechaNacimiento) || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, fechaNacimiento: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Teléfono</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.telefono || ''}
+                          onChange={(e) => handleInputChange(e, 'telefono')}
+                          maxLength="10"
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Fecha de Nacimiento</label>
-                      <input
-                        type="date"
-                        className="neumorphic-input"
-                        value={formatDate(selectedCabeza.fechaNacimiento) || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, fechaNacimiento: e.target.value })}
-                        required
-                      />
+                  <div className="modal-section">
+                    <h4 className="section-title">Dirección</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Calle</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.calle || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, calle: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Colonia</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.colonia || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, colonia: e.target.value })}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>Teléfono</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.telefono || ''}
-                        onChange={(e) => handleInputChange(e, 'telefono')}
-                        maxLength="10"
-                        required
-                      />
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>No. Exterior</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.noExterior || ''}
+                          onChange={(e) => handleInputChange(e, 'noExterior')}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>No. Interior</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.noInterior || ''}
+                          onChange={(e) => handleInputChange(e, 'noInterior')}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Código Postal</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.codigoPostal || ''}
+                          onChange={(e) => handleInputChange(e, 'codigoPostal')}
+                          maxLength="5"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Municipio</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.municipio || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, municipio: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-section">
+                    <h4 className="section-title">Información Electoral y Contacto</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Clave de Elector</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.claveElector || ''}
+                          onChange={(e) => handleInputChange(e, 'claveElector')}
+                          maxLength="18"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Email</label>
+                        <input
+                          type="email"
+                          className="neumorphic-input"
+                          value={selectedCabeza.email || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, email: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Facebook</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.facebook || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, facebook: e.target.value })}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Otra Red Social</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.otraRedSocial || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, otraRedSocial: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-section">
+                    <h4 className="section-title">Estructura</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Estructura Territorial</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.estructuraTerritorial || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, estructuraTerritorial: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Posición en Estructura</label>
+                        <input
+                          type="text"
+                          className="neumorphic-input"
+                          value={selectedCabeza.posicionEstructura || ''}
+                          onChange={(e) => setSelectedCabeza({ ...selectedCabeza, posicionEstructura: e.target.value })}
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="modal-section">
-                  <h4 className="section-title">Dirección</h4>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Calle</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.calle || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, calle: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Colonia</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.colonia || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, colonia: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>No. Exterior</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.noExterior || ''}
-                        onChange={(e) => handleInputChange(e, 'noExterior')}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>No. Interior</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.noInterior || ''}
-                        onChange={(e) => handleInputChange(e, 'noInterior')}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Código Postal</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.codigoPostal || ''}
-                        onChange={(e) => handleInputChange(e, 'codigoPostal')}
-                        maxLength="5"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Municipio</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.municipio || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, municipio: e.target.value })}
-                      />
-                    </div>
-                  </div>
+                <div className="form-actions">
+                  <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedCabeza(null)}>
+                    <i className="bi bi-x-circle me-2"></i>Cancelar
+                  </button>
+                  <button type="submit" className="neumorphic-button primary">
+                    <i className="bi bi-floppy me-2"></i>Guardar Cambios
+                  </button>
                 </div>
-
-                <div className="modal-section">
-                  <h4 className="section-title">Información Electoral y Contacto</h4>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Clave de Elector</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.claveElector || ''}
-                        onChange={(e) => handleInputChange(e, 'claveElector')}
-                        maxLength="18"
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Email</label>
-                      <input
-                        type="email"
-                        className="neumorphic-input"
-                        value={selectedCabeza.email || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, email: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Facebook</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.facebook || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, facebook: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Otra Red Social</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.otraRedSocial || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, otraRedSocial: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="modal-section">
-                  <h4 className="section-title">Estructura</h4>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Estructura Territorial</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.estructuraTerritorial || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, estructuraTerritorial: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Posición en Estructura</label>
-                      <input
-                        type="text"
-                        className="neumorphic-input"
-                        value={selectedCabeza.posicionEstructura || ''}
-                        onChange={(e) => setSelectedCabeza({ ...selectedCabeza, posicionEstructura: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedCabeza(null)}>
-                  <i className="bi bi-x-circle me-2"></i>Cancelar
-                </button>
-                <button type="submit" className="neumorphic-button primary">
-                  <i className="bi bi-floppy me-2"></i>Guardar Cambios
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

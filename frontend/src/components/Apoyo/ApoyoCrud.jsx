@@ -546,150 +546,161 @@ const ApoyoCRUD = () => {
       {/* Edit Modal */}
       {selectedApoyo && (
         <div className="neumorphic-modal">
-          <div className="neumorphic-modal-content">
+          <div className="neumorphic-modal-content large-modal">
             <div className="modal-header">
               <h3>Editar Apoyo</h3>
               <button 
-                className="neumorphic-button icon-button small close" 
+                className="close" 
                 onClick={() => setSelectedApoyo(null)}
               >
                 <i className="bi bi-x-lg"></i>
               </button>
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleUpdateSubmit(selectedApoyo);
-              }}
-            >
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Cantidad</label>
-                  <input
-                    type="number"
-                    className="neumorphic-input"
-                    value={selectedApoyo.cantidad || ''}
-                    onChange={(e) => setSelectedApoyo({ ...selectedApoyo, cantidad: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Tipo de Apoyo</label>
-                  <select
-                    className="neumorphic-input"
-                    value={selectedApoyo.tipoApoyo || ''}
-                    onChange={(e) => setSelectedApoyo({ ...selectedApoyo, tipoApoyo: e.target.value })}
-                    required
-                  >
-                    <option value="">Seleccione una opción</option>
-                    {predefinedOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedApoyo.tipoApoyo === "Otro" && (
-                    <div className="custom-input-container">
-                      <input
-                        type="text"
-                        placeholder="Especifique el tipo de apoyo"
-                        value={selectedApoyo.tipoApoyoCustom || ''}
-                        onChange={(e) => setSelectedApoyo({
-                          ...selectedApoyo,
-                          tipoApoyoCustom: e.target.value,
-                        })}
-                        className="custom-input"
-                        autoComplete="off"
-                        required
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Fecha de Entrega</label>
-                  <input
-                    type="date"
-                    className="neumorphic-input"
-                    value={formatDate(selectedApoyo.fechaEntrega) || ''}
-                    onChange={(e) => setSelectedApoyo({ ...selectedApoyo, fechaEntrega: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-              
-              {/* Current beneficiary information */}
-              <div className="form-section">
-                <h4>Beneficiario Actual</h4>
-                <div className="form-row">
-                  <div className="form-col">
-                    <p>
-                      {selectedApoyo.persona
-                        ? `${selectedApoyo.persona.nombre} ${selectedApoyo.persona.apellidoPaterno} ${selectedApoyo.persona.apellidoMaterno} - Integrante de Círculo`
-                        : selectedApoyo.cabeza
-                          ? `${selectedApoyo.cabeza.nombre} ${selectedApoyo.cabeza.apellidoPaterno} ${selectedApoyo.cabeza.apellidoMaterno} - Cabeza de Círculo`
-                          : "No hay beneficiario asignado"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Cambiar Beneficiario section with increased height */}
-              <div className="form-section beneficiary-edit-section">
-                <h4>Cambiar Beneficiario</h4>
-                <div className="form-row">
-                  <div className="form-col" style={{ position: "relative" }}>
-                    <label>Buscar Nuevo Beneficiario</label>
-                    <input
-                      type="text"
-                      placeholder="Nombre o Clave de Elector"
-                      value={searchBeneficiarioQuery}
-                      onChange={handleSearchBeneficiarios}
-                      autoComplete="off"
-                    />
-                    {beneficiarios.length > 0 && (
-                      <ul className="search-results">
-                        {beneficiarios.map((beneficiario) => (
-                          <li
-                            key={`${beneficiario.tipo}-${beneficiario.id}`}
-                            onClick={() => handleSelectNewBeneficiario(beneficiario)}
-                            className="search-result-item"
-                          >
-                            {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="selected-beneficiary-container">
-                  {selectedNewBeneficiario && (
+            <div className="modal-body">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleUpdateSubmit(selectedApoyo);
+                }}
+                className="edit-form"
+              >
+                <div className="modal-sections">
+                  <div className="modal-section">
+                    <h4 className="section-title">Información del Apoyo</h4>
                     <div className="form-row">
-                      <div className="form-col">
-                        <label>Nuevo Beneficiario Seleccionado</label>
+                      <div className="form-group">
+                        <label>Cantidad</label>
                         <input
-                          type="text"
-                          value={`${selectedNewBeneficiario.nombre} ${selectedNewBeneficiario.apellidoPaterno} ${selectedNewBeneficiario.apellidoMaterno} - ${selectedNewBeneficiario.claveElector}`}
-                          readOnly
-                          className="selected-beneficiary"
+                          type="number"
+                          className="neumorphic-input"
+                          value={selectedApoyo.cantidad || ''}
+                          onChange={(e) => setSelectedApoyo({ ...selectedApoyo, cantidad: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Tipo de Apoyo</label>
+                        <select
+                          className="neumorphic-input"
+                          value={selectedApoyo.tipoApoyo || ''}
+                          onChange={(e) => setSelectedApoyo({ ...selectedApoyo, tipoApoyo: e.target.value })}
+                          required
+                        >
+                          <option value="">Seleccione una opción</option>
+                          {predefinedOptions.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        {selectedApoyo.tipoApoyo === "Otro" && (
+                          <div className="custom-input-container">
+                            <input
+                              type="text"
+                              placeholder="Especifique el tipo de apoyo"
+                              value={selectedApoyo.tipoApoyoCustom || ''}
+                              onChange={(e) => setSelectedApoyo({
+                                ...selectedApoyo,
+                                tipoApoyoCustom: e.target.value,
+                              })}
+                              className="custom-input"
+                              autoComplete="off"
+                              required
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Fecha de Entrega</label>
+                        <input
+                          type="date"
+                          className="neumorphic-input"
+                          value={formatDate(selectedApoyo.fechaEntrega) || ''}
+                          onChange={(e) => setSelectedApoyo({ ...selectedApoyo, fechaEntrega: e.target.value })}
+                          required
                         />
                       </div>
                     </div>
-                  )}
+                  </div>
+                  
+                  {/* Current beneficiary information */}
+                  <div className="modal-section">
+                    <h4 className="section-title">Beneficiario Actual</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <p>
+                          {selectedApoyo.persona
+                            ? `${selectedApoyo.persona.nombre} ${selectedApoyo.persona.apellidoPaterno} ${selectedApoyo.persona.apellidoMaterno} - Integrante de Círculo`
+                            : selectedApoyo.cabeza
+                              ? `${selectedApoyo.cabeza.nombre} ${selectedApoyo.cabeza.apellidoPaterno} ${selectedApoyo.cabeza.apellidoMaterno} - Cabeza de Círculo`
+                              : "No hay beneficiario asignado"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Cambiar Beneficiario section with increased height */}
+                  <div className="modal-section">
+                    <h4 className="section-title">Cambiar Beneficiario</h4>
+                    <div className="beneficiary-edit-section">
+                      <div className="form-row">
+                        <div className="form-group" style={{ position: "relative" }}>
+                          <label>Buscar Nuevo Beneficiario</label>
+                          <input
+                            type="text"
+                            className="neumorphic-input"
+                            placeholder="Nombre o Clave de Elector"
+                            value={searchBeneficiarioQuery}
+                            onChange={handleSearchBeneficiarios}
+                            autoComplete="off"
+                          />
+                          {beneficiarios.length > 0 && (
+                            <ul className="search-results">
+                              {beneficiarios.map((beneficiario) => (
+                                <li
+                                  key={`${beneficiario.tipo}-${beneficiario.id}`}
+                                  onClick={() => handleSelectNewBeneficiario(beneficiario)}
+                                  className="search-result-item"
+                                >
+                                  {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="selected-beneficiary-container">
+                        {selectedNewBeneficiario && (
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>Nuevo Beneficiario Seleccionado</label>
+                              <input
+                                type="text"
+                                className="neumorphic-input selected-beneficiary"
+                                value={`${selectedNewBeneficiario.nombre} ${selectedNewBeneficiario.apellidoPaterno} ${selectedNewBeneficiario.apellidoMaterno} - ${selectedNewBeneficiario.claveElector}`}
+                                readOnly
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="form-actions">
-                <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedApoyo(null)}>
-                  <i className="bi bi-x-circle me-2"></i>Cancelar
-                </button>
-                <button type="submit" className="neumorphic-button primary">
-                  <i className="bi bi-floppy me-2"></i>Guardar Cambios
-                </button>
-              </div>
-            </form>
+                
+                <div className="form-actions">
+                  <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedApoyo(null)}>
+                    <i className="bi bi-x-circle me-2"></i>Cancelar
+                  </button>
+                  <button type="submit" className="neumorphic-button primary">
+                    <i className="bi bi-floppy me-2"></i>Guardar Cambios
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -701,7 +712,7 @@ const ApoyoCRUD = () => {
             <div className="modal-header">
               <h3>Detalles del Apoyo</h3>
               <button 
-                className="neumorphic-button icon-button small close" 
+                className="close" 
                 onClick={() => setViewDetailsApoyo(null)}
               >
                 <i className="bi bi-x-lg"></i>
@@ -837,10 +848,19 @@ const ApoyoCRUD = () => {
                 </div>
               )}
               
-              <div className="form-actions">
+              <div className="modal-footer">
                 <button 
-                  className="neumorphic-button cancel" 
+                  className="close modal-close-button" 
                   onClick={() => setViewDetailsApoyo(null)}
+                  style={{
+                    backgroundColor: 'var(--primary-color)',
+                    color: 'white',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    width: 'auto',
+                    height: 'auto',
+                    fontSize: '14px'
+                  }}
                 >
                   <i className="bi bi-check-circle me-2"></i>Cerrar
                 </button>

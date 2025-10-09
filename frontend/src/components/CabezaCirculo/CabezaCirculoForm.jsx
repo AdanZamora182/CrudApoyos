@@ -343,7 +343,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </div>
           <div className="row">
             <div className="col-md-6 mb-2">
-              <label className="form-label">Municipio (opcional)</label>
+              <label className="form-label">Municipio</label>
               <input
                 type="text"
                 name="municipio"

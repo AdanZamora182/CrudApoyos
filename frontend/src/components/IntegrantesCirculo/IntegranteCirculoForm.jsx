@@ -195,7 +195,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   };
 
   return (
-    <div className={`container mt-3`}>
+    <div className={`container mt-3 mb-4`}> {/* Added mb-4 for bottom margin */}
       {!hideHeaderState && (
         <div className="mb-4">
           <h1 className="h4 text-primary">Registro de Integrante de Círculo</h1>
@@ -478,7 +478,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
-        <div className="d-flex justify-content-end gap-2 mt-4 mb-4">
+        <div className="d-flex justify-content-end gap-2 mt-4 mb-5"> {/* Changed from mb-4 to mb-5 */}
           <button type="button" className="form-button form-button-secondary" onClick={handleReset}>
             Limpiar
           </button>
