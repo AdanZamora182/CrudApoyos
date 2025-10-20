@@ -124,6 +124,16 @@ const ApoyoForm = ({ hideHeader = false }) => {
     setBeneficiarios([]);
   };
 
+  // Add function to remove selected beneficiary
+  const handleRemoveBeneficiario = () => {
+    setSelectedBeneficiario(null);
+    setFormData({
+      ...formData,
+      beneficiarioId: null,
+      beneficiarioTipo: ""
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -218,7 +228,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Información del Apoyo</h5>
           <div className="form-row">
-            <div className="form-col">
+            <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Cantidad</label>
               <input
                 type="number"
@@ -234,7 +244,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 </span>
               )}
             </div>
-            <div className="form-col">
+            <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Tipo de Apoyo</label>
               <select
                 name="tipoApoyo"
@@ -257,7 +267,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
             </div>
           </div>
           <div className="form-row">
-            <div className="form-col">
+            <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Fecha de Entrega</label>
               <input
                 type="date"
@@ -281,7 +291,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
           <h5 className="mb-2 heading-morado">Asociar Beneficiario</h5>
           <div className="beneficiary-container">
             <div className="form-row">
-              <div className="form-col" style={{ position: "relative" }}>
+              <div className="form-col" style={{ position: "relative", flex: "0 0 50%" }}>
                 <label>Buscar Beneficiario</label>
                 <input
                   type="text"
@@ -309,14 +319,24 @@ const ApoyoForm = ({ hideHeader = false }) => {
             <div className="selected-beneficiary-container">
               {selectedBeneficiario ? (
                 <div className="form-row">
-                  <div className="form-col">
+                  <div className="form-col" style={{ flex: "0 0 50%" }}>
                     <label>Beneficiario Seleccionado</label>
-                    <input
-                      type="text"
-                      value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
-                      readOnly
-                      className="selected-beneficiary"
-                    />
+                    <div className="selected-beneficiary-wrapper">
+                      <input
+                        type="text"
+                        value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
+                        readOnly
+                        className="selected-beneficiary"
+                      />
+                      <button
+                        type="button"
+                        className="remove-beneficiary-btn"
+                        onClick={handleRemoveBeneficiario}
+                        title="Quitar selección"
+                      >
+                        <i className="bi bi-x"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (

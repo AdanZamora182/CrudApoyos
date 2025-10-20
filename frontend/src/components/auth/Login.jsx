@@ -20,7 +20,7 @@ function Login() {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     if (queryParams.get('registered') === 'true') {
-      setSuccessMessage('✅ Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
+      setSuccessMessage('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
 
       const timer = setTimeout(() => {
         setSuccessMessage('');

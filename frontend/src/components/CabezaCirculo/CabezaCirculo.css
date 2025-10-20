@@ -451,533 +451,179 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.action-button i {
-  font-size: 14px;
-  color: white;
-}
-
-/* Card Grid */
-.neumorphic-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
-  margin-top: 20px;
-}
-
-.neumorphic-card {
-  border-radius: 15px;
-  padding: 20px;
-  background-color: var(--background-color);
-  box-shadow: 
-    5px 5px 10px var(--shadow-dark),
-    -5px -5px 10px var(--shadow-light);
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid transparent;
-}
-
-.neumorphic-card:hover {
-  transform: translateY(-3px);
-  border: 1px solid rgba(92, 107, 192, 0.1);
-  box-shadow: 
-    7px 7px 14px var(--shadow-dark),
-    -7px -7px 14px var(--shadow-light);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(92, 107, 192, 0.1);
-}
-
-.card-header h3 {
+/* Colonia dropdown styles */
+.colonia-dropdown {
+  list-style: none;
   margin: 0;
-  color: var(--primary-color);
-  font-weight: 500;
-  font-size: 1.2rem;
-}
-
-.card-content p {
-  margin: 6px 0;
-  font-size: 0.9rem;
-  color: var(--dark-color);
-}
-
-.card-content p strong {
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-/* Loader */
-.neumorphic-loader-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.neumorphic-loader {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 6px solid var(--background-color);
-  border-top-color: var(--primary-color);
-  animation: spin 1s infinite linear;
-  box-shadow: 
-    5px 5px 10px var(--shadow-dark),
-    -5px -5px 10px var(--shadow-light);
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Empty State */
-.neumorphic-empty-state {
-  text-align: center;
-  padding: 50px 20px;
-  color: #888;
-}
-
-.neumorphic-empty-state i {
-  font-size: 48px;
-  margin-bottom: 20px;
-  color: var(--primary-color);
-}
-
-/* Messages */
-.neumorphic-message {
-  padding: 15px 20px;
-  border-radius: 15px;
-  margin-bottom: 25px;
-  box-shadow: 
-    5px 5px 10px var(--shadow-dark),
-    -5px -5px 10px var(--shadow-light);
-  text-align: center;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.neumorphic-message-success {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: var(--success-color);
-}
-
-.neumorphic-message-error {
-  background-color: rgba(244, 67, 54, 0.1);
-  color: var(--danger-color);
-}
-
-/* Modal */
-.neumorphic-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.neumorphic-modal-content {
-  width: 100%;
-  max-width: 600px;
-  background-color: var(--background-color);
-  border-radius: 20px;
-  padding: 0; /* Remove padding to handle it in sections */
-  box-shadow: 
-    20px 20px 60px rgba(0, 0, 0, 0.2),
-    -20px -20px 60px rgba(255, 255, 255, 0.1);
-  animation: modalIn 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-}
-
-/* Large modal for editing */
-.large-modal {
-  width: 90%;
-  max-width: 1200px;
-  max-height: 90vh;
-}
-
-/* Fixed modal header */
-.modal-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: var(--background-color);
-  padding: 12px 25px 10px 25px; /* Compact header padding */
-  border-radius: 20px 20px 0 0;
-  border-bottom: 1px solid rgba(209, 217, 230, 0.3);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  min-height: 50px;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: var(--primary-color);
-  font-size: 1.3rem;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-/* Universal close button style for all modals */
-.modal-header .close,
-.modal-close-button {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  color: var(--dark-color);
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-header .close:hover,
-.modal-close-button:hover {
-  background-color: rgba(244, 67, 54, 0.1);
-  color: var(--danger-color);
-}
-
-/* Scrollable content wrapper */
-.modal-content-wrapper {
-  flex: 1;
+  padding: 0;
+  border: 1px solid #5c6bc0;
+  max-height: 200px; /* Increased height for better visibility */
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 15px 25px 25px 25px;
-  max-height: calc(90vh - 60px);
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) var(--background-color);
+  background-color: white;
+  position: absolute;
+  z-index: 1060; /* High z-index to appear above other elements */
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  top: 100%; /* Position below the input */
+  left: 0;
+  border-top: none;
 }
 
-/* Custom scrollbar for webkit browsers */
-.modal-content-wrapper::-webkit-scrollbar {
-  width: 8px;
+.colonia-dropdown-item {
+  padding: 10px 14px; /* Increased padding for better click area */
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
 }
 
-.modal-content-wrapper::-webkit-scrollbar-track {
-  background: var(--background-color);
-  border-radius: 10px;
+.colonia-dropdown-item:hover {
+  background-color: rgba(92, 107, 192, 0.1);
+  color: #5c6bc0;
 }
 
-.modal-content-wrapper::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 10px;
+.colonia-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+/* Custom scrollbar for colonia dropdown */
+.colonia-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.colonia-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.colonia-dropdown::-webkit-scrollbar-thumb {
+  background: #5c6bc0;
+  border-radius: 3px;
   opacity: 0.7;
 }
 
-.modal-content-wrapper::-webkit-scrollbar-thumb:hover {
+.colonia-dropdown::-webkit-scrollbar-thumb:hover {
   background: #4a5ba8;
   opacity: 1;
 }
 
-.edit-form {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-sections {
-  flex: 1;
-  overflow: visible;
-  padding-bottom: 20px;
-  margin: 0 -10px; /* Adjust lateral margins for sub-containers */
-}
-
-.modal-section {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 15px 20px; /* Adjust internal padding */
-  margin: 0 10px 20px 10px; /* Proper lateral margins */
-  box-shadow: 
-    inset 3px 3px 7px var(--shadow-dark),
-    inset -3px -3px 7px var(--shadow-light);
-}
-
-/* General adjustments for all modals */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px; /* Reduced from 20px */
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: var(--primary-color);
-}
-
-.form-row {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 12px; /* Reduced from 15px */
-}
-
-.form-group {
-  flex: 1;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px; /* Reduced from 8px */
-  color: var(--dark-color);
-  font-weight: 500;
-  font-size: 13px; /* Reduced size */
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 25px;
-  padding-right: 15px; /* Add padding to create space from the scrollbar */
-  margin-bottom: 20px; /* Add some bottom margin for better spacing */
-}
-
-.form-container.integrated-form .form-actions {
-  padding-right: 25px; /* Add more padding in integrated mode */
-}
-
-/* Full screen container */
-.full-screen {
-  width: 100%;
-  min-height: 80vh;
-}
-
-.full-width {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 70vh; /* Limit the height */
-}
-
-/* Large modal for editing */
-.large-modal {
-  width: 90%;
-  max-width: 1200px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modal-section {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 15px; /* Reduced from 20px */
-  box-shadow: 
-    inset 3px 3px 7px var(--shadow-dark),
-    inset -3px -3px 7px var(--shadow-light);
-}
-
-.section-title {
-  color: var(--primary-color);
-  margin-top: 0;
-  margin-bottom: 15px;
-  border-bottom: 1px solid rgba(92, 107, 192, 0.2);
-  padding-bottom: 8px;
-}
-
-.edit-form {
-  width: 100%;
-}
-
-/* Table styles */
-.neumorphic-table-container.full-width {
-  max-height: calc(100vh - 250px); /* Reduced from 280px */
-  margin-top: 15px; /* Reduced from 20px */
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.neumorphic-table th {
-  position: sticky;
-  top: 0;
-}
-
-.neumorphic-card-grid {
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-}
-
-/* Empty state and search icon adjustments */
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 20px;
-  color: var(--primary-color);
-  display: block;
-}
-
-.search-icon {
-  position: absolute;
-  right: 10px; /* Reduced from 15px */
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--primary-color);
-  font-size: 0.9rem; /* Smaller icon size */
-}
-
-/* Adjust scrollbars */
-.neumorphic-table-container::-webkit-scrollbar,
-.large-modal::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.neumorphic-table-container::-webkit-scrollbar-track,
-.large-modal::-webkit-scrollbar-track {
-  background: var(--background-color);
-  border-radius: 4px;
-}
-
-.neumorphic-table-container::-webkit-scrollbar-thumb,
-.large-modal::-webkit-scrollbar-thumb {
-  background: rgba(92, 107, 192, 0.3);
-  border-radius: 4px;
-}
-
-.neumorphic-table-container::-webkit-scrollbar-thumb:hover,
-.large-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(92, 107, 192, 0.5);
-}
-
-/* Pagination styles */
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 12px;
-  padding: 6px 12px;
-  background-color: var(--background-color);
-  border-radius: 10px;
-  box-shadow: 
-    3px 3px 6px var(--shadow-dark),
-    -3px -3px 6px var(--shadow-light);
-  position: relative;
-}
-
-.pagination-info {
-  font-size: 14px;
-  color: var(--dark-color);
-  position: absolute;
-  right: 12px;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: center;
-}
-
-/* Pagination button styles */
-.pagination-button {
-  width: 30px; /* Reduced from 34px */
-  height: 30px; /* Reduced from 34px */
+/* Input group button styling */
+.input-group .btn-outline-primary {
+  border-color: #5c6bc0;
+  color: #5c6bc0;
+  height: 33.5px; /* Match the height of form-control-sm */
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background-color: var(--background-color);
-  color: var(--primary-color);
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 
-    3px 3px 6px var(--shadow-dark),
-    -3px -3px 6px var(--shadow-light);
-  transition: all 0.2s ease;
 }
 
-.pagination-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.pagination-button:active:not(:disabled) {
-  box-shadow: 
-    inset 2px 2px 4px var(--shadow-dark),
-    inset -2px -2px 4px var(--shadow-light);
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-numbers {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-
-.page-number {
-  width: 28px; /* Reduced from 30px */
-  height: 28px; /* Reduced from 30px */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background-color: var(--background-color);
-  color: var(--dark-color);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px; /* Reduced from 14px */
-  box-shadow: 
-    2px 2px 4px var(--shadow-dark),
-    -2px -2px 4px var(--shadow-light);
-  transition: all 0.2s ease;
-}
-
-.page-number:hover {
-  background-color: rgba(92, 107, 192, 0.1);
-}
-
-.page-number.active {
-  background-color: var(--primary-color);
+.input-group .btn-outline-primary:hover {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
   color: white;
-  box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.1),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.1);
 }
 
-.ellipsis {
-  width: 20px;
-  text-align: center;
-  color: var(--dark-color);
-  font-size: 14px;
+.input-group .btn-outline-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(92, 107, 192, 0.25);
+  border-color: #5c6bc0;
 }
 
-/* Adjust table container to account for pagination */
-.neumorphic-table-container.full-width {
-  max-height: calc(100vh - 250px); /* Reduced from 280px */
+/* Input group button styling */
+.input-group .btn-outline-secondary {
+  border-color: #dee2e6; /* Match Bootstrap input border color */
+  color: #6c757d; /* Bootstrap secondary grey */
+  height: 33.5px; /* Match the height of form-control-sm */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff; /* White background like text inputs */
+  border-width: 1px; /* Same border width as text inputs */
+  border-style: solid;
+  font-size: 13px; /* Match input font size */
+  border-radius: 0 0.375rem 0.375rem 0; /* Bootstrap default border radius for right side */
+  transition: all 0.15s ease-in-out; /* Bootstrap default transition */
+  border-left: 1px solid #e0e0e0; /* Light grey left border */
+  outline: none !important; /* Remove focus outline */
+  box-shadow: none !important; /* Remove any box-shadow */
+}
+
+.input-group .btn-outline-secondary:hover {
+  background-color: #6c757d; /* Bootstrap secondary grey */
+  border-color: #6c757d;
+  color: white;
+  outline: none !important; /* Remove focus outline on hover */
+  box-shadow: none !important; /* Remove any box-shadow on hover */
+}
+
+.input-group .btn-outline-secondary:focus {
+  outline: none !important; /* Remove focus outline */
+  box-shadow: none !important; /* Remove focus box-shadow */
+  border-color: #dee2e6 !important; /* Keep original border color on focus */
+  background-color: #fff !important; /* Keep original background on focus */
+  color: #6c757d !important; /* Keep original text color on focus */
+}
+
+.input-group .btn-outline-secondary:active {
+  background-color: #6c757d; /* Keep hover style when active */
+  border-color: #6c757d;
+  color: white;
+  outline: none !important; /* Remove focus outline when active/pressed */
+  box-shadow: none !important; /* Remove any box-shadow when active/pressed */
+}
+
+.input-group .btn-outline-secondary:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #dee2e6 !important; /* Reset border color */
+  background-color: #fff !important; /* Reset background color */
+  color: #6c757d !important; /* Reset text color */
+}
+
+/* Override Bootstrap's focus-visible styles */
+.input-group .btn-outline-secondary:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #dee2e6 !important;
+  background-color: #fff !important;
+  color: #6c757d !important;
+}
+
+/* Ensure the button returns to normal state after being clicked */
+.input-group .btn-outline-secondary:not(:hover):not(:active) {
+  border-color: #dee2e6 !important;
+  background-color: #fff !important;
+  color: #6c757d !important;
+}
+
+/* Ensure proper alignment of input group elements */
+.input-group {
+  display: flex;
+  align-items: stretch;
+  height: 33.5px; /* Set explicit height to match form-control-sm */
+}
+
+.input-group .form-control {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  height: 33.5px !important; /* Ensure the input has the same height */
+  min-height: 33.5px !important;
+  max-height: 33.5px !important;
+  line-height: 1.5;
+  padding: 6px 8px; /* Match the padding of other form-control-sm inputs */
+  border-right: none; /* Remove right border to seamlessly connect with button */
+  border-color: #dee2e6; /* Consistent border color */
+}
+
+.input-group .btn {
+  height: 33.5px !important; /* Ensure button matches input height */
+  min-height: 33.5px !important;
+  max-height: 33.5px !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left: none; /* Remove left border to seamlessly connect with input */
 }
 
 /* Responsive Design */

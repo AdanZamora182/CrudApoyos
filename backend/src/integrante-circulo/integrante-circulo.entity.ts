@@ -30,8 +30,11 @@ export class IntegranteCirculo {
   @Column({ name: 'Colonia' })
   colonia: string;
 
-  @Column({ name: 'Codigo_Postal', nullable: true }) // Nueva columna
+  @Column({ name: 'Codigo_Postal', nullable: true }) 
   codigoPostal: number;
+
+  @Column({ name: 'Municipio', nullable: true })
+  municipio: string;
 
   @Column({ name: 'Clave_Elector', unique: true })
   claveElector: string;

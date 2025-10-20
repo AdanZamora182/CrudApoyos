@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css'; // Importa Bootstrap
 import "./CabezaCirculo.css";
-import { createCabezaCirculo } from "../../api";
+import { createCabezaCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
 
 const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
@@ -31,7 +31,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
-  const [hideHeaderState, setHideHeader] = useState(hideHeader); // Controlar desde props
+  const [hideHeaderState, setHideHeader] = useState(hideHeader);
+  
+  // Add new state for colonies
+  const [colonias, setColonias] = useState([]);
+  const [showColoniaDropdown, setShowColoniaDropdown] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,6 +57,78 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
         ...errors,
         [name]: null,
       });
+    }
+
+    // Handle código postal changes
+    if (name === "codigoPostal") {
+      if (value.length === 5) {
+        // Auto-complete Municipio and get Colonias when Código Postal is complete
+        handleCodigoPostalChange(value);
+      } else {
+        // Clear municipio and colonias when código postal is incomplete or deleted
+        setFormData(prevData => ({
+          ...prevData,
+          codigoPostal: value,
+          municipio: "",
+          colonia: ""
+        }));
+        setColonias([]);
+        setShowColoniaDropdown(false);
+      }
+    }
+    
+    // Handle colonia selection from dropdown
+    if (name === "colonia") {
+      setShowColoniaDropdown(false); // Hide dropdown after selection
+    }
+  };
+
+  // Enhanced function to handle código postal autocomplete
+  const handleCodigoPostalChange = async (codigoPostal) => {
+    try {
+      // Fetch both municipio and colonias
+      const [municipio, coloniasData] = await Promise.all([
+        buscarMunicipioPorCP(codigoPostal),
+        buscarColoniasPorCP(codigoPostal)
+      ]);
+      
+      if (municipio) {
+        setFormData(prevData => ({
+          ...prevData,
+          municipio: municipio,
+          colonia: "" // Clear colonia when postal code changes
+        }));
+      }
+      
+      if (coloniasData && coloniasData.length > 0) {
+        // Sort colonies alphabetically
+        const sortedColonias = coloniasData.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+        setColonias(sortedColonias);
+        setShowColoniaDropdown(true);
+      } else {
+        setColonias([]);
+        setShowColoniaDropdown(false);
+      }
+    } catch (error) {
+      console.error("Error al buscar datos por código postal:", error);
+      setColonias([]);
+      setShowColoniaDropdown(false);
+    }
+  };
+
+  // Handle colonia selection from dropdown
+  const handleColoniaSelect = (coloniaSeleccionada) => {
+    setFormData(prevData => ({
+      ...prevData,
+      colonia: coloniaSeleccionada
+    }));
+    setShowColoniaDropdown(false);
+  };
+
+  // New function to toggle dropdown visibility
+  const toggleColoniaDropdown = () => {
+    if (colonias.length > 0) {
+      setShowColoniaDropdown(!showColoniaDropdown);
     }
   };
 
@@ -291,15 +367,49 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
             </div>
             <div className="col-md-6 mb-2">
               <label className="form-label">Colonia</label>
-              <input
-                type="text"
-                name="colonia"
-                value={formData.colonia}
-                onChange={handleChange}
-                className={`form-control form-control-sm${errors.colonia ? " is-invalid" : ""}`}
-                autoComplete="off"
-              />
-              {errors.colonia && <div className="invalid-feedback">{errors.colonia}</div>}
+              <div style={{ position: "relative" }}>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="colonia"
+                    value={formData.colonia}
+                    onChange={handleChange}
+                    className={`form-control form-control-sm${errors.colonia ? " is-invalid" : ""}`}
+                    autoComplete="off"
+                    placeholder={colonias.length > 0 ? "Selecciona una colonia o escribe una nueva" : "Ingresa código postal primero"}
+                  />
+                  {colonias.length > 0 && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={toggleColoniaDropdown}
+                      title="Mostrar colonias disponibles"
+                      style={{
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                        fontSize: '12px',
+                        padding: '4px 8px'
+                      }}
+                    >
+                      <i className={`bi bi-chevron-${showColoniaDropdown ? 'up' : 'down'}`}></i>
+                    </button>
+                  )}
+                </div>
+                {showColoniaDropdown && colonias.length > 0 && (
+                  <ul className="colonia-dropdown">
+                    {colonias.map((colonia, index) => (
+                      <li
+                        key={index}
+                        onClick={() => handleColoniaSelect(colonia)}
+                        className="colonia-dropdown-item"
+                      >
+                        {colonia}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {errors.colonia && <div className="invalid-feedback">{errors.colonia}</div>}
+              </div>
             </div>
           </div>
           <div className="row">
@@ -337,6 +447,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.codigoPostal ? " is-invalid" : ""}`}
                 maxLength="5"
                 autoComplete="off"
+                placeholder="Ingresa 5 dígitos"
               />
               {errors.codigoPostal && <div className="invalid-feedback">{errors.codigoPostal}</div>}
             </div>
@@ -351,6 +462,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
                 onChange={handleChange}
                 className={`form-control form-control-sm${errors.municipio ? " is-invalid" : ""}`}
                 autoComplete="off"
+                placeholder="Se autocompleta con el código postal"
               />
               {errors.municipio && <div className="invalid-feedback">{errors.municipio}</div>}
             </div>

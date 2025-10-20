@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./IntegranteCirculo.css";
-import { createIntegranteCirculo, buscarCabezasCirculo } from "../../api";
+import { createIntegranteCirculo, buscarCabezasCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
 
 const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
     noInterior: "",
     colonia: "",
     codigoPostal: "",
+    municipio: "", // <-- Añadir aquí
     claveElector: "",
     telefono: "",
     lider: "",
@@ -29,6 +30,10 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const [selectedLider, setSelectedLider] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [hideHeaderState, setHideHeader] = useState(hideHeader); // Control from props
+
+  // Add new state for colonies
+  const [colonias, setColonias] = useState([]);
+  const [showColoniaDropdown, setShowColoniaDropdown] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +55,78 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
         ...errors,
         [name]: null,
       });
+    }
+
+    // Handle código postal changes
+    if (name === "codigoPostal") {
+      if (value.length === 5) {
+        // Auto-complete Municipio and get Colonias when Código Postal is complete
+        handleCodigoPostalChange(value);
+      } else {
+        // Clear municipio and colonias when código postal is incomplete or deleted
+        setFormData(prevData => ({
+          ...prevData,
+          codigoPostal: value,
+          municipio: "",
+          colonia: ""
+        }));
+        setColonias([]);
+        setShowColoniaDropdown(false);
+      }
+    }
+    
+    // Handle colonia selection from dropdown
+    if (name === "colonia") {
+      setShowColoniaDropdown(false); // Hide dropdown after selection
+    }
+  };
+
+  // Enhanced function to handle código postal autocomplete
+  const handleCodigoPostalChange = async (codigoPostal) => {
+    try {
+      // Fetch both municipio and colonias
+      const [municipio, coloniasData] = await Promise.all([
+        buscarMunicipioPorCP(codigoPostal),
+        buscarColoniasPorCP(codigoPostal)
+      ]);
+      
+      if (municipio) {
+        setFormData(prevData => ({
+          ...prevData,
+          municipio: municipio,
+          colonia: "" // Clear colonia when postal code changes
+        }));
+      }
+      
+      if (coloniasData && coloniasData.length > 0) {
+        // Sort colonies alphabetically
+        const sortedColonias = coloniasData.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+        setColonias(sortedColonias);
+        setShowColoniaDropdown(true);
+      } else {
+        setColonias([]);
+        setShowColoniaDropdown(false);
+      }
+    } catch (error) {
+      console.error("Error al buscar datos por código postal:", error);
+      setColonias([]);
+      setShowColoniaDropdown(false);
+    }
+  };
+
+  // Handle colonia selection from dropdown
+  const handleColoniaSelect = (coloniaSeleccionada) => {
+    setFormData(prevData => ({
+      ...prevData,
+      colonia: coloniaSeleccionada
+    }));
+    setShowColoniaDropdown(false);
+  };
+
+  // New function to toggle dropdown visibility
+  const toggleColoniaDropdown = () => {
+    if (colonias.length > 0) {
+      setShowColoniaDropdown(!showColoniaDropdown);
     }
   };
 
@@ -122,6 +199,12 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
     setCabezasCirculo([]);
   };
 
+  // Add function to remove selected leader
+  const handleRemoveLider = () => {
+    setSelectedLider(null);
+    setFormData({ ...formData, lider: "" });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -150,6 +233,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
         noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null,
         colonia: formData.colonia,
         codigoPostal: formData.codigoPostal ? parseInt(formData.codigoPostal, 10) : null,
+        municipio: formData.municipio, // <-- Asegúrate de incluir municipio aquí
         claveElector: formData.claveElector,
         telefono: parseInt(formData.telefono, 10),
         lider: formData.lider ? { id: parseInt(formData.lider, 10) } : null,
@@ -192,6 +276,9 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
     setSelectedLider(null);
     setSearchQuery("");
     setCabezasCirculo([]);
+    // Clear colonies state
+    setColonias([]);
+    setShowColoniaDropdown(false);
   };
 
   return (
@@ -336,20 +423,54 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
             </div>
             <div className="form-col">
               <label>Colonia</label>
-              <input
-                type="text"
-                name="colonia"
-                value={formData.colonia}
-                onChange={handleChange}
-                className={`form-control form-control-sm${errors.colonia ? " is-invalid" : ""}`}
-                autoComplete="off"
-              />
-              {errors.colonia && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.colonia}
-                </span>
-              )}
+              <div style={{ position: "relative" }}>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="colonia"
+                    value={formData.colonia}
+                    onChange={handleChange}
+                    className={`form-control form-control-sm${errors.colonia ? " is-invalid" : ""}`}
+                    autoComplete="off"
+                    placeholder={colonias.length > 0 ? "Selecciona una colonia o escribe una nueva" : "Ingresa código postal primero"}
+                  />
+                  {colonias.length > 0 && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={toggleColoniaDropdown}
+                      title="Mostrar colonias disponibles"
+                      style={{
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                        fontSize: '12px',
+                        padding: '4px 8px'
+                      }}
+                    >
+                      <i className={`bi bi-chevron-${showColoniaDropdown ? 'up' : 'down'}`}></i>
+                    </button>
+                  )}
+                </div>
+                {showColoniaDropdown && colonias.length > 0 && (
+                  <ul className="colonia-dropdown">
+                    {colonias.map((colonia, index) => (
+                      <li
+                        key={index}
+                        onClick={() => handleColoniaSelect(colonia)}
+                        className="colonia-dropdown-item"
+                      >
+                        {colonia}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {errors.colonia && (
+                  <span className="invalid-feedback" style={{ display: "block" }}>
+                    <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                    {errors.colonia}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <div className="form-row">
@@ -397,6 +518,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.codigoPostal ? " is-invalid" : ""}`}
                 maxLength="5"
                 autoComplete="off"
+                placeholder="Ingresa 5 dígitos"
               />
               {errors.codigoPostal && (
                 <span className="invalid-feedback" style={{ display: "block" }}>
@@ -406,11 +528,31 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
               )}
             </div>
           </div>
+          <div className="form-row">
+            <div className="form-col" style={{ flex: "0 0 50%" }}>
+              <label>Municipio</label>
+              <input
+                type="text"
+                name="municipio"
+                value={formData.municipio}
+                onChange={handleChange}
+                className={`form-control form-control-sm${errors.municipio ? " is-invalid" : ""}`}
+                autoComplete="off"
+                placeholder="Se autocompleta con el código postal"
+              />
+              {errors.municipio && (
+                <span className="invalid-feedback" style={{ display: "block" }}>
+                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+                  {errors.municipio}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Información Electoral</h5>
           <div className="form-row">
-            <div className="form-col">
+            <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Clave de Elector</label>
               <input
                 type="text"
@@ -435,7 +577,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
           <h5 className="mb-2 heading-morado">Asociar Cabeza de Círculo</h5>
           <div className="leader-section">
             <div className="form-row">
-              <div className="form-col" style={{ position: "relative" }}>
+              <div className="form-col" style={{ position: "relative", flex: "0 0 50%" }}>
                 <label>Buscar Cabeza de Círculo</label>
                 <input
                   type="text"
@@ -462,14 +604,24 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
             
             {selectedLider ? (
               <div className="form-row">
-                <div className="form-col">
+                <div className="form-col" style={{ flex: "0 0 50%" }}>
                   <label>Cabeza de Círculo Seleccionada</label>
-                  <input
-                    type="text"
-                    value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
-                    readOnly
-                    className="selected-beneficiary"
-                  />
+                  <div className="selected-lider-container">
+                    <input
+                      type="text"
+                      value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
+                      readOnly
+                      className="selected-beneficiary"
+                    />
+                    <button
+                      type="button"
+                      className="remove-lider-btn"
+                      onClick={handleRemoveLider}
+                      title="Quitar selección"
+                    >
+                      <i className="bi bi-x"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (

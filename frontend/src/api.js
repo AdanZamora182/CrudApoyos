@@ -63,7 +63,6 @@ export const getApoyos = async () => {
 export const buscarCabezasCirculo = async (query) => {
   try {
     const response = await api.get(`/cabezas-circulo/buscar`, { params: { query } });
-    // When no query is provided, the backend returns all fields
     return response.data;
   } catch (error) {
     console.error("Error en buscarCabezasCirculo:", error.response?.data || error.message);
@@ -75,7 +74,6 @@ export const buscarCabezasCirculo = async (query) => {
 export const buscarIntegrantesCirculo = async (query) => {
   try {
     const response = await api.get(`/integrantes-circulo`, { params: { query } });
-    // Return complete records instead of just a subset of fields
     return response.data;
   } catch (error) {
     console.error("Error en buscarIntegrantesCirculo:", error.response?.data || error.message);
@@ -112,3 +110,31 @@ export const deleteApoyo = async (id) => {
 export const updateApoyo = async (id, data) => {
   return await api.put(`/apoyos/${id}`, data);
 };
+
+
+// -----------------------------------------------------Exports para MongoDB
+
+// Buscar colonias por código postal
+export const buscarColoniasPorCP = async (codigoPostal) => {
+  try {
+    const response = await api.get('/direcciones/buscar', { params: { cp: codigoPostal } });
+    // Devuelve solo el arreglo de colonias
+    return response.data.colonias || [];
+  } catch (error) {
+    console.error("Error en buscarColoniasPorCP:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Buscar municipio por código postal
+export const buscarMunicipioPorCP = async (codigoPostal) => {
+  try {
+    const response = await api.get('/direcciones/buscar', { params: { cp: codigoPostal } });
+    // Devuelve solo el municipio
+    return response.data.municipio || "";
+  } catch (error) {
+    console.error("Error en buscarMunicipioPorCP:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
