@@ -11,8 +11,8 @@ const ApoyoForm = ({ hideHeader = false }) => {
     cantidad: "",
     tipoApoyo: "",
     fechaEntrega: "",
-    beneficiarioId: null, // ID del beneficiario seleccionado
-    beneficiarioTipo: "", // Tipo de beneficiario: "cabeza" o "integrante"
+    beneficiarioId: null,
+    beneficiarioTipo: "",
   };
 
   // Estados del componente para manejo del formulario
@@ -20,12 +20,15 @@ const ApoyoForm = ({ hideHeader = false }) => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // Campo de búsqueda de beneficiarios
-  const [beneficiarios, setBeneficiarios] = useState([]); // Resultados de búsqueda
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // Beneficiario seleccionado
-  const [hideHeaderState] = useState(hideHeader); // Control desde props
+  const [searchQuery, setSearchQuery] = useState("");
+  const [beneficiarios, setBeneficiarios] = useState([]);
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
+  const [hideHeaderState] = useState(hideHeader);
 
-  // Opciones predefinidas de tipos de apoyo
+  // Estado para el dropdown de tipos de apoyo
+  const [showTipoApoyoDropdown, setShowTipoApoyoDropdown] = useState(false);
+
+  // Opciones predefinidas de tipos de apoyo (sin "Otro")
   const predefinedOptions = [
     "Tinaco",
     "Silla de ruedas",
@@ -41,7 +44,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
     "Frijol",
     "Ropa",
     "Calzado",
-    "Otro",
   ];
 
   // Función para manejar cambios en los campos del formulario
@@ -51,7 +53,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
     // Restricción de entrada para campos numéricos específicos
     const numericFields = ["cantidad"];
     if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
-      return; // Prevenir entrada no numérica
+      return;
     }
 
     // Actualizar el estado del formulario
@@ -67,6 +69,25 @@ const ApoyoForm = ({ hideHeader = false }) => {
         [name]: null,
       });
     }
+
+    // Ocultar dropdown de tipos de apoyo al escribir
+    if (name === "tipoApoyo") {
+      setShowTipoApoyoDropdown(false);
+    }
+  };
+
+  // Función para seleccionar un tipo de apoyo del dropdown
+  const handleTipoApoyoSelect = (tipoSeleccionado) => {
+    setFormData(prevData => ({
+      ...prevData,
+      tipoApoyo: tipoSeleccionado
+    }));
+    setShowTipoApoyoDropdown(false);
+  };
+
+  // Función para alternar la visibilidad del dropdown de tipos de apoyo
+  const toggleTipoApoyoDropdown = () => {
+    setShowTipoApoyoDropdown(!showTipoApoyoDropdown);
   };
 
   // Función para validar un campo específico
@@ -175,10 +196,10 @@ const ApoyoForm = ({ hideHeader = false }) => {
       // Preparar datos para enviar al backend
       const apoyoData = {
         cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
-        tipoApoyo: formData.tipoApoyo === "Otro" ? formData.tipoApoyo.trim() : formData.tipoApoyo.trim(),
+        tipoApoyo: formData.tipoApoyo.trim(), // Ya no necesita validación de "Otro"
         fechaEntrega: formData.fechaEntrega,
-        persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null, // Corresponde a "persona" para Persona_id
-        cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null, // Corresponde a "cabeza" para Cabeza_id
+        persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null,
+        cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null,
       };
 
       console.log("Datos enviados al backend:", apoyoData);
@@ -223,6 +244,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
     setMessage({ type: "", text: "" });
     setSelectedBeneficiario(null);
     setSearchQuery("");
+    setShowTipoApoyoDropdown(false);
   };
 
   return (
@@ -277,27 +299,57 @@ const ApoyoForm = ({ hideHeader = false }) => {
               )}
             </div>
             
-            {/* Campo de tipo de apoyo con opciones predefinidas */}
+            {/* Campo de tipo de apoyo con dropdown de sugerencias */}
             <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Tipo de Apoyo</label>
-              <select
-                name="tipoApoyo"
-                value={formData.tipoApoyo}
-                onChange={handleChange}
-                className={`form-control form-control-sm${errors.tipoApoyo ? " is-invalid" : ""}`}
-              >
-                <option value="">Seleccione una opción</option>
-                {predefinedOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {errors.tipoApoyo && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  {errors.tipoApoyo}
-                </span>
-              )}
+              <div style={{ position: "relative" }}>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="tipoApoyo"
+                    value={formData.tipoApoyo}
+                    onChange={handleChange}
+                    className={`form-control form-control-sm${errors.tipoApoyo ? " is-invalid" : ""}`}
+                    autoComplete="off"
+                    placeholder="Selecciona un tipo o escribe uno nuevo"
+                  />
+                  {/* Botón para mostrar/ocultar dropdown de tipos de apoyo */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={toggleTipoApoyoDropdown}
+                    title="Mostrar tipos de apoyo disponibles"
+                    style={{
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      fontSize: '12px',
+                      padding: '4px 8px'
+                    }}
+                  >
+                    <i className={`bi bi-chevron-${showTipoApoyoDropdown ? 'up' : 'down'}`}></i>
+                  </button>
+                </div>
+                
+                {/* Dropdown con lista de tipos de apoyo */}
+                {showTipoApoyoDropdown && predefinedOptions.length > 0 && (
+                  <ul className="tipo-apoyo-dropdown">
+                    {predefinedOptions.map((tipo, index) => (
+                      <li
+                        key={index}
+                        onClick={() => handleTipoApoyoSelect(tipo)}
+                        className="tipo-apoyo-dropdown-item"
+                      >
+                        {tipo}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {errors.tipoApoyo && (
+                  <span className="invalid-feedback" style={{ display: "block" }}>
+                    {errors.tipoApoyo}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
