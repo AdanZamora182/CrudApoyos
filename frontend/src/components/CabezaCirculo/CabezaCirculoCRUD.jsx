@@ -1,100 +1,276 @@
-import React, { useState, useEffect } from "react";
-import { buscarCabezasCirculo, deleteCabezaCirculo, updateCabezaCirculo } from "../../api";
+import React, { useState, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import { getAllCabezasCirculo, deleteCabezaCirculo, updateCabezaCirculo } from "../../api";
 import "./CabezaCirculo.css";
 
 const CabezaCirculoCRUD = () => {
-  const [cabezasCirculo, setCabezasCirculo] = useState([]);
-  const [filteredCabezas, setFilteredCabezas] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // Estado para manejar el registro seleccionado para edición
   const [selectedCabeza, setSelectedCabeza] = useState(null);
-  const [message, setMessage] = useState({ type: "", text: "" });
-  const [isLoading, setIsLoading] = useState(true);
   
-  // Pagination states - update to use unique localStorage key and properly manage page across navigation
-  const [currentPage, setCurrentPage] = useState(() => {
-    const savedPage = localStorage.getItem('cabezaCirculoCurrentPage');
-    return savedPage ? parseInt(savedPage, 10) : 1;
+  // Estado para el filtro global de búsqueda en la tabla
+  const [globalFilter, setGlobalFilter] = useState("");
+  
+  // Estado para mostrar mensajes de éxito o error al usuario
+  const [message, setMessage] = useState({ type: "", text: "" });
+  
+  // Hooks de TanStack Query para manejo de estado del servidor
+  const queryClient = useQueryClient();
+  const columnHelper = createColumnHelper();
+
+  // Consulta para obtener todos los registros de cabezas de círculo
+  const {
+    data: cabezasCirculo = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["cabezasCirculo"],
+    queryFn: getAllCabezasCirculo,
+    staleTime: 5 * 60 * 1000, // Los datos se consideran frescos por 5 minutos
   });
-  const [recordsPerPage] = useState(12);
 
-  // Ensure the pagination state is loaded when component mounts and whenever we return to this component
-  useEffect(() => {
-    const savedPage = localStorage.getItem('cabezaCirculoCurrentPage');
-    if (savedPage) {
-      setCurrentPage(parseInt(savedPage, 10));
-    }
-  }, []);
+  // Mutación para eliminar un registro de cabeza de círculo
+  const deleteMutation = useMutation({
+    mutationFn: deleteCabezaCirculo,
+    onSuccess: () => {
+      // Invalidar la consulta para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ["cabezasCirculo"] });
+      setMessage({ type: "success", text: "Registro eliminado exitosamente." });
+      // Limpiar mensaje después de 5 segundos
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+    onError: (error) => {
+      console.error("Error deleting record:", error);
+      setMessage({ type: "error", text: "Error al eliminar el registro." });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+  });
 
-  useEffect(() => {
-    fetchCabezasCirculo();
-  }, []);
+  // Mutación para actualizar un registro de cabeza de círculo
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => updateCabezaCirculo(id, data),
+    onSuccess: () => {
+      // Invalidar la consulta para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ["cabezasCirculo"] });
+      setMessage({ type: "success", text: "Registro actualizado exitosamente." });
+      setSelectedCabeza(null); // Cerrar el modal de edición
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+    onError: (error) => {
+      console.error("Error updating record:", error);
+      setMessage({ type: "error", text: "Error al actualizar el registro." });
+      setTimeout(() => setMessage({ type: "", text: "" }), 10000);
+    },
+  });
 
-  const fetchCabezasCirculo = async () => {
-    setIsLoading(true);
-    try {
-      const response = await buscarCabezasCirculo(""); // Fetch all records
-      // Sort records by ID in descending order (newest first)
-      const sortedRecords = response.sort((a, b) => b.id - a.id);
-      setCabezasCirculo(sortedRecords);
-      setFilteredCabezas(sortedRecords); // Inicialmente, todos los registros están visibles
-    } catch (error) {
-      console.error("Error fetching cabezas de círculo:", error);
-      setMessage({ type: "error", text: "Error al cargar los datos." });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Definición de las columnas de la tabla con TanStack Table
+  const columns = useMemo(
+    () => [
+      // Columna para el nombre
+      columnHelper.accessor("nombre", {
+        header: "Nombre",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para apellido paterno
+      columnHelper.accessor("apellidoPaterno", {
+        header: "Apellido Paterno",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para apellido materno
+      columnHelper.accessor("apellidoMaterno", {
+        header: "Apellido Materno",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para fecha de nacimiento con formato
+      columnHelper.accessor("fechaNacimiento", {
+        header: "Fecha de Nacimiento",
+        cell: (info) => {
+          const date = info.getValue();
+          return date ? new Date(date).toISOString().split('T')[0] : "";
+        },
+        enableGlobalFilter: false,
+      }),
+      // Columna para teléfono
+      columnHelper.accessor("telefono", {
+        header: "Teléfono",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para calle
+      columnHelper.accessor("calle", {
+        header: "Calle",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para número exterior
+      columnHelper.accessor("noExterior", {
+        header: "No. Exterior",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para número interior (opcional)
+      columnHelper.accessor("noInterior", {
+        header: "No. Interior",
+        cell: (info) => info.getValue() || "-",
+        enableGlobalFilter: false,
+      }),
+      // Columna para colonia
+      columnHelper.accessor("colonia", {
+        header: "Colonia",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para código postal
+      columnHelper.accessor("codigoPostal", {
+        header: "Código Postal",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para municipio (opcional)
+      columnHelper.accessor("municipio", {
+        header: "Municipio",
+        cell: (info) => info.getValue() || "-",
+        filterFn: "includesString",
+      }),
+      // Columna para clave de elector
+      columnHelper.accessor("claveElector", {
+        header: "Clave de Elector",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para email
+      columnHelper.accessor("email", {
+        header: "Email",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para Facebook (opcional)
+      columnHelper.accessor("facebook", {
+        header: "Facebook",
+        cell: (info) => info.getValue() || "-",
+        enableGlobalFilter: false,
+      }),
+      // Columna para otra red social (opcional)
+      columnHelper.accessor("otraRedSocial", {
+        header: "Otra Red Social",
+        cell: (info) => info.getValue() || "-",
+        enableGlobalFilter: false,
+      }),
+      // Columna para estructura territorial
+      columnHelper.accessor("estructuraTerritorial", {
+        header: "Estructura Territorial",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para posición en estructura
+      columnHelper.accessor("posicionEstructura", {
+        header: "Posición Estructura",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna de acciones (editar y eliminar)
+      columnHelper.display({
+        id: "actions",
+        header: "Acciones",
+        cell: (props) => (
+          <div className="action-column">
+            <button 
+              className="action-button edit" 
+              onClick={() => handleEdit(props.row.original)}
+              title="Editar"
+            >
+              <i className="bi bi-pencil-square"></i>
+            </button>
+            <button 
+              className="action-button delete" 
+              onClick={() => handleDelete(props.row.original.id)}
+              title="Eliminar"
+            >
+              <i className="bi bi-trash3"></i>
+            </button>
+          </div>
+        ),
+        enableGlobalFilter: false,
+        enableSorting: false,
+      }),
+    ],
+    [columnHelper]
+  );
 
+  // Configuración de la tabla con TanStack Table
+  const table = useReactTable({
+    data: cabezasCirculo,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
+    initialState: {
+      pagination: {
+        pageSize: 12, // Mostrar 12 registros por página
+        pageIndex: 0, // Empezar en la primera página
+      },
+    },
+    manualPagination: false,
+    enableColumnResizing: false,
+  });
+
+  // Función para confirmar y ejecutar la eliminación de un registro
   const handleDelete = async (id) => {
     if (window.confirm("¿Está seguro de que desea eliminar este registro?")) {
-      try {
-        await deleteCabezaCirculo(id);
-        setMessage({ type: "success", text: "Registro eliminado exitosamente." });
-        
-        // Clear message after 5 seconds
-        setTimeout(() => {
-          setMessage({ type: "", text: "" });
-        }, 5000);
-        
-        fetchCabezasCirculo(); // Refresh the list
-      } catch (error) {
-        console.error("Error deleting record:", error);
-        setMessage({ type: "error", text: "Error al eliminar el registro." });
-      }
+      deleteMutation.mutate(id);
     }
   };
 
+  // Función para abrir el modal de edición con los datos del registro seleccionado
   const handleEdit = (cabeza) => {
-    setSelectedCabeza(cabeza); // Abre el formulario de edición
+    setSelectedCabeza(cabeza);
   };
 
-  // Add this function inside the component before the return statement
+  // Función para manejar cambios en los campos del formulario de edición con validaciones
   const handleInputChange = (e, field) => {
     const { value } = e.target;
     
-    // Field-specific validations
+    // Validaciones específicas por campo
     switch (field) {
       case 'telefono':
-        // Only allow numbers, max 10 characters
-        if (value !== '' && !/^\d+$/.test(value) || value.length > 10) {
+        // Solo permitir números y máximo 10 dígitos
+        if (value !== '' && (!/^\d+$/.test(value) || value.length > 10)) {
           return;
         }
         break;
       case 'codigoPostal':
-        // Only allow numbers, max 5 characters
-        if (value !== '' && !/^\d+$/.test(value) || value.length > 5) {
+        // Solo permitir números y máximo 5 dígitos
+        if (value !== '' && (!/^\d+$/.test(value) || value.length > 5)) {
           return;
         }
         break;
       case 'noExterior':
       case 'noInterior':
-        // Only allow numbers
+        // Solo permitir números para números de casa
         if (value !== '' && !/^\d+$/.test(value)) {
           return;
         }
         break;
       case 'claveElector':
-        // Max 18 characters
+        // Máximo 18 caracteres para clave de elector
         if (value.length > 18) {
           return;
         }
@@ -103,164 +279,228 @@ const CabezaCirculoCRUD = () => {
         break;
     }
 
-    // Update the state
+    // Actualizar el estado del registro seleccionado
     setSelectedCabeza({ ...selectedCabeza, [field]: value });
   };
 
+  // Función para procesar y enviar la actualización del registro
   const handleUpdateSubmit = async (updatedCabeza) => {
-    try {
-      // Parse numeric fields
-      const formattedCabeza = {
-        ...updatedCabeza,
-        telefono: updatedCabeza.telefono ? Number.parseInt(updatedCabeza.telefono) : null,
-        noExterior: updatedCabeza.noExterior ? Number.parseInt(updatedCabeza.noExterior) : null,
-        noInterior: updatedCabeza.noInterior ? Number.parseInt(updatedCabeza.noInterior) : null,
-        codigoPostal: updatedCabeza.codigoPostal ? Number.parseInt(updatedCabeza.codigoPostal) : null,
-      };
+    // Formatear campos numéricos antes de enviar al backend
+    const formattedCabeza = {
+      ...updatedCabeza,
+      telefono: updatedCabeza.telefono ? Number.parseInt(updatedCabeza.telefono) : null,
+      noExterior: updatedCabeza.noExterior ? Number.parseInt(updatedCabeza.noExterior) : null,
+      noInterior: updatedCabeza.noInterior ? Number.parseInt(updatedCabeza.noInterior) : null,
+      codigoPostal: updatedCabeza.codigoPostal ? Number.parseInt(updatedCabeza.codigoPostal) : null,
+    };
 
-      await updateCabezaCirculo(formattedCabeza.id, formattedCabeza);
-      setMessage({ type: "success", text: "Registro actualizado exitosamente." });
-      
-      // Clear message after 5 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 5000);
-      
-      setSelectedCabeza(null); // Cierra el formulario de edición
-      fetchCabezasCirculo(); // Refresca la lista
-    } catch (error) {
-      console.error("Error updating record:", error);
-      setMessage({ type: "error", text: "Error al actualizar el registro." });
-      
-      // Clear error message after 10 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 10000);
-    }
+    updateMutation.mutate({ id: formattedCabeza.id, data: formattedCabeza });
   };
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-
-    const filtered = cabezasCirculo.filter((cabeza) =>
-      cabeza.nombre?.toLowerCase().includes(query) ||
-      cabeza.apellidoPaterno?.toLowerCase().includes(query) ||
-      cabeza.apellidoMaterno?.toLowerCase().includes(query) ||
-      cabeza.claveElector?.toLowerCase().includes(query)
-    );
-
-    // Ensure filtered results are also sorted by ID in descending order
-    const sortedFiltered = filtered.sort((a, b) => b.id - a.id);
-    setFilteredCabezas(sortedFiltered);
-  };
-
-  // Format date for display (YYYY-MM-DD)
+  // Función para formatear fechas en formato YYYY-MM-DD
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toISOString().split('T')[0];
   };
 
-  // Get current records for pagination
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredCabezas.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(filteredCabezas.length / recordsPerPage);
+  // Mostrar estado de carga
+  if (isLoading) {
+    return (
+      <div className="neumorphic-crud-container">
+        <div className="neumorphic-loader-container">
+          <div className="neumorphic-loader"></div>
+          <p>Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Save current page to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('cabezaCirculoCurrentPage', currentPage.toString());
-  }, [currentPage]);
+  // Mostrar estado de error
+  if (isError) {
+    return (
+      <div className="neumorphic-crud-container">
+        <div className="neumorphic-empty-state">
+          <span className="empty-icon">⚠️</span>
+          <p>Error al cargar los datos: {error?.message}</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Change page with localStorage persistence
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    localStorage.setItem('cabezaCirculoCurrentPage', pageNumber.toString());
-  };
-
-  // Go to next page
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      const newPage = currentPage + 1;
-      setCurrentPage(newPage);
-      localStorage.setItem('cabezaCirculoCurrentPage', newPage.toString());
+  // Función auxiliar para generar números de página visibles en la paginación
+  const getVisiblePageNumbers = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    const delta = 2; // Número de páginas a mostrar a cada lado de la página actual
+    
+    let start = Math.max(0, currentPage - delta);
+    let end = Math.min(totalPages - 1, currentPage + delta);
+    
+    // Ajustar si estamos cerca del inicio o final
+    if (currentPage <= delta) {
+      end = Math.min(totalPages - 1, 2 * delta);
     }
-  };
-
-  // Go to previous page
-  const prevPage = () => {
-    if (currentPage > 1) {
-      const newPage = currentPage - 1;
-      setCurrentPage(newPage);
-      localStorage.setItem('cabezaCirculoCurrentPage', newPage.toString());
+    if (currentPage >= totalPages - delta - 1) {
+      start = Math.max(0, totalPages - 2 * delta - 1);
     }
-  };
-
-  // Reset to first page when search changes, but preserve in localStorage
-  useEffect(() => {
-    setCurrentPage(1);
-    localStorage.setItem('cabezaCirculoCurrentPage', '1');
-  }, [searchQuery]);
-
-  const jumpBack = () => {
-    setCurrentPage((prev) => Math.max(1, prev - 6));
-    localStorage.setItem('cabezaCirculoCurrentPage', Math.max(1, currentPage - 6).toString());
-  };
-  const jumpForward = () => {
-    setCurrentPage((prev) => {
-      const next = prev + 6;
-      return next > totalPages ? totalPages : next;
-    });
-    localStorage.setItem('cabezaCirculoCurrentPage', Math.min(totalPages, currentPage + 6).toString());
-  };
-
-  const renderPageNumbers = () => {
-    const pageNumbers = [];
-    const maxVisiblePages = 7;
-    let startPage = 1;
-    let endPage = Math.min(totalPages, maxVisiblePages);
-
-    if (currentPage > 4 && totalPages > maxVisiblePages) {
-      startPage = currentPage - 3;
-      endPage = currentPage + 3;
-      if (endPage > totalPages) {
-        endPage = totalPages;
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-      }
+    
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
     }
+    return pages;
+  };
 
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(
-        <button
-          key={i}
-          onClick={() => paginate(i)}
-          className={`page-number ${currentPage === i ? 'active' : ''}`}
-        >
-          {i}
-        </button>
-      );
-    }
-    return pageNumbers;
+  // Componente de controles de paginación mejorado
+  const PaginationControls = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    const pageSize = table.getState().pagination.pageSize;
+    const totalRows = table.getFilteredRowModel().rows.length;
+    
+    const startRow = currentPage * pageSize + 1;
+    const endRow = Math.min((currentPage + 1) * pageSize, totalRows);
+    
+    return (
+      <div className="tanstack-pagination-container">
+        {/* Fila superior con selector de registros por página */}
+        <div className="pagination-top-row">
+          <div className="page-size-selector-top">
+            <label htmlFor="pageSize">Registros por página:</label>
+            <select
+              id="pageSize"
+              value={pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              className="page-size-select"
+            >
+              {[5, 10, 12, 15, 20, 25, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Información de paginación centrada */}
+        <div className="pagination-info">
+          Mostrando {startRow}-{endRow} de {totalRows} registros
+          {totalRows > 0 && (
+            <span className="page-info">
+              {" "}(Página {currentPage + 1} de {totalPages})
+            </span>
+          )}
+        </div>
+
+        {/* Controles de navegación de páginas */}
+        <div className="pagination-controls">
+          {/* Botón para ir a la primera página */}
+          <button
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className="pagination-button"
+            title="Primera página"
+          >
+            <i className="bi bi-chevron-double-left"></i>
+          </button>
+
+          {/* Botón para página anterior */}
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="pagination-button"
+            title="Página anterior"
+          >
+            <i className="bi bi-chevron-left"></i>
+          </button>
+
+          {/* Números de página */}
+          <div className="page-numbers">
+            {/* Mostrar primera página si no está en el rango visible */}
+            {getVisiblePageNumbers()[0] > 0 && (
+              <>
+                <button 
+                  onClick={() => table.setPageIndex(0)}
+                  className="page-number"
+                >
+                  1
+                </button>
+                {getVisiblePageNumbers()[0] > 1 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+              </>
+            )}
+
+            {/* Números de página visibles */}
+            {getVisiblePageNumbers().map((pageIndex) => (
+              <button
+                key={pageIndex}
+                onClick={() => table.setPageIndex(pageIndex)}
+                className={`page-number ${currentPage === pageIndex ? 'active' : ''}`}
+              >
+                {pageIndex + 1}
+              </button>
+            ))}
+
+            {/* Mostrar última página si no está en el rango visible */}
+            {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 1 && (
+              <>
+                {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 2 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+                <button 
+                  onClick={() => table.setPageIndex(totalPages - 1)}
+                  className="page-number"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Botón para página siguiente */}
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="pagination-button"
+            title="Página siguiente"
+          >
+            <i className="bi bi-chevron-right"></i>
+          </button>
+
+          {/* Botón para ir a la última página */}
+          <button
+            onClick={() => table.setPageIndex(totalPages - 1)}
+            disabled={!table.getCanNextPage()}
+            className="pagination-button"
+            title="Última página"
+          >
+            <i className="bi bi-chevron-double-right"></i>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="neumorphic-crud-container reduced-container">
-      <div className="neumorphic-controls reduced-controls">
-        <div className="neumorphic-search reduced-search w-100 w-md-50 position-relative">
+    <div className="neumorphic-crud-container">
+      {/* Barra de controles con búsqueda y mensajes */}
+      <div className="neumorphic-controls">
+        <div className="neumorphic-search w-100 w-md-50 position-relative">
           <input
             type="text"
             placeholder="Buscar por Nombre o Clave de Elector..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="neumorphic-input search-input reduced-input w-100 pe-5"
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="neumorphic-input search-input w-100 pe-5"
           />
-          <span className="search-icon reduced-icon position-absolute end-0 top-50 translate-middle-y me-2">
+          <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
             <i className="bi bi-search"></i>
           </span>
         </div>
 
-        {/* New position for messages */}
+        {/* Mostrar mensajes de éxito o error */}
         {message.text && (
           <div className="inline-message-container">
             <div className={`inline-message inline-message-${message.type}`}>
@@ -271,141 +511,76 @@ const CabezaCirculoCRUD = () => {
         )}
       </div>
 
-      {isLoading ? (
-        <div className="neumorphic-loader-container">
-          <div className="neumorphic-loader"></div>
-          <p>Cargando datos...</p>
-        </div>
-      ) : filteredCabezas.length === 0 ? (
+      {/* Mostrar tabla o estado vacío */}
+      {table.getFilteredRowModel().rows.length === 0 ? (
         <div className="neumorphic-empty-state">
           <span className="empty-icon">🔍</span>
           <p>No se encontraron registros que coincidan con su búsqueda</p>
         </div>
       ) : (
         <>
-          <div className="neumorphic-table-container reduced-table-container">
-            <table className="neumorphic-table reduced-table">
+          {/* Tabla con datos */}
+          <div className="neumorphic-table-container">
+            <table className="neumorphic-table">
               <thead>
-                <tr>
-                  <th className="reduced-column">Nombre</th>
-                  <th className="col-apellido">Apellido Paterno</th>
-                  <th className="col-apellido">Apellido Materno</th>
-                  <th className="col-date">Fecha de Nacimiento</th>
-                  <th className="col-number">Teléfono</th>
-                  <th className="col-address">Calle</th>
-                  <th className="col-number">No. Exterior</th>
-                  <th className="col-number">No. Interior</th>
-                  <th className="col-address">Colonia</th>
-                  <th className="col-number">Código Postal</th>
-                  <th className="col-address">Municipio</th>
-                  <th className="col-address">Clave de Elector</th>
-                  <th className="col-email">Email</th>
-                  <th className="col-address">Facebook</th>
-                  <th className="col-address">Otra Red Social</th>
-                  <th className="col-address">Estructura Territorial</th>
-                  <th className="col-address">Posición Estructura</th>
-                  <th className="fixed-column reduced-column">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRecords.map((cabeza) => (
-                  <tr key={cabeza.id} className="reduced-row">
-                    <td className="reduced-cell">{cabeza.nombre}</td>
-                    <td>{cabeza.apellidoPaterno}</td>
-                    <td>{cabeza.apellidoMaterno}</td>
-                    <td>{formatDate(cabeza.fechaNacimiento)}</td>
-                    <td>{cabeza.telefono}</td>
-                    <td>{cabeza.calle}</td>
-                    <td>{cabeza.noExterior}</td>
-                    <td>{cabeza.noInterior || "-"}</td>
-                    <td>{cabeza.colonia}</td>
-                    <td>{cabeza.codigoPostal}</td>
-                    <td>{cabeza.municipio || "-"}</td>
-                    <td>{cabeza.claveElector}</td>
-                    <td>{cabeza.email}</td>
-                    <td>{cabeza.facebook || "-"}</td>
-                    <td>{cabeza.otraRedSocial || "-"}</td>
-                    <td>{cabeza.estructuraTerritorial}</td>
-                    <td>{cabeza.posicionEstructura}</td>
-                    <td className="fixed-column action-column reduced-action-column">
-                      <button 
-                        className="action-button edit reduced-button" 
-                        onClick={() => handleEdit(cabeza)}
-                        title="Editar"
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className={header.id === "actions" ? "fixed-column" : ""}
+                        style={{ cursor: header.column.getCanSort() ? "pointer" : "default" }}
+                        onClick={header.column.getToggleSortingHandler()}
                       >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button 
-                        className="action-button delete reduced-button" 
-                        onClick={() => handleDelete(cabeza.id)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
+                        {header.isPlaceholder ? null : (
+                          <div className="d-flex align-items-center">
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {/* Iconos de ordenamiento */}
+                            {{
+                              asc: <i className="bi bi-arrow-up ms-2" style={{ fontSize: '12px', color: '#ffffff' }}></i>,
+                              desc: <i className="bi bi-arrow-down ms-2" style={{ fontSize: '12px', color: '#ffffff' }}></i>,
+                            }[header.column.getIsSorted()] ?? 
+                            (header.column.getCanSort() ? 
+                              <i className="bi bi-arrow-up-down ms-2" style={{ fontSize: '12px', color: '#ffffff', opacity: '0.6' }}></i> : 
+                              null
+                            )}
+                          </div>
+                        )}
+                      </th>
+                    ))}
                   </tr>
                 ))}
-                {/* Rellenar filas vacías si hay menos de 12 resultados */}
-                {Array.from({ length: recordsPerPage - currentRecords.length }).map((_, idx) => (
-                  <tr key={`empty-row-${idx}`} className="reduced-row empty-row">
-                    {Array.from({ length: 18 }).map((_, cellIdx) => (
-                      <td key={cellIdx}>&nbsp;</td>
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className={cell.column.id === "actions" ? "fixed-column" : ""}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
                     ))}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          
-          {/* Pagination */}
-          <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
-            <div className="pagination-controls responsive-pagination-controls flex-wrap justify-content-center">
-              <button 
-                onClick={jumpBack} 
-                disabled={currentPage <= 6} 
-                className="pagination-button responsive-pagination-button"
-                title="Salto atrás"
-              >
-                <i className="bi bi-chevron-double-left"></i>
-              </button>
-              <button 
-                onClick={prevPage} 
-                disabled={currentPage === 1} 
-                className="pagination-button responsive-pagination-button"
-                title="Página anterior"
-              >
-                <i className="bi bi-chevron-left"></i>
-              </button>
-              <div className="page-numbers responsive-page-numbers">
-                {renderPageNumbers()}
-              </div>
-              <button 
-                onClick={nextPage} 
-                disabled={currentPage === totalPages} 
-                className="pagination-button responsive-pagination-button"
-                title="Página siguiente"
-              >
-                <i className="bi bi-chevron-right"></i>
-              </button>
-              <button 
-                onClick={jumpForward} 
-                disabled={currentPage === totalPages} 
-                className="pagination-button responsive-pagination-button"
-                title="Salto adelante"
-              >
-                <i className="bi bi-chevron-double-right"></i>
-              </button>
-            </div>
-            <div className="pagination-info responsive-pagination-info">
-              Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredCabezas.length)} de {filteredCabezas.length} registros
-            </div>
-          </div>
+
+          {/* Controles de paginación */}
+          <PaginationControls />
         </>
       )}
 
+      {/* Modal de edición con estilo sobrio */}
       {selectedCabeza && (
         <div className="neumorphic-modal">
           <div className="neumorphic-modal-content large-modal">
+            {/* Cabecera del modal */}
             <div className="modal-header">
               <h3>Editar Registro</h3>
               <button 
@@ -415,7 +590,9 @@ const CabezaCirculoCRUD = () => {
                 <i className="bi bi-x-lg"></i>
               </button>
             </div>
-            <div className="modal-content-wrapper">
+            
+            {/* Contenido del modal con formulario de edición */}
+            <div className="modal-content-wrapper sober-form">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -424,34 +601,35 @@ const CabezaCirculoCRUD = () => {
                 className="edit-form"
               >
                 <div className="modal-sections">
-                  <div className="modal-section">
-                    <h4 className="section-title">Información Personal</h4>
+                  {/* Sección de información personal */}
+                  <div className="sober-section">
+                    <h4 className="sober-section-title">Información Personal</h4>
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1.2" }}>
                         <label>Nombre(s)</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.nombre || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, nombre: e.target.value })}
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Apellido Paterno</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.apellidoPaterno || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, apellidoPaterno: e.target.value })}
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Apellido Materno</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.apellidoMaterno || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, apellidoMaterno: e.target.value })}
                           required
@@ -460,21 +638,21 @@ const CabezaCirculoCRUD = () => {
                     </div>
 
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Fecha de Nacimiento</label>
                         <input
                           type="date"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={formatDate(selectedCabeza.fechaNacimiento) || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, fechaNacimiento: e.target.value })}
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "0.8" }}>
                         <label>Teléfono</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.telefono || ''}
                           onChange={(e) => handleInputChange(e, 'telefono')}
                           maxLength="10"
@@ -484,24 +662,25 @@ const CabezaCirculoCRUD = () => {
                     </div>
                   </div>
 
-                  <div className="modal-section">
-                    <h4 className="section-title">Dirección</h4>
+                  {/* Sección de dirección */}
+                  <div className="sober-section">
+                    <h4 className="sober-section-title">Dirección</h4>
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "2" }}>
                         <label>Calle</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.calle || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, calle: e.target.value })}
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1.5" }}>
                         <label>Colonia</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.colonia || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, colonia: e.target.value })}
                           required
@@ -510,44 +689,41 @@ const CabezaCirculoCRUD = () => {
                     </div>
 
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "0.7" }}>
                         <label>No. Exterior</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.noExterior || ''}
                           onChange={(e) => handleInputChange(e, 'noExterior')}
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "0.7" }}>
                         <label>No. Interior</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.noInterior || ''}
                           onChange={(e) => handleInputChange(e, 'noInterior')}
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "0.8" }}>
                         <label>Código Postal</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.codigoPostal || ''}
                           onChange={(e) => handleInputChange(e, 'codigoPostal')}
                           maxLength="5"
                           required
                         />
                       </div>
-                    </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1.2" }}>
                         <label>Municipio</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.municipio || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, municipio: e.target.value })}
                         />
@@ -555,25 +731,26 @@ const CabezaCirculoCRUD = () => {
                     </div>
                   </div>
 
-                  <div className="modal-section">
-                    <h4 className="section-title">Información Electoral y Contacto</h4>
+                  {/* Sección de información electoral y contacto */}
+                  <div className="sober-section">
+                    <h4 className="sober-section-title">Información Electoral y Contacto</h4>
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1.2" }}>
                         <label>Clave de Elector</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.claveElector || ''}
                           onChange={(e) => handleInputChange(e, 'claveElector')}
                           maxLength="18"
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1.5" }}>
                         <label>Email</label>
                         <input
                           type="email"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.email || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, email: e.target.value })}
                           required
@@ -582,20 +759,20 @@ const CabezaCirculoCRUD = () => {
                     </div>
 
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Facebook</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.facebook || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, facebook: e.target.value })}
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Otra Red Social</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.otraRedSocial || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, otraRedSocial: e.target.value })}
                         />
@@ -603,24 +780,25 @@ const CabezaCirculoCRUD = () => {
                     </div>
                   </div>
 
-                  <div className="modal-section">
-                    <h4 className="section-title">Estructura</h4>
+                  {/* Sección de estructura */}
+                  <div className="sober-section">
+                    <h4 className="sober-section-title">Estructura</h4>
                     <div className="form-row">
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Estructura Territorial</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.estructuraTerritorial || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, estructuraTerritorial: e.target.value })}
                           required
                         />
                       </div>
-                      <div className="form-group">
+                      <div className="form-group" style={{ flex: "1" }}>
                         <label>Posición en Estructura</label>
                         <input
                           type="text"
-                          className="neumorphic-input"
+                          className="sober-input"
                           value={selectedCabeza.posicionEstructura || ''}
                           onChange={(e) => setSelectedCabeza({ ...selectedCabeza, posicionEstructura: e.target.value })}
                           required
@@ -630,12 +808,18 @@ const CabezaCirculoCRUD = () => {
                   </div>
                 </div>
 
-                <div className="form-actions">
-                  <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedCabeza(null)}>
+                {/* Botones de acción del formulario */}
+                <div className="sober-form-actions">
+                  <button type="button" className="sober-button sober-button-secondary" onClick={() => setSelectedCabeza(null)}>
                     <i className="bi bi-x-circle me-2"></i>Cancelar
                   </button>
-                  <button type="submit" className="neumorphic-button primary">
-                    <i className="bi bi-floppy me-2"></i>Guardar Cambios
+                  <button 
+                    type="submit" 
+                    className="sober-button sober-button_primary"
+                    disabled={updateMutation.isPending}
+                  >
+                    <i className="bi bi-floppy me-2"></i>
+                    {updateMutation.isPending ? "Guardando..." : "Guardar Cambios"}
                   </button>
                 </div>
               </form>

@@ -15,7 +15,7 @@ function App() {
   // Función para verificar si el usuario está autenticado
   const isAuthenticated = () => {
     const user = localStorage.getItem('user');
-    return user !== null; // Asegúrate de que esta condición sea correcta
+    return user !== null; 
   };
 
   // Componente para rutas protegidas

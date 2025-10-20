@@ -6,12 +6,14 @@ import { Repository } from 'typeorm';
 import { Usuario } from './usuario.entity';
 import * as bcrypt from 'bcrypt';
 
+// Comando de consola para gestionar usuarios y contraseñas desde la línea de comandos
 @Injectable()
 @Command({
   name: 'usuario',
   description: 'Comandos para gestionar usuarios y contraseñas',
 })
 export class UsuarioCommand extends CommandRunner {
+  // Inyección del repositorio de usuario para operaciones directas con la base de datos
   constructor(
     @InjectRepository(Usuario)
     private usuarioRepo: Repository<Usuario>,
@@ -19,9 +21,11 @@ export class UsuarioCommand extends CommandRunner {
     super();
   }
 
+  // Método principal que ejecuta diferentes acciones según los parámetros recibidos
   async run(passedParams: string[]): Promise<void> {
     const [accion, nombreUsuario, nuevaContraseña] = passedParams;
 
+    // Determinar qué acción ejecutar según el primer parámetro
     switch (accion) {
       case 'cambiar-contraseña':
         await this.cambiarContraseña(nombreUsuario, nuevaContraseña);
@@ -37,7 +41,9 @@ export class UsuarioCommand extends CommandRunner {
     }
   }
 
+  // Método para cambiar la contraseña de un usuario específico
   private async cambiarContraseña(nombreUsuario: string, nuevaContraseña: string) {
+    // Validar que se proporcionen ambos parámetros
     if (!nombreUsuario || !nuevaContraseña) {
       console.log('❌ Error: Debes proporcionar el nombre de usuario y la nueva contraseña');
       console.log('Uso: npm run console usuario cambiar-contraseña <usuario> <nueva-contraseña>');
@@ -45,18 +51,18 @@ export class UsuarioCommand extends CommandRunner {
     }
 
     try {
-      // Buscar el usuario
+      // Buscar el usuario en la base de datos
       const user = await this.usuarioRepo.findOneBy({ usuario: nombreUsuario });
       if (!user) {
         console.log(`❌ Usuario "${nombreUsuario}" no encontrado`);
         return;
       }
 
-      // Hashear la nueva contraseña
+      // Hashear la nueva contraseña usando bcrypt
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(nuevaContraseña, saltRounds);
 
-      // Actualizar la contraseña
+      // Actualizar la contraseña en la base de datos
       await this.usuarioRepo.update(user.id, { contraseña: hashedPassword });
 
       console.log(`✅ Contraseña cambiada exitosamente para el usuario: ${nombreUsuario}`);
@@ -66,8 +72,10 @@ export class UsuarioCommand extends CommandRunner {
     }
   }
 
+  // Método para listar todos los usuarios registrados en el sistema
   private async listarUsuarios() {
     try {
+      // Obtener todos los usuarios sin incluir las contraseñas por seguridad
       const usuarios = await this.usuarioRepo.find({
         select: ['id', 'nombre', 'apellidos', 'usuario', 'correo']
       });
@@ -77,6 +85,7 @@ export class UsuarioCommand extends CommandRunner {
         return;
       }
 
+      // Mostrar la lista de usuarios en formato tabular
       console.log('\n📋 Lista de usuarios:');
       console.log('─'.repeat(80));
       usuarios.forEach(user => {
@@ -88,7 +97,9 @@ export class UsuarioCommand extends CommandRunner {
     }
   }
 
+  // Método para buscar y mostrar información de un usuario específico
   private async buscarUsuario(nombreUsuario: string) {
+    // Validar que se proporcione el nombre de usuario
     if (!nombreUsuario) {
       console.log('❌ Error: Debes proporcionar el nombre de usuario');
       console.log('Uso: npm run console usuario buscar <usuario>');
@@ -96,12 +107,14 @@ export class UsuarioCommand extends CommandRunner {
     }
 
     try {
+      // Buscar el usuario por nombre de usuario
       const user = await this.usuarioRepo.findOneBy({ usuario: nombreUsuario });
       if (!user) {
         console.log(`❌ Usuario "${nombreUsuario}" no encontrado`);
         return;
       }
 
+      // Mostrar información detallada del usuario (sin contraseña)
       console.log('\n👤 Información del usuario:');
       console.log('─'.repeat(40));
       console.log(`ID: ${user.id}`);
@@ -115,6 +128,7 @@ export class UsuarioCommand extends CommandRunner {
     }
   }
 
+  // Método para mostrar la ayuda con todos los comandos disponibles
   private mostrarAyuda() {
     console.log('\n🔧 Comandos disponibles para gestión de usuarios:');
     console.log('─'.repeat(60));

@@ -6,23 +6,26 @@ import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../
 const ApoyoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
 
+  // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
     cantidad: "",
     tipoApoyo: "",
     fechaEntrega: "",
-    beneficiarioId: null, // ID of the selected beneficiary
-    beneficiarioTipo: "", // Type of beneficiary: "cabeza" or "integrante"
+    beneficiarioId: null, // ID del beneficiario seleccionado
+    beneficiarioTipo: "", // Tipo de beneficiario: "cabeza" o "integrante"
   };
 
+  // Estados del componente para manejo del formulario
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // Search input for beneficiaries
-  const [beneficiarios, setBeneficiarios] = useState([]); // Search results
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // Selected beneficiary
-  const [hideHeaderState] = useState(hideHeader); // Control from props
+  const [searchQuery, setSearchQuery] = useState(""); // Campo de búsqueda de beneficiarios
+  const [beneficiarios, setBeneficiarios] = useState([]); // Resultados de búsqueda
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null); // Beneficiario seleccionado
+  const [hideHeaderState] = useState(hideHeader); // Control desde props
 
+  // Opciones predefinidas de tipos de apoyo
   const predefinedOptions = [
     "Tinaco",
     "Silla de ruedas",
@@ -41,21 +44,23 @@ const ApoyoForm = ({ hideHeader = false }) => {
     "Otro",
   ];
 
+  // Función para manejar cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restrict input for specific fields
+    // Restricción de entrada para campos numéricos específicos
     const numericFields = ["cantidad"];
     if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
-      return; // Prevent non-numeric input
+      return; // Prevenir entrada no numérica
     }
 
+    // Actualizar el estado del formulario
     setFormData({
       ...formData,
       [name]: value,
     });
 
-    // Clear errors while typing
+    // Limpiar errores cuando el usuario comience a escribir
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -64,6 +69,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
     }
   };
 
+  // Función para validar un campo específico
   const validateField = (name, value) => {
     let error = "";
     const mandatoryFields = ["fechaEntrega", "tipoApoyo", "cantidad"];
@@ -74,9 +80,12 @@ const ApoyoForm = ({ hideHeader = false }) => {
     return error;
   };
 
+  // Función para validar todo el formulario
   const validateForm = () => {
     let formIsValid = true;
     const newErrors = {};
+    
+    // Validar cada campo del formulario
     Object.keys(initialFormState).forEach((field) => {
       const error = validateField(field, formData[field]);
       if (error) {
@@ -84,23 +93,31 @@ const ApoyoForm = ({ hideHeader = false }) => {
         newErrors[field] = error;
       }
     });
+    
+    // Validar que se haya seleccionado un beneficiario
     if (!selectedBeneficiario) {
       formIsValid = false;
       newErrors.beneficiarioId = "Debe seleccionar un beneficiario.";
     }
+    
     setErrors(newErrors);
     return formIsValid;
   };
 
+  // Función para buscar beneficiarios (cabezas e integrantes de círculo)
   const handleSearchBeneficiarios = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
+    
     if (query.length > 2) {
       try {
+        // Buscar en ambas tablas en paralelo
         const [cabezas, integrantes] = await Promise.all([
           buscarCabezasCirculo(query),
           buscarIntegrantesCirculo(query),
         ]);
+        
+        // Combinar resultados y marcar el tipo
         setBeneficiarios([
           ...cabezas.map((cabeza) => ({ ...cabeza, tipo: "cabeza" })),
           ...integrantes.map((integrante) => ({ ...integrante, tipo: "integrante" })),
@@ -113,18 +130,19 @@ const ApoyoForm = ({ hideHeader = false }) => {
     }
   };
 
+  // Función para seleccionar un beneficiario de la lista de búsqueda
   const handleSelectBeneficiario = (beneficiario) => {
     setSelectedBeneficiario(beneficiario);
     setFormData({
       ...formData,
-      beneficiarioId: beneficiario.id, // Correctly set the ID of the selected beneficiary
-      beneficiarioTipo: beneficiario.tipo, // Correctly set the type of the selected beneficiary
+      beneficiarioId: beneficiario.id, // Establecer correctamente el ID del beneficiario seleccionado
+      beneficiarioTipo: beneficiario.tipo, // Establecer correctamente el tipo del beneficiario seleccionado
     });
-    setSearchQuery(""); // Clear the search query after selection
+    setSearchQuery(""); // Limpiar la consulta de búsqueda después de la selección
     setBeneficiarios([]);
   };
 
-  // Add function to remove selected beneficiary
+  // Función para remover el beneficiario seleccionado
   const handleRemoveBeneficiario = () => {
     setSelectedBeneficiario(null);
     setFormData({
@@ -134,9 +152,11 @@ const ApoyoForm = ({ hideHeader = false }) => {
     });
   };
 
+  // Función para procesar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validar formulario antes de enviar
     if (!validateForm()) {
       setMessage({
         type: "error",
@@ -152,34 +172,40 @@ const ApoyoForm = ({ hideHeader = false }) => {
     setMessage({ type: "", text: "" });
 
     try {
+      // Preparar datos para enviar al backend
       const apoyoData = {
         cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
         tipoApoyo: formData.tipoApoyo === "Otro" ? formData.tipoApoyo.trim() : formData.tipoApoyo.trim(),
         fechaEntrega: formData.fechaEntrega,
-        persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null, // Match "persona" for Persona_id
-        cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null, // Match "cabeza" for Cabeza_id
+        persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null, // Corresponde a "persona" para Persona_id
+        cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null, // Corresponde a "cabeza" para Cabeza_id
       };
 
       console.log("Datos enviados al backend:", apoyoData);
 
+      // Enviar datos al backend
       await createApoyo(apoyoData);
 
+      // Mostrar mensaje de éxito
       setMessage({
         type: "success",
         text: "Apoyo registrado exitosamente.",
       });
 
-      setFormData(initialFormState); // Clear form
+      // Limpiar formulario después del éxito
+      setFormData(initialFormState);
       setErrors({});
-      setSelectedBeneficiario(null); // Clear selected beneficiary
-      setSearchQuery(""); // Clear search input
+      setSelectedBeneficiario(null);
+      setSearchQuery("");
 
-      // Set a timeout to clear the success message after 8 seconds
+      // Limpiar mensaje de éxito después de 8 segundos
       setTimeout(() => {
         setMessage({ type: "", text: "" });
       }, 8000);
     } catch (error) {
       console.error("Error al registrar apoyo:", error);
+      
+      // Manejar errores del backend
       const backendErrorMessage = error.response?.data?.message || "Error al registrar apoyo. Verifique los datos e inténtelo de nuevo.";
       setMessage({
         type: "error",
@@ -190,6 +216,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
     }
   };
 
+  // Función para limpiar el formulario
   const handleReset = () => {
     setFormData(initialFormState);
     setErrors({});
@@ -200,12 +227,14 @@ const ApoyoForm = ({ hideHeader = false }) => {
 
   return (
     <div className={`container mt-3`}>
+      {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">
           <h1 className="h4 text-primary">Registro de Apoyo</h1>
         </div>
       )}
 
+      {/* Mostrar mensajes al usuario */}
       {message.text && (
         message.text === "Por favor, complete todos los campos obligatorios." ? (
           <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
@@ -224,10 +253,13 @@ const ApoyoForm = ({ hideHeader = false }) => {
         )
       )}
 
+      {/* Formulario principal */}
       <form onSubmit={handleSubmit}>
+        {/* Sección: Información del Apoyo */}
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Información del Apoyo</h5>
           <div className="form-row">
+            {/* Campo de cantidad */}
             <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Cantidad</label>
               <input
@@ -244,6 +276,8 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 </span>
               )}
             </div>
+            
+            {/* Campo de tipo de apoyo con opciones predefinidas */}
             <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Tipo de Apoyo</label>
               <select
@@ -266,7 +300,9 @@ const ApoyoForm = ({ hideHeader = false }) => {
               )}
             </div>
           </div>
+          
           <div className="form-row">
+            {/* Campo de fecha de entrega */}
             <div className="form-col" style={{ flex: "0 0 50%" }}>
               <label>Fecha de Entrega</label>
               <input
@@ -287,6 +323,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
+        {/* Sección: Asociar Beneficiario */}
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Asociar Beneficiario</h5>
           <div className="beneficiary-container">
@@ -300,6 +337,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
                   onChange={handleSearchBeneficiarios}
                   autoComplete="off"
                 />
+                {/* Lista de resultados de búsqueda */}
                 {beneficiarios.length > 0 && (
                   <ul className="search-results">
                     {beneficiarios.map((beneficiario) => (
@@ -316,6 +354,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
               </div>
             </div>
 
+            {/* Contenedor para el beneficiario seleccionado */}
             <div className="selected-beneficiary-container">
               {selectedBeneficiario ? (
                 <div className="form-row">
@@ -341,11 +380,11 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 </div>
               ) : (
                 <div className="empty-beneficiary-placeholder">
-                  {/* Removed the placeholder text */}
                 </div>
               )}
             </div>
 
+            {/* Mostrar error si no se ha seleccionado beneficiario */}
             {errors.beneficiarioId && (
               <span className="error-text">
                 <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
@@ -355,6 +394,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
+        {/* Botones de acción del formulario */}
         <div className="form-actions">
           <button type="button" className="form-button form-button-secondary" onClick={handleReset}>
             Limpiar

@@ -7,6 +7,7 @@ import { registrarUsuario } from '../../api';
 import logoApoyos from '../../assets/logoApoyos.png';
 
 function Register() {
+  // Estado para manejar todos los datos del formulario de registro
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
@@ -14,24 +15,30 @@ function Register() {
     username: '',
     password: '',
     confirmPassword: '',
-    codigoUsuario: '' // Mantenemos 'codigoUsuario' aquí si es el nombre del campo en el estado
+    codigoUsuario: ''
   });
+  
+  // Estados para manejar la verificación de reCAPTCHA y estado de la interfaz
   const [captchaToken, setCaptchaToken] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Hook de navegación para redirecciones
   const navigate = useNavigate();
 
+  // Efecto para limpiar automáticamente los mensajes de error después de 8 segundos
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
         setError('');
-      }, 8000); // 8 segundos
+      }, 8000);
       return () => clearTimeout(timer);
     }
   }, [error]);
 
+  // Función para manejar cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -40,21 +47,25 @@ function Register() {
     });
   };
 
+  // Función para manejar la respuesta del reCAPTCHA
   const handleCaptchaChange = (token) => {
     setCaptchaToken(token);
   };
 
+  // Función para procesar el envío del formulario de registro
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // Validar que las contraseñas coincidan
     if (formData.password !== formData.confirmPassword) {
       setError('Las contraseñas no coinciden');
       setLoading(false);
       return;
     }
 
+    // Validar que se haya completado el reCAPTCHA
     if (!captchaToken) {
       setError('Por favor completa el reCAPTCHA');
       setLoading(false);
@@ -62,29 +73,28 @@ function Register() {
     }
 
     try {
-      // *** INICIO DE LA CORRECCIÓN ***
-      // Crea un objeto con los datos específicos del usuario que necesita el backend
+      // Preparar los datos del usuario en el formato esperado por el backend
       const usuarioData = {
         nombre: formData.nombre,
         apellidos: formData.apellidos,
-        correo: formData.email, // Asegúrate que la entidad Usuario en NestJS tenga 'correo'
+        correo: formData.email,
         usuario: formData.username,
         contraseña: formData.password,
-        codigoUusuario: formData.codigoUsuario // Usamos 'codigoUusuario' para la propiedad que espera el backend/entidad
+        codigoUusuario: formData.codigoUsuario
       };
 
-      // Llama a la API enviando el objeto esperado por el backend
-      await registrarUsuario({ //
-        usuario: usuarioData, // Anida los datos del usuario bajo la clave 'usuario'
-        captchaToken,        // Envía el token de captcha al mismo nivel
+      // Enviar datos del registro al backend
+      await registrarUsuario({
+        usuario: usuarioData,
+        captchaToken,
       });
-      // *** FIN DE LA CORRECCIÓN ***
 
+      // Redirigir al login con parámetro de éxito
       navigate('/login?registered=true');
     } catch (err) {
-      // Muestra un mensaje de error más específico si está disponible
+      // Mostrar mensaje de error específico del backend o genérico
       const errorMessage = err.response?.data?.message || 'Error al registrar usuario. Por favor intenta de nuevo.';
-      console.error("Error en registro:", err.response || err); // Loguea el error completo en la consola para depuración
+      console.error("Error en registro:", err.response || err);
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -94,6 +104,7 @@ function Register() {
   return (
     <div className="auth-container">
       <div className="auth-card register-card">
+        {/* Cabecera del formulario con logo y título */}
         <div className="auth-header">
           <div className="header-logo">
             <img src={logoApoyos} alt="Logo Apoyos" className="apoyos-logo" />
@@ -102,9 +113,12 @@ function Register() {
           <p className="auth-subtitle">Crea una nueva cuenta para acceder al sistema.</p>
         </div>
 
+        {/* Mostrar mensajes de error */}
         {error && <div className="error-message">{error}</div>}
 
+        {/* Formulario de registro */}
         <form onSubmit={handleSubmit} className="register-form" autoComplete="off">
+          {/* Fila con campos de nombre y apellidos */}
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="nombre">👤 Nombre(s)</label>
@@ -112,7 +126,7 @@ function Register() {
                 <input
                   type="text"
                   id="nombre"
-                  name="nombre" // El 'name' debe coincidir con la clave en el estado formData
+                  name="nombre"
                   value={formData.nombre}
                   onChange={handleChange}
                   placeholder="Nombre"
@@ -128,7 +142,7 @@ function Register() {
                 <input
                   type="text"
                   id="apellidos"
-                  name="apellidos" // El 'name' debe coincidir con la clave en el estado formData
+                  name="apellidos"
                   value={formData.apellidos}
                   onChange={handleChange}
                   placeholder="Apellidos"
@@ -139,29 +153,31 @@ function Register() {
             </div>
           </div>
 
+          {/* Campo de correo electrónico */}
           <div className="form-group">
             <label htmlFor="email">📧 Correo Electrónico</label>
             <div className="input-group">
               <input
                 type="email"
                 id="email"
-                name="email" // El 'name' debe coincidir con la clave en el estado formData
+                name="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="correo@ejemplo.com"
                 autoComplete="off"
-                required // Opcional, si el correo es requerido
+                required
               />
             </div>
           </div>
 
+          {/* Campo de nombre de usuario */}
           <div className="form-group">
             <label htmlFor="username">🙋‍♂️ Nombre de Usuario</label>
             <div className="input-group">
               <input
                 type="text"
                 id="username"
-                name="username" // El 'name' debe coincidir con la clave en el estado formData
+                name="username"
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Nombre de usuario"
@@ -171,6 +187,7 @@ function Register() {
             </div>
           </div>
 
+          {/* Fila con campos de contraseña y confirmación */}
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="password">🔐 Contraseña</label>
@@ -227,13 +244,14 @@ function Register() {
             </div>
           </div>
 
+          {/* Campo de código de usuario para validación */}
           <div className="form-group">
             <label htmlFor="codigoUsuario">🗝️ Código de Usuario</label>
             <div className="input-group">
               <input
                 type="text"
                 id="codigoUsuario"
-                name="codigoUsuario" // El 'name' debe coincidir con la clave en el estado formData ('codigoUsuario')
+                name="codigoUsuario"
                 value={formData.codigoUsuario}
                 onChange={handleChange}
                 placeholder="Código de usuario"
@@ -243,13 +261,15 @@ function Register() {
             </div>
           </div>
 
+          {/* Verificación reCAPTCHA para seguridad */}
           <div className="form-group">
             <ReCAPTCHA
-              sitekey="6LfJ6xgrAAAAAH9C59xsanFRbksatVnywbT886yA" // Clave del sitio de reCAPTCHA
+              sitekey="6LfJ6xgrAAAAAH9C59xsanFRbksatVnywbT886yA"
               onChange={handleCaptchaChange}
             />
           </div>
 
+          {/* Botón de envío del formulario */}
           <button
             type="submit"
             className="auth-button d-flex align-items-center justify-content-center"
@@ -269,6 +289,7 @@ function Register() {
           </button>
         </form>
 
+        {/* Enlace para ir al login */}
         <div className="auth-footer">
           <p>¿Ya tienes una cuenta? <Link to="/login" className="register-link">Inicia sesión aquí</Link></p>
         </div>

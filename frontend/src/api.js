@@ -111,6 +111,16 @@ export const updateApoyo = async (id, data) => {
   return await api.put(`/apoyos/${id}`, data);
 };
 
+// Enhanced API functions for TanStack Query
+export const getAllCabezasCirculo = async () => {
+  try {
+    const response = await buscarCabezasCirculo("");
+    return response.sort((a, b) => b.id - a.id);
+  } catch (error) {
+    console.error("Error fetching all cabezas de círculo:", error);
+    throw error;
+  }
+};
 
 // -----------------------------------------------------Exports para MongoDB
 

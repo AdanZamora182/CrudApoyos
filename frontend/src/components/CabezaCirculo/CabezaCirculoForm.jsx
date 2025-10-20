@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css'; // Importa Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "./CabezaCirculo.css";
 import { createCabezaCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
 
 const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
   
+  // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
     nombre: "",
     apellidoPaterno: "",
@@ -15,7 +16,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     telefono: "",
     calle: "",
     noExterior: "",
-    noInterior: "", // Ahora es opcional
+    noInterior: "", // Campo opcional
     colonia: "",
     codigoPostal: "",
     municipio: "",
@@ -27,31 +28,34 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     posicionEstructura: "",
   };
 
+  // Estados del componente
   const [formData, setFormData] = useState(initialFormState);
-  const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState({ type: "", text: "" });
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({}); // Para manejar errores de validación
+  const [message, setMessage] = useState({ type: "", text: "" }); // Para mensajes al usuario
+  const [loading, setLoading] = useState(false); // Para mostrar estado de carga
   const [hideHeaderState, setHideHeader] = useState(hideHeader);
   
-  // Add new state for colonies
+  // Estados para el dropdown de colonias
   const [colonias, setColonias] = useState([]);
   const [showColoniaDropdown, setShowColoniaDropdown] = useState(false);
 
+  // Función para manejar cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restrict input for specific fields
+    // Restricción de entrada para campos numéricos específicos
     const numericFields = ["telefono", "noExterior", "noInterior", "codigoPostal"];
     if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
-      return; // Prevent non-numeric input
+      return; // Prevenir entrada no numérica
     }
 
+    // Actualizar el estado del formulario
     setFormData({
       ...formData,
       [name]: value,
     });
 
-    // Limpiar errores al escribir
+    // Limpiar errores cuando el usuario comienza a escribir
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -59,13 +63,13 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       });
     }
 
-    // Handle código postal changes
+    // Manejar cambios en el código postal para autocompletado
     if (name === "codigoPostal") {
       if (value.length === 5) {
-        // Auto-complete Municipio and get Colonias when Código Postal is complete
+        // Autocompletar municipio y obtener colonias cuando el código postal esté completo
         handleCodigoPostalChange(value);
       } else {
-        // Clear municipio and colonias when código postal is incomplete or deleted
+        // Limpiar municipio y colonias cuando el código postal esté incompleto
         setFormData(prevData => ({
           ...prevData,
           codigoPostal: value,
@@ -77,31 +81,33 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       }
     }
     
-    // Handle colonia selection from dropdown
+    // Ocultar dropdown de colonias al seleccionar una
     if (name === "colonia") {
-      setShowColoniaDropdown(false); // Hide dropdown after selection
+      setShowColoniaDropdown(false);
     }
   };
 
-  // Enhanced function to handle código postal autocomplete
+  // Función para manejar el autocompletado basado en código postal
   const handleCodigoPostalChange = async (codigoPostal) => {
     try {
-      // Fetch both municipio and colonias
+      // Buscar tanto municipio como colonias en paralelo
       const [municipio, coloniasData] = await Promise.all([
         buscarMunicipioPorCP(codigoPostal),
         buscarColoniasPorCP(codigoPostal)
       ]);
       
+      // Actualizar municipio si se encuentra
       if (municipio) {
         setFormData(prevData => ({
           ...prevData,
           municipio: municipio,
-          colonia: "" // Clear colonia when postal code changes
+          colonia: "" // Limpiar colonia cuando cambia el código postal
         }));
       }
       
+      // Actualizar lista de colonias si se encuentran
       if (coloniasData && coloniasData.length > 0) {
-        // Sort colonies alphabetically
+        // Ordenar colonias alfabéticamente
         const sortedColonias = coloniasData.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
         setColonias(sortedColonias);
         setShowColoniaDropdown(true);
@@ -116,7 +122,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     }
   };
 
-  // Handle colonia selection from dropdown
+  // Función para seleccionar una colonia del dropdown
   const handleColoniaSelect = (coloniaSeleccionada) => {
     setFormData(prevData => ({
       ...prevData,
@@ -125,18 +131,19 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     setShowColoniaDropdown(false);
   };
 
-  // New function to toggle dropdown visibility
+  // Función para alternar la visibilidad del dropdown de colonias
   const toggleColoniaDropdown = () => {
     if (colonias.length > 0) {
       setShowColoniaDropdown(!showColoniaDropdown);
     }
   };
 
+  // Función para validar un campo específico
   const validateField = (name, value) => {
     let error = "";
     const trimmedValue = value !== null && value !== undefined ? String(value).trim() : "";
 
-    // Campos opcionales
+    // Campos que son opcionales
     const optionalFields = ["noInterior", "municipio", "facebook", "otraRedSocial"];
 
     // Validar campos obligatorios
@@ -145,7 +152,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       return error;
     }
 
-    // Validaciones específicas por campo
+    // Validaciones específicas por tipo de campo
     switch (name) {
       case "telefono":
       case "noExterior":
@@ -167,9 +174,12 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     return error;
   };
 
+  // Función para validar todo el formulario
   const validateForm = () => {
     let formIsValid = true;
     const newErrors = {};
+    
+    // Validar cada campo del formulario
     Object.keys(initialFormState).forEach((field) => {
       const error = validateField(field, formData[field]);
       if (error) {
@@ -177,19 +187,22 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
         newErrors[field] = error;
       }
     });
+    
     setErrors(newErrors);
     return formIsValid;
   };
 
+  // Función para procesar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validar formulario antes de enviar
     if (!validateForm()) {
       setMessage({
         type: "error",
         text: "Por favor, complete correctamente todos los campos obligatorios.",
       });
-      // Oculta el mensaje automáticamente después de 7 segundos solo para este error
+      // Limpiar mensaje de error específico después de 7 segundos
       setTimeout(() => {
         setMessage({ type: "", text: "" });
       }, 7000);
@@ -200,6 +213,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     setMessage({ type: "", text: "" });
 
     try {
+      // Formatear datos para enviar al backend
       const cabezaData = {
         nombre: formData.nombre,
         apellidoPaterno: formData.apellidoPaterno,
@@ -207,8 +221,8 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
         fechaNacimiento: formData.fechaNacimiento,
         telefono: parseInt(formData.telefono, 10),
         calle: formData.calle,
-        noExterior: parseInt(formData.noExterior, 10), // Obligatorio
-        noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null, // Opcional
+        noExterior: parseInt(formData.noExterior, 10), // Campo obligatorio
+        noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null, // Campo opcional
         colonia: formData.colonia,
         codigoPostal: parseInt(formData.codigoPostal, 10),
         municipio: formData.municipio || null,
@@ -222,24 +236,30 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       
       console.log("Datos a enviar al backend:", cabezaData);
 
+      // Enviar datos al backend
       await createCabezaCirculo(cabezaData);
 
+      // Mostrar mensaje de éxito
       setMessage({
         type: "success",
         text: "Cabeza de círculo registrada exitosamente.",
       });
 
-      setFormData(initialFormState); // Limpiar formulario
-      setErrors({}); // Limpiar errores
+      // Limpiar formulario después del éxito
+      setFormData(initialFormState);
+      setErrors({});
 
-      // Set a timeout to clear the success message after 8 seconds
+      // Limpiar mensaje de éxito después de 8 segundos
       setTimeout(() => {
         setMessage({ type: "", text: "" });
       }, 8000);
     } catch (error) {
       console.error("Error al registrar cabeza de círculo:", error);
+      
+      // Manejar errores del backend
       const backendErrorMessage = error.response?.data?.message || "Error al registrar cabeza de círculo. Verifique los datos e inténtelo de nuevo.";
       const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
+      
       setMessage({
         type: "error",
         text: displayMessage,
@@ -249,21 +269,23 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
     }
   };
 
+  // Función para limpiar el formulario
   const handleReset = () => {
     setFormData(initialFormState);
     setErrors({});
     setMessage({ type: "", text: "" });
   };
 
-  // En el render
   return (
     <div className={`container mt-3`}>
+      {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">
           <h1 className="h4 text-primary">Registro de Cabeza de Círculo</h1>
         </div>
       )}
 
+      {/* Mostrar mensajes al usuario */}
       {message.text && (
         message.text === "Por favor, complete correctamente todos los campos obligatorios." ? (
           <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
@@ -278,11 +300,14 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </div>
         )
       )}
+      
+      {/* Formulario principal */}
       <form onSubmit={handleSubmit}>
-        {/* Información Personal */}
+        {/* Sección: Información Personal */}
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Información Personal</h5>
           <div className="row">
+            {/* Campos de nombre y apellidos */}
             <div className="col-md-4 mb-2">
               <label className="form-label">Nombre(s)</label>
               <input
@@ -320,7 +345,9 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               {errors.apellidoMaterno && <div className="invalid-feedback">{errors.apellidoMaterno}</div>}
             </div>
           </div>
+          
           <div className="row">
+            {/* Campos de fecha de nacimiento y teléfono */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Fecha de Nacimiento</label>
               <input
@@ -349,10 +376,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
-        {/* Dirección */}
+        {/* Sección: Dirección */}
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Dirección</h5>
           <div className="row">
+            {/* Campo de calle */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Calle</label>
               <input
@@ -365,6 +393,8 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               />
               {errors.calle && <div className="invalid-feedback">{errors.calle}</div>}
             </div>
+            
+            {/* Campo de colonia con dropdown de sugerencias */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Colonia</label>
               <div style={{ position: "relative" }}>
@@ -378,6 +408,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
                     autoComplete="off"
                     placeholder={colonias.length > 0 ? "Selecciona una colonia o escribe una nueva" : "Ingresa código postal primero"}
                   />
+                  {/* Botón para mostrar/ocultar dropdown de colonias */}
                   {colonias.length > 0 && (
                     <button
                       type="button"
@@ -395,6 +426,8 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
                     </button>
                   )}
                 </div>
+                
+                {/* Dropdown con lista de colonias */}
                 {showColoniaDropdown && colonias.length > 0 && (
                   <ul className="colonia-dropdown">
                     {colonias.map((colonia, index) => (
@@ -412,7 +445,9 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               </div>
             </div>
           </div>
+          
           <div className="row">
+            {/* Campos de números de casa y código postal */}
             <div className="col-md-4 mb-2">
               <label className="form-label">No. Exterior</label>
               <input
@@ -452,7 +487,9 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               {errors.codigoPostal && <div className="invalid-feedback">{errors.codigoPostal}</div>}
             </div>
           </div>
+          
           <div className="row">
+            {/* Campo de municipio (autocompletado) */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Municipio</label>
               <input
@@ -469,10 +506,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
-        {/* Información Electoral y Contacto */}
+        {/* Sección: Información Electoral y Contacto */}
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Información Electoral y Contacto</h5>
           <div className="row">
+            {/* Campos de clave de elector y email */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Clave de Elector</label>
               <input
@@ -500,6 +538,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
             </div>
           </div>
           <div className="row">
+            {/* Campos de redes sociales (opcionales) */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Facebook (opcional)</label>
               <input
@@ -525,10 +564,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
-        {/* Estructura */}
+        {/* Sección: Estructura */}
         <div className="mb-3 bg-contrast rounded shadow-sm p-3">
           <h5 className="mb-2 heading-morado">Estructura</h5>
           <div className="row">
+            {/* Campos de estructura territorial y posición */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Estructura Territorial</label>
               <input
@@ -556,6 +596,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </div>
         </div>
 
+        {/* Botones de acción del formulario */}
         <div className="d-flex justify-content-end gap-2 mt-4 mb-4">
           <button
             type="button"
