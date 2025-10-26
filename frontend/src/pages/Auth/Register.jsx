@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import './Auth.css';
-import { registrarUsuario } from '../../api';
+import { registrarUsuario } from '../../api/authApi';
 
 import logoApoyos from '../../assets/logoApoyos.png';
 
@@ -83,7 +83,7 @@ function Register() {
         codigoUusuario: formData.codigoUsuario
       };
 
-      // Enviar datos del registro al backend
+      // Enviar datos del registro al backend usando la API modular
       await registrarUsuario({
         usuario: usuarioData,
         captchaToken,

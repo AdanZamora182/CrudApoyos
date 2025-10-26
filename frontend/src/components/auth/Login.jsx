@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Auth.css';
-import { iniciarSesion } from '../../api/authApi';
+import { iniciarSesion } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
 
 import logoApoyos from '../../assets/logoApoyos.png';
@@ -71,7 +71,7 @@ function Login() {
     setSuccessMessage('');
 
     try {
-      // Llamar a la API modular para autenticar al usuario
+      // Llamar a la API para autenticar al usuario
       const response = await iniciarSesion({
         usuario: formData.username,
         contraseña: formData.password,

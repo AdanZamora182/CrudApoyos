@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./CabezaCirculo.css";
-import { createCabezaCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
+import { createCabezaCirculo } from "../../api/cabezasApi";
+import { buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api/direccionesApi";
 
 const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
