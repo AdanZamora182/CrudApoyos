@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import Menu from './components/Menu/Menu';
-import CabezaCirculoForm from './components/CabezaCirculo/CabezaCirculoForm';
-import IntegranteCirculoForm from './components/IntegrantesCirculo/IntegranteCirculoForm'; 
-import ApoyoForm from './components/Apoyo/ApoyoForm'; 
-import CabezasCirculoPage from "./components/CabezaCirculo/CabezasCirculoPage";
-import IntegranteCirculoPage from "./components/IntegrantesCirculo/IntegranteCirculoPage";
-import ApoyoPage from './components/Apoyo/ApoyoPage';  // Import the new ApoyoPage component
-import Dashboard from './components/Dashboard/Dashboard';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import Menu from './pages/Menu/Menu';
+import CabezaCirculoForm from './pages/CabezasCirculo/CabezaCirculoForm';
+import IntegranteCirculoForm from './pages/IntegrantesCirculo/IntegranteCirculoForm'; 
+import ApoyoForm from './pages/Apoyos/ApoyoForm'; 
+import CabezasCirculoPage from "./pages/CabezasCirculo/CabezasCirculoPage";
+import IntegranteCirculoPage from "./pages/IntegrantesCirculo/IntegranteCirculoPage";
+import ApoyoPage from './pages/Apoyos/ApoyoPage';  // Import the new ApoyoPage component
+import Dashboard from './pages/Dashboard/Dashboard';
 
 function App() {
   // Función para verificar si el usuario está autenticado
