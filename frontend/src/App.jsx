@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToasterProvider } from './components/ui/ToasterProvider';
 import AppRouter from './router/AppRouter';
 
 /**
@@ -9,10 +10,17 @@ import AppRouter from './router/AppRouter';
  */
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppRouter />
-      </AuthProvider>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
+      <ToasterProvider>
+        <AuthProvider>
+          <AppRouter />
+        </AuthProvider>
+      </ToasterProvider>
     </Router>
   );
 }

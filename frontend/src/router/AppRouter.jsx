@@ -8,21 +8,47 @@ import IntegranteCirculoPage from '../pages/IntegrantesCirculo/IntegranteCirculo
 import ApoyoPage from '../pages/Apoyos/ApoyoPage';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import PrivateRoute from './PrivateRoute';
+import PublicRoute from './PublicRoute';
 import { useAuth } from '../hooks/useAuth';
 
-/**
- * Componente principal de enrutamiento
- * Define todas las rutas de la aplicación
- * Incluye rutas públicas (login, register) y protegidas (menu y sus hijos)
- */
 const AppRouter = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+
+  // Mostrar loading mientras se verifica la autenticación
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '16px',
+        color: '#666'
+      }}>
+        <div>Cargando aplicación...</div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      {/* Rutas públicas de autenticación */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {/* Rutas públicas protegidas */}
+      <Route 
+        path="/login" 
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/register" 
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } 
+      />
       
       {/* Rutas protegidas dentro del layout del menú */}
       <Route 
@@ -33,10 +59,7 @@ const AppRouter = () => {
           </PrivateRoute>
         } 
       >
-        {/* Ruta de inicio (página principal del menú) */}
         <Route path="menu" element={<></>} />
-        
-        {/* Rutas de las diferentes secciones */}
         <Route path="cabezas-circulo" element={<CabezasCirculoPage />} />
         <Route path="integrantes-circulo" element={<IntegranteCirculoPage />} />
         <Route path="apoyos" element={<ApoyoPage />} />
@@ -47,7 +70,7 @@ const AppRouter = () => {
       <Route 
         path="*" 
         element={
-          isAuthenticated() ? <Navigate to="/menu" replace /> : <Navigate to="/login" replace />
+          <Navigate to={isAuthenticated() ? "/menu" : "/login"} replace />
         } 
       />
     </Routes>

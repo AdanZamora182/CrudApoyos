@@ -1,195 +1,207 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import './Auth.css';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
 import { iniciarSesion } from '../../api/authApi';
 import { useAuth } from '../../hooks/useAuth';
-
+import { useToaster } from '../../components/ui/ToasterProvider';
+import { theme } from '../../styles/theme';
+import Button from '../../components/ui/Button';
 import logoApoyos from '../../assets/logoApoyos.png';
+import {
+  AuthContainer,
+  AuthCard,
+  LogoPanel,
+  Logo,
+  LogoTitle,
+  LogoSubtitle,
+  FormPanel,
+  FormHeader,
+  FormTitle,
+  FormSubtitle,
+  FormGroup,
+  Label,
+  InputGroup,
+  Input,
+  PasswordToggle,
+  RememberMe,
+  CheckboxLabel,
+  Footer,
+  StyledLink
+} from './Auth.styles';
 
 function Login() {
-  // Estado para manejar los datos del formulario de login
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
   
-  // Estados para manejar mensajes y estados de la interfaz
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  // Hooks de navegación y ubicación para redirecciones
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+  const { showSuccess, showError } = useToaster();
 
-  // Efecto para mostrar mensaje de éxito cuando el usuario se registra correctamente
+  // Redirección automática si ya hay una sesión activa
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    if (queryParams.get('registered') === 'true') {
-      setSuccessMessage('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
-
-      // Limpiar mensaje de éxito después de 8 segundos
-      const timer = setTimeout(() => {
-        setSuccessMessage('');
-      }, 8000);
-
-      return () => clearTimeout(timer);
+    if (isAuthenticated()) {
+      navigate('/menu', { replace: true });
+      return;
     }
-  }, [location]);
+  }, [isAuthenticated, navigate]);
 
-  // Efecto para limpiar automáticamente los mensajes de error después de 8 segundos
   useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError('');
-      }, 8000);
-      return () => clearTimeout(timer);
+    // Solo ejecutar si no hay sesión activa
+    if (!isAuthenticated()) {
+      // Mostrar mensaje de registro exitoso si viene de register
+      const queryParams = new URLSearchParams(location.search);
+      if (queryParams.get('registered') === 'true') {
+        // Usar un timeout más largo para asegurar que el componente esté montado
+        const timer = setTimeout(() => {
+          showSuccess('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
+          // Limpiar el parámetro de la URL para evitar que se muestre de nuevo
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }, 500);
+        
+        return () => clearTimeout(timer);
+      }
     }
-  }, [error]);
+  }, [location.search, showSuccess, isAuthenticated]);
 
-  // Función para manejar cambios en los campos del formulario
+  // No renderizar nada si hay sesión activa (mientras redirige)
+  if (isAuthenticated()) {
+    return null;
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Función para alternar la visibilidad de la contraseña
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
 
-  // Función para procesar el envío del formulario de login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccessMessage('');
 
     try {
-      // Llamar a la API modular para autenticar al usuario
       const response = await iniciarSesion({
         usuario: formData.username,
         contraseña: formData.password,
       });
 
-      // Si la autenticación es exitosa, usar el contexto para guardar datos
       if (response.usuario) {
         login(response.usuario);
-        navigate('/menu');
+        showSuccess('Inicio de sesión exitoso. Redirigiendo...', 3000);
+        setTimeout(() => {
+          navigate('/menu');
+        }, 1000);
       } else {
-        // Mostrar mensaje de error si las credenciales son incorrectas
-        setError(response.mensaje);
+        // Mostrar mensaje específico del servidor o mensaje por defecto
+        const errorMessage = response.mensaje || 'Credenciales incorrectas';
+        showError(errorMessage);
       }
     } catch (err) {
-      setError('❌ Error al iniciar sesión. Por favor intenta de nuevo.');
+      console.error('Error en login:', err);
+      
+      // Determinar el mensaje de error apropiado
+      let errorMessage = 'Error al iniciar sesión. Por favor intenta de nuevo.';
+      
+      if (err.response?.status === 401) {
+        errorMessage = 'Credenciales incorrectas';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        {/* Cabecera del formulario con logo y título */}
-        <div className="auth-header">
-          <div className="header-logo">
-            <img src={logoApoyos} alt="Logo Apoyos" className="apoyos-logo" />
-            <h1 className="title">Registro de Apoyos</h1>
-          </div>
-          <p className="auth-subtitle">Bienvenido. Por favor, ingresa tus credenciales para acceder.</p>
-        </div>
+    <ThemeProvider theme={theme}>
+      <AuthContainer>
+        <AuthCard>
+          {/* Panel izquierdo con logo y branding */}
+          <LogoPanel>
+            <Logo src={logoApoyos} alt="Logo Apoyos" />
+            <LogoTitle>Registro de Apoyos</LogoTitle>
+            <LogoSubtitle>Sistema de Gestión</LogoSubtitle>
+          </LogoPanel>
 
-        {/* Mostrar mensajes de éxito y error */}
-        {successMessage && <div className="success-message">{successMessage}</div>}
-        {error && <div className="error-message">{error}</div>}
+          {/* Panel derecho con formulario */}
+          <FormPanel>
+            <FormHeader>
+              <FormTitle>Bienvenido de nuevo</FormTitle>
+              <FormSubtitle>Ingresa tus credenciales para continuar</FormSubtitle>
+            </FormHeader>
 
-        {/* Formulario de inicio de sesión */}
-        <form onSubmit={handleSubmit}>
-          {/* Campo de nombre de usuario */}
-          <div className="form-group">
-            <label htmlFor="username">👤 Usuario</label>
-            <div className="input-group">
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Ingresa tu nombre de usuario"
-                required
-                autoComplete="off"
-              />
-            </div>
-          </div>
+            <form onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label htmlFor="username">Nombre de Usuario</Label>
+                <InputGroup>
+                  <Input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="Ingresa tu usuario"
+                    required
+                    autoComplete="off"
+                  />
+                </InputGroup>
+              </FormGroup>
 
-          {/* Campo de contraseña con opción de mostrar/ocultar */}
-          <div className="form-group">
-            <label htmlFor="password">🔒 Contraseña</label>
-            <div className="input-group">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Ingresa tu contraseña"
-                required
-                className="form-control"
-              />
-              <div className="input-group-append">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={handleTogglePassword}
-                  tabIndex={-1}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                >
-                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                </button>
-              </div>
-            </div>
-          </div>
+              <FormGroup>
+                <Label htmlFor="password">Contraseña</Label>
+                <InputGroup>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Ingresa tu contraseña"
+                    required
+                    $hasButton
+                  />
+                  <PasswordToggle type="button" onClick={handleTogglePassword}>
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </PasswordToggle>
+                </InputGroup>
+              </FormGroup>
 
-          {/* Checkbox para recordar sesión */}
-          <div className="remember-me">
-            <label className="checkbox-container">
-              <input type="checkbox" name="remember" />
-              <span className="checkmark"></span>
-              Recordar mi sesión
-            </label>
-          </div>
+              <RememberMe>
+                <CheckboxLabel>
+                  <input type="checkbox" name="remember" />
+                  Recordar sesión
+                </CheckboxLabel>
+              </RememberMe>
 
-          {/* Botón de envío del formulario */}
-          <button
-            type="submit"
-            className="auth-button d-flex align-items-center justify-content-center"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Cargando...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-box-arrow-in-right me-2"></i>
+              <Button
+                type="submit"
+                loading={loading}
+                icon="bi bi-box-arrow-in-right"
+              >
                 Iniciar Sesión
-              </>
-            )}
-          </button>
-        </form>
+              </Button>
+            </form>
 
-        {/* Enlace para ir al registro */}
-        <div className="auth-footer">
-          <p>¿No tienes una cuenta? <Link to="/register" className="register-link">Regístrate aquí</Link></p>
-        </div>
-      </div>
-    </div>
+            <Footer>
+              <p>¿No tienes una cuenta? <StyledLink to="/register">Regístrate aquí</StyledLink></p>
+            </Footer>
+          </FormPanel>
+        </AuthCard>
+      </AuthContainer>
+    </ThemeProvider>
   );
 }
 

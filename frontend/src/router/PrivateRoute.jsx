@@ -1,14 +1,23 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-/**
- * Componente que protege rutas requiriendo autenticación
- * Usa el contexto de autenticación para verificar el estado del usuario
- * Si no está autenticado, redirige a /login
- */
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const hasRedirected = useRef(false);
+
+  // Verificar autenticación y redirigir si es necesario
+  useEffect(() => {
+    if (!loading && !hasRedirected.current) {
+      if (!isAuthenticated() || !user) {
+        hasRedirected.current = true;
+        // Limpiar sesión y redirigir
+        logout();
+        navigate('/login', { replace: true });
+      }
+    }
+  }, [isAuthenticated, loading, user, logout, navigate]);
 
   // Mostrar loading mientras se verifica la autenticación
   if (loading) {
@@ -17,14 +26,17 @@ const PrivateRoute = ({ children }) => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '100vh' 
+        height: '100vh',
+        fontSize: '16px',
+        color: '#666'
       }}>
-        <div>Cargando...</div>
+        <div>Verificando sesión...</div>
       </div>
     );
   }
 
-  if (!isAuthenticated()) {
+  // Si no está autenticado, redirigir inmediatamente
+  if (!isAuthenticated() || !user) {
     return <Navigate to="/login" replace />;
   }
 

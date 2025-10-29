@@ -1,0 +1,200 @@
+/* Reset y estilos globales */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Variables CSS para compatibilidad con styled-components */
+:root {
+  --primary-color: #5c6bc0;
+  --primary-dark: #4a5ba8;
+  --secondary-color: #26c6da;
+  --secondary-dark: #1eafc0;
+  --success-color: #4caf50;
+  --success-light: rgba(76, 175, 80, 0.1);
+  --error-color: #e53935;
+  --error-light: rgba(255, 82, 82, 0.1);
+  --dark-color: #2c3e50;
+  --light-color: #f5f7fa;
+  --text-color: #333;
+  --text-light: #666;
+  --text-muted: #888;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --background: rgba(255, 255, 255, 0.85);
+  --background-light: rgba(255, 255, 255, 0.7);
+  --background-dark: rgba(255, 255, 255, 0.9);
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-dark: rgba(0, 0, 0, 0.15);
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Border Radius */
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+  
+  /* Typography */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  
+  /* Breakpoints */
+  --mobile-width: 600px;
+  --tablet-width: 768px;
+  --desktop-width: 1024px;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mb-2 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-3 {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mt-2 {
+  margin-top: var(--spacing-sm);
+}
+
+.mt-3 {
+  margin-top: var(--spacing-md);
+}
+
+.w-100 {
+  width: 100%;
+}
+
+/* Asegurar que los gradientes funcionen correctamente */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.gradient-button {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.gradient-button-hover {
+  background: linear-gradient(90deg, var(--primary-dark), var(--secondary-dark));
+}
+
+/* Animaciones globales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estilos para componentes de UI modulares */
+.ui-button {
+  font-family: var(--font-family);
+  border-radius: var(--border-radius-sm);
+  transition: all 0.3s ease;
+}
+
+.ui-input {
+  font-family: var(--font-family);
+  border-radius: var(--border-radius-sm);
+  border: 2px solid #e8ecef;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.ui-input:focus {
+  border-color: var(--primary-color);
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.1);
+  outline: none;
+}
+
+.ui-card {
+  background-color: var(--background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 8px 32px var(--shadow);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease;
+}
+
+.ui-alert {
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+}
+
+.ui-alert-success {
+  background-color: var(--success-light);
+  color: var(--success-color);
+  border-left: 3px solid var(--success-color);
+}
+
+.ui-alert-error {
+  background-color: var(--error-light);
+  color: var(--error-color);
+  border-left: 3px solid var(--error-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .ui-card {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 600px) {
+  html {
+    font-size: 13px;
+  }
+  
+  .ui-card {
+    padding: var(--spacing-sm);
+  }
+}

@@ -1,9 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
 
-/**
- * Contexto de autenticación para manejar el estado del usuario
- * Proporciona funciones para login, logout y verificación de autenticación
- */
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -16,7 +12,14 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+          // Verificar que el usuario tenga datos válidos
+          if (parsedUser && parsedUser.id && parsedUser.usuario) {
+            setUser(parsedUser);
+          } else {
+            // Si los datos no son válidos, limpiar localStorage
+            localStorage.removeItem('user');
+          }
         }
       } catch (error) {
         console.error('Error al cargar usuario:', error);
@@ -26,37 +29,62 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    loadUser();
+    // Pequeña demora para evitar problemas de hidratación
+    const timer = setTimeout(loadUser, 50);
+    return () => clearTimeout(timer);
   }, []);
 
-  /**
-   * Función para iniciar sesión
-   * Guarda el usuario en el estado y en localStorage
-   */
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    if (userData && userData.id && userData.usuario) {
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      console.error('Datos de usuario inválidos para login');
+    }
   };
 
-  /**
-   * Función para cerrar sesión
-   * Limpia el usuario del estado y de localStorage
-   */
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+    try {
+      setUser(null);
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('shownToastMessages');
+      console.log('Logout ejecutado correctamente');
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      // Forzar limpieza en caso de error
+      setUser(null);
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (storageError) {
+        console.error('Error limpiando storage:', storageError);
+      }
+    }
   };
 
-  /**
-   * Función para verificar si el usuario está autenticado
-   */
   const isAuthenticated = () => {
-    return user !== null;
+    const hasValidUser = user !== null && user.id && user.usuario;
+    const hasStoredUser = (() => {
+      try {
+        return localStorage.getItem('user') !== null;
+      } catch {
+        return false;
+      }
+    })();
+    
+    // Si hay discrepancia, limpiar todo
+    if (!hasValidUser && hasStoredUser) {
+      try {
+        localStorage.removeItem('user');
+      } catch (error) {
+        console.error('Error limpiando localStorage:', error);
+      }
+      return false;
+    }
+    
+    return hasValidUser;
   };
 
-  /**
-   * Función para actualizar los datos del usuario
-   */
   const updateUser = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
