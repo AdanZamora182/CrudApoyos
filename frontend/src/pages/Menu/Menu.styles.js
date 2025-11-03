@@ -328,8 +328,4 @@ export const CardIcon = styled.div`
 export const LogoutSection = styled.div`
   text-align: center;
   margin-top: ${props => props.theme?.spacing?.xl || '32px'};
-  padding: ${props => props.theme?.spacing?.lg || '24px'};
-  background: white;
-  border-radius: ${props => props.theme?.borderRadius?.lg || '16px'};
-  box-shadow: ${props => props.theme?.shadows?.card || '0 4px 6px rgba(0, 0, 0, 0.1)'};
 `;

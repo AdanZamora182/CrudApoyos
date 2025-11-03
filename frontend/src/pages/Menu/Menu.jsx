@@ -303,6 +303,11 @@ function Menu() {
                     variant="danger"
                     onClick={handleLogout}
                     icon="bi bi-box-arrow-right"
+                    style={{ 
+                      maxWidth: isMobile ? '100%' : '250px', 
+                      margin: '0 auto',
+                      display: 'flex'
+                    }}
                   >
                     {getResponsiveValue('Cerrar Sesión', 'Cerrar Sesión', 'Cerrar Sesión')}
                   </Button>
