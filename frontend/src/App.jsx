@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ToasterProvider } from './components/ui/ToasterProvider';
 import AppRouter from './router/AppRouter';
 
@@ -16,11 +17,13 @@ function App() {
         v7_relativeSplatPath: true
       }}
     >
-      <ToasterProvider>
-        <AuthProvider>
-          <AppRouter />
-        </AuthProvider>
-      </ToasterProvider>
+      <ThemeProvider>
+        <ToasterProvider>
+          <AuthProvider>
+            <AppRouter />
+          </AuthProvider>
+        </ToasterProvider>
+      </ThemeProvider>
     </Router>
   );
 }

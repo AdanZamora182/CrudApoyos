@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { flexCenter } from '../../styles/mixins';
+// Import directo de breakpoints - FUENTE ÚNICA DE VERDAD
+import { breakpoints } from '../../styles/breakpoints.jsx';
 
 // Contenedor principal con diseño moderno de dos columnas
 export const AuthContainer = styled.div`
@@ -8,23 +10,24 @@ export const AuthContainer = styled.div`
   min-height: 100vh;
   width: 100%;
   background: ${props => props.theme.gradients.primary};
-  padding: ${props => props.theme.spacing.sm}; /* Reducido de md a sm */
+  padding: ${props => props.theme.spacing.sm};
 `;
 
 // Contenedor de dos columnas para logo y formulario
 export const AuthCard = styled.div`
   display: flex;
   width: 100%;
-  max-width: 950px; /* Aumentado de 900px */
-  min-height: 480px; /* Aumentado de 450px */
+  max-width: 950px;
+  min-height: 480px;
   background-color: white;
-  border-radius: 14px; /* Aumentado de 12px */
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18); /* Aumentado ligeramente */
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
   
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+  /* Usando breakpoint directo desde breakpoints.jsx */
+  @media (max-width: ${breakpoints.md}) {
     flex-direction: column;
-    max-width: 380px; /* Aumentado de 360px */
+    max-width: 380px;
   }
 `;
 
@@ -63,11 +66,11 @@ export const LogoPanel = styled.div`
   }
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    min-height: 150px; /* Reducido de 200px para móviles */
-    padding: ${props => props.theme.spacing.sm}; /* Padding más pequeño */
+    min-height: 150px;
+    padding: ${props => props.theme.spacing.sm};
     
     &::before {
-      width: 150px; /* Círculos más pequeños en tablet */
+      width: 150px;
       height: 150px;
       top: -75px;
       left: -75px;
@@ -81,13 +84,12 @@ export const LogoPanel = styled.div`
     }
   }
 
-  /* Mejoras específicas para móviles */
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    min-height: 120px; /* Altura mínima muy compacta */
+    min-height: 120px;
     padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.xs};
     
     &::before {
-      width: 100px; /* Círculos aún más pequeños */
+      width: 100px;
       height: 100px;
       top: -50px;
       left: -50px;
@@ -101,9 +103,8 @@ export const LogoPanel = styled.div`
     }
   }
 
-  /* Para pantallas muy pequeñas */
-  @media (max-width: 400px) {
-    min-height: 100px; /* Altura mínima ultra compacta */
+  @media (max-width: ${props => props.theme.breakpoints.xs}) {
+    min-height: 100px;
     padding: ${props => props.theme.spacing.xs};
     
     &::before {
@@ -124,24 +125,24 @@ export const LogoPanel = styled.div`
 
 // Logo grande centrado
 export const Logo = styled.img`
-  height: 95px;
+  height: 120px;
   margin-bottom: ${props => props.theme.spacing.md};
   filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.2));
   position: relative;
   z-index: 1;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    height: 60px; /* Más pequeño en tablet */
+    height: 60px;
     margin-bottom: ${props => props.theme.spacing.sm};
   }
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    height: 45px; /* Mucho más pequeño en móviles */
+    height: 45px;
     margin-bottom: ${props => props.theme.spacing.xs};
   }
 
-  @media (max-width: 400px) {
-    height: 35px; /* Ultra compacto para pantallas muy pequeñas */
+  @media (max-width: ${props => props.theme.breakpoints.xs}) {
+    height: 35px;
     margin-bottom: ${props => props.theme.spacing.xs};
   }
 `;
@@ -149,7 +150,7 @@ export const Logo = styled.img`
 // Título del panel del logo
 export const LogoTitle = styled.h1`
   color: white;
-  font-size: 1.9rem;
+  font-size: 2.1rem;
   font-weight: 700;
   text-align: center;
   margin: 0;
@@ -159,18 +160,18 @@ export const LogoTitle = styled.h1`
   line-height: 1.2;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    font-size: 1.3rem; /* Más pequeño en tablet */
+    font-size: 1.3rem;
     line-height: 1.1;
   }
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 1rem; /* Mucho más pequeño en móviles */
+    font-size: 1rem;
     line-height: 1.1;
     margin-bottom: ${props => props.theme.spacing.xs};
   }
 
-  @media (max-width: 400px) {
-    font-size: 0.9rem; /* Ultra compacto */
+  @media (max-width: ${props => props.theme.breakpoints.xs}) {
+    font-size: 0.9rem;
     line-height: 1;
   }
 `;
@@ -178,7 +179,7 @@ export const LogoTitle = styled.h1`
 // Subtítulo del panel del logo
 export const LogoSubtitle = styled.p`
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   text-align: center;
   margin-top: ${props => props.theme.spacing.sm};
   position: relative;
@@ -186,19 +187,19 @@ export const LogoSubtitle = styled.p`
   line-height: 1.3;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    font-size: 0.75rem; /* Más pequeño en tablet */
+    font-size: 0.75rem;
     margin-top: ${props => props.theme.spacing.xs};
     line-height: 1.2;
   }
 
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    font-size: 0.7rem; /* Mucho más pequeño en móviles */
-    margin-top: 2px; /* Margen mínimo */
+    font-size: 0.7rem;
+    margin-top: 2px;
     line-height: 1.1;
   }
 
-  @media (max-width: 400px) {
-    font-size: 0.65rem; /* Ultra compacto */
+  @media (max-width: ${props => props.theme.breakpoints.xs}) {
+    font-size: 0.65rem;
     margin-top: 1px;
     line-height: 1;
   }
@@ -207,7 +208,7 @@ export const LogoSubtitle = styled.p`
 // Panel derecho con formulario
 export const FormPanel = styled.div`
   flex: 1;
-  padding: ${props => props.theme.spacing.lg}; /* Vuelto a lg */
+  padding: ${props => props.theme.spacing.lg};
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -220,32 +221,32 @@ export const FormPanel = styled.div`
 
 // Cabecera del formulario
 export const FormHeader = styled.div`
-  margin-bottom: ${props => props.theme.spacing.lg}; /* Vuelto a lg */
+  margin-bottom: ${props => props.theme.spacing.lg};
 `;
 
 // Título del formulario
 export const FormTitle = styled.h2`
   color: ${props => props.theme.colors.dark};
-  font-size: 1.7rem; /* Aumentado de 1.5rem */
+  font-size: 1.7rem;
   font-weight: 700;
-  margin: 0 0 ${props => props.theme.spacing.sm} 0; /* Vuelto a sm */
+  margin: 0 0 ${props => props.theme.spacing.sm} 0;
   
   @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    font-size: 1.3rem; /* Aumentado de 1.2rem */
+    font-size: 1.3rem;
   }
 `;
 
 // Subtítulo del formulario
 export const FormSubtitle = styled.p`
   color: ${props => props.theme.colors.textLight};
-  font-size: 0.85rem; /* Aumentado de 0.8rem */
+  font-size: 0.85rem;
   margin: 0;
 `;
 
 // Fila de formulario para campos en dos columnas
 export const FormRow = styled.div`
   display: flex;
-  gap: ${props => props.theme.spacing.md}; /* Vuelto a md */
+  gap: ${props => props.theme.spacing.md};
   
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
     flex-direction: column;
@@ -255,7 +256,7 @@ export const FormRow = styled.div`
 
 // Grupo de formulario individual
 export const FormGroup = styled.div`
-  margin-bottom: ${props => props.theme.spacing.lg}; /* Vuelto a lg */
+  margin-bottom: ${props => props.theme.spacing.lg};
   flex: 1;
   min-width: 0;
 `;
@@ -263,10 +264,10 @@ export const FormGroup = styled.div`
 // Etiqueta de campo de formulario
 export const Label = styled.label`
   display: block;
-  margin-bottom: ${props => props.theme.spacing.sm}; /* Vuelto a sm */
+  margin-bottom: ${props => props.theme.spacing.sm};
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   color: ${props => props.theme.colors.dark};
-  font-size: ${props => props.theme.typography.fontSize.md}; /* Vuelto a md */
+  font-size: ${props => props.theme.typography.fontSize.md};
 `;
 
 // Contenedor de input con elementos adicionales
@@ -281,7 +282,7 @@ export const InputGroup = styled.div`
 export const Input = styled.input`
   flex: 1;
   border-radius: 8px;
-  padding: 12px ${props => props.$hasButton ? '40px' : '12px'} 12px 12px; /* Usar $hasButton */
+  padding: 12px ${props => props.$hasButton ? '40px' : '12px'} 12px 12px;
   font-size: ${props => props.theme.typography.fontSize.sm};
   border: 2px solid #e8ecef;
   background-color: #f8f9fa;
@@ -334,27 +335,25 @@ export const PasswordToggle = styled.button`
     color: ${props => props.theme.colors.primaryDark};
   }
 
-  /* Responsive: Hacer más grande en móviles para mejor usabilidad táctil */
   @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    width: 36px; /* Aumentado de 30px a 36px en móviles */
-    height: 36px; /* Aumentado de 30px a 36px en móviles */
-    right: 8px; /* Reducir un poco la distancia del borde */
-    padding: 8px; /* Aumentar padding para área táctil más grande */
+    width: 36px;
+    height: 36px;
+    right: 8px;
+    padding: 8px;
     
     i {
-      font-size: 1rem; /* Aumentar tamaño del icono de 0.9rem a 1rem */
+      font-size: 1rem;
     }
   }
 
-  /* Para pantallas muy pequeñas (menos de 400px) */
-  @media (max-width: 400px) {
-    width: 40px; /* Aún más grande en pantallas muy pequeñas */
+  @media (max-width: ${props => props.theme.breakpoints.xs}) {
+    width: 40px;
     height: 40px;
     right: 6px;
     padding: 10px;
     
     i {
-      font-size: 1.1rem; /* Icono más grande para mejor visibilidad */
+      font-size: 1.1rem;
     }
   }
 `;
@@ -364,21 +363,21 @@ export const RememberMe = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: ${props => props.theme.spacing.lg}; /* Vuelto a lg */
+  margin-bottom: ${props => props.theme.spacing.lg};
 `;
 
 // Etiqueta de checkbox estilizada
 export const CheckboxLabel = styled.label`
   display: flex;
   align-items: center;
-  font-size: ${props => props.theme.typography.fontSize.md}; /* Vuelto a md */
+  font-size: ${props => props.theme.typography.fontSize.md};
   color: ${props => props.theme.colors.dark};
   cursor: pointer;
   
   input {
-    width: 18px; /* Vuelto a 18px */
-    height: 18px; /* Vuelto a 18px */
-    margin-right: ${props => props.theme.spacing.sm}; /* Vuelto a sm */
+    width: 18px;
+    height: 18px;
+    margin-right: ${props => props.theme.spacing.sm};
     cursor: pointer;
     accent-color: ${props => props.theme.colors.primary};
   }
@@ -387,7 +386,7 @@ export const CheckboxLabel = styled.label`
 // Link para "¿Olvidaste tu contraseña?"
 export const ForgotLink = styled.a`
   color: ${props => props.theme.colors.primary};
-  font-size: ${props => props.theme.typography.fontSize.sm}; /* Vuelto a sm */
+  font-size: ${props => props.theme.typography.fontSize.sm};
   text-decoration: none;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   
@@ -398,9 +397,9 @@ export const ForgotLink = styled.a`
 
 // Pie de la tarjeta con enlaces
 export const Footer = styled.div`
-  margin-top: ${props => props.theme.spacing.lg}; /* Aumentado de md */
+  margin-top: ${props => props.theme.spacing.lg};
   text-align: center;
-  font-size: ${props => props.theme.typography.fontSize.md}; /* Vuelto a md */
+  font-size: ${props => props.theme.typography.fontSize.md};
   color: ${props => props.theme.colors.textLight};
 `;
 
@@ -437,4 +436,3 @@ export const Divider = styled.div`
     font-size: ${props => props.theme.typography.fontSize.sm};
   }
 `;
-

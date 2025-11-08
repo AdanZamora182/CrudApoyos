@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { registrarUsuario } from '../../api/authApi';
 import { useToaster } from '../../components/ui/ToasterProvider';
-import { useAuth } from '../../hooks/useAuth'; // Corregido: usar el hook personalizado
+import { useAuth } from '../../hooks/useAuth';
 import { theme } from '../../styles/theme';
 import Button from '../../components/ui/Button';
 import logoApoyos from '../../assets/logoApoyos.png';
@@ -27,7 +27,7 @@ import {
   PasswordToggle,
   Footer,
   StyledLink
-} from './Auth.styles';
+} from './Auth.styles.jsx';
 
 function Register() {
   const [formData, setFormData] = useState({

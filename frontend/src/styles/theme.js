@@ -1,3 +1,5 @@
+import { breakpoints, devices } from './breakpoints.jsx';
+
 export const theme = {
   colors: {
     primary: '#5c6bc0',
@@ -55,11 +57,15 @@ export const theme = {
       semibold: 600,
     },
   },
+  // Usar breakpoints importados desde breakpoints.jsx
   breakpoints: {
-    mobile: '600px',
-    tablet: '768px',
-    desktop: '1024px',
+    ...breakpoints,
+    // Mapear nombres para compatibilidad con código existente
+    mobile: breakpoints.sm,
+    tablet: breakpoints.md,
+    desktop: breakpoints.lg,
   },
+  devices: devices,
   transitions: {
     standard: '0.3s ease',
     fast: '0.15s ease',

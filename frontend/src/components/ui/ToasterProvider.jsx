@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { FiCheckCircle, FiAlertTriangle, FiX } from 'react-icons/fi';
+import { breakpoints } from '../../styles/breakpoints.jsx';
 
 // Contexto para el toaster
 const ToasterContext = createContext();
@@ -38,7 +39,7 @@ const ToasterContainer = styled.div`
   max-width: 400px;
   pointer-events: none;
 
-  @media (max-width: 600px) {
+  @media (max-width: ${breakpoints.sm}) {
     top: 10px;
     right: 10px;
     left: 10px;
@@ -66,7 +67,7 @@ const Toast = styled.div`
     ? '#28a745' 
     : '#dc3545'};
   
-  @media (max-width: 600px) {
+  @media (max-width: ${breakpoints.sm}) {
     padding: 10px 12px;
     font-size: 14px;
   }
@@ -80,7 +81,7 @@ const ToastIcon = styled.span`
   display: flex;
   align-items: center;
 
-  @media (max-width: 600px) {
+  @media (max-width: ${breakpoints.sm}) {
     font-size: 16px;
     margin-right: 8px;
   }
@@ -113,7 +114,7 @@ const CloseButton = styled.button`
     background-color: rgba(0, 0, 0, 0.1);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: ${breakpoints.sm}) {
     font-size: 16px;
     padding: 2px;
   }

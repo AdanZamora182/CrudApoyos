@@ -27,7 +27,7 @@ import {
   CheckboxLabel,
   Footer,
   StyledLink
-} from './Auth.styles';
+} from './Auth.styles.jsx';
 
 function Login() {
   const [formData, setFormData] = useState({
