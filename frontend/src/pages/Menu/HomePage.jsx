@@ -53,9 +53,9 @@ const HomePage = () => {
       <QuickAccessCards $gridColumns={getResponsiveValue(1, 2, 4)}>
         <AccessCard onClick={() => navigateToPage('/cabezas-circulo')}>
           <CardIcon>👥</CardIcon>
-          <h3>{getResponsiveValue('Cabezas', 'Cabezas de Círculo', 'Cabezas de Círculo')}</h3>
+          <h3>{getResponsiveValue('Cabezas de Círculo', 'Cabezas de Círculo', 'Cabezas de Círculo')}</h3>
           <p>{getResponsiveValue(
-            'Gestiona representantes',
+            'Gestiona los representantes',
             'Gestiona los representantes',
             'Gestiona los representantes de los beneficiarios'
           )}</p>
@@ -63,9 +63,9 @@ const HomePage = () => {
         
         <AccessCard onClick={() => navigateToPage('/integrantes-circulo')}>
           <CardIcon>👪</CardIcon>
-          <h3>{getResponsiveValue('Integrantes', 'Integrantes', 'Integrantes de Círculo')}</h3>
+          <h3>{getResponsiveValue('Integrantes de Círculo', 'Integrantes de Círculo', 'Integrantes de Círculo')}</h3>
           <p>{getResponsiveValue(
-            'Gestiona beneficiarios',
+            'Gestiona los beneficiarios',
             'Gestiona los beneficiarios',
             'Gestiona los beneficiarios de los apoyos'
           )}</p>
@@ -75,7 +75,7 @@ const HomePage = () => {
           <CardIcon>🎁</CardIcon>
           <h3>Apoyos</h3>
           <p>{getResponsiveValue(
-            'Gestiona apoyos',
+            'Gestiona los apoyos',
             'Gestiona apoyos entregados',
             'Gestiona los apoyos entregados a beneficiarios'
           )}</p>
@@ -85,8 +85,8 @@ const HomePage = () => {
           <CardIcon>📊</CardIcon>
           <h3>Dashboard</h3>
           <p>{getResponsiveValue(
-            'Ve estadísticas',
-            'Visualiza estadísticas',
+            'Visualiza estadísticas y métricas',
+            'Visualiza estadísticas y métricas',
             'Visualiza estadísticas y métricas del sistema'
           )}</p>
         </AccessCard>
