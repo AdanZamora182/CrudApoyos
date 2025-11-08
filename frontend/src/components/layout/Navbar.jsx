@@ -26,8 +26,8 @@ const Navbar = ({ title, user, onToggleSidebar, collapsed }) => {
       
       <NavbarTitle>
         {getResponsiveValue(
-          title.length > 15 ? title.substring(0, 15) + '...' : title,
-          title.length > 25 ? title.substring(0, 25) + '...' : title,
+          title.length > 50 ? title.substring(0, 15) + '...' : title,
+          title.length > 50 ? title.substring(0, 25) + '...' : title,
           title
         )}
       </NavbarTitle>
