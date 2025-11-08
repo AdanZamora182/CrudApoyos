@@ -7,13 +7,13 @@ export const MainContent = styled.main`
   display: flex;
   flex-direction: column;
   transition: all ${props => props.theme?.transitions?.standard || '0.3s ease'};
-  width: ${props => props.$collapsed ? 
-    'calc(100% - 60px)' : 
+  width: ${props => props.$collapsed ?
+    'calc(100% - 60px)' :
     'calc(100% - 230px)'
   };
   margin-left: 0;
-  
-  @media (max-width: ${breakpoints.md}px) {
+
+  @media (max-width: ${breakpoints.md}) {
     width: 100%;
   }
 `;
@@ -33,13 +33,13 @@ export const NavbarContainer = styled.header`
   width: 100%;
   flex-shrink: 0;
   gap: ${props => props.theme?.spacing?.md || '16px'};
-  
-  @media (max-width: ${breakpoints.md}px) {
+
+  @media (max-width: ${breakpoints.md}) {
     padding: 0 ${props => props.theme?.spacing?.md || '16px'};
     height: 56px;
   }
-  
-  @media (max-width: ${breakpoints.sm}px) {
+
+  @media (max-width: ${breakpoints.sm}) {
     padding: 0 ${props => props.theme?.spacing?.sm || '8px'};
     height: 52px;
   }
@@ -53,12 +53,12 @@ export const NavbarTitle = styled.h1`
   font-weight: ${props => props.theme?.typography?.fontWeight?.semibold || 600};
   flex: 1;
   line-height: 1.3;
-  
-  @media (max-width: ${breakpoints.md}px) {
+
+  @media (max-width: ${breakpoints.md}) {
     font-size: ${props => props.theme?.typography?.fontSize?.lg || '16px'};
   }
-  
-  @media (max-width: ${breakpoints.sm}px) {
+
+  @media (max-width: ${breakpoints.sm}) {
     font-size: ${props => props.theme?.typography?.fontSize?.md || '14px'};
     line-height: 1.2;
   }
@@ -80,8 +80,8 @@ export const ContentBody = styled.div`
   padding: ${props => props.theme?.spacing?.lg || '24px'};
   overflow-y: auto;
   background-color: ${props => props.theme?.colors?.light || '#f5f7fa'};
-  
-  @media (max-width: ${breakpoints.sm}px) {
+
+  @media (max-width: ${breakpoints.sm}) {
     padding: ${props => props.theme?.spacing?.md || '16px'};
   }
 `;

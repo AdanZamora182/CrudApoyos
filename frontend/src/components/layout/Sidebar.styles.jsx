@@ -8,31 +8,23 @@ export const SidebarContainer = styled.aside`
   box-shadow: 2px 0 5px ${props => props.theme?.shadows?.light || 'rgba(0, 0, 0, 0.1)'};
   display: flex;
   flex-direction: column;
-  transition: width ${props => props.theme?.transitions?.standard || '0.3s ease'};
+  transition: all ${props => props.theme?.transitions?.standard || '0.3s ease'};
   overflow-x: hidden;
   z-index: 100;
   height: 100vh;
   position: sticky;
   top: 0;
-  
-  /* Comportamiento responsivo mejorado */
-  ${props => props.$isMobile && `
+
+  /* Comportamiento responsivo mejorado para móviles y tablets */
+  @media (max-width: ${breakpoints.md}) {
     position: fixed;
     left: 0;
     top: 0;
-    height: 100%;
+    height: 100vh;
     z-index: 1000;
-    width: ${props.$collapsed ? '0' : '280px'};
-    transform: ${props.$collapsed ? 'translateX(-100%)' : 'translateX(0)'};
-  `}
-  
-  @media (max-width: ${breakpoints.md}px) {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
-    z-index: 1000;
+    width: ${props => props.$collapsed ? '0' : '280px'};
     transform: ${props => props.$collapsed ? 'translateX(-100%)' : 'translateX(0)'};
+    box-shadow: ${props => props.$collapsed ? 'none' : '4px 0 8px rgba(0, 0, 0, 0.15)'};
   }
 `;
 

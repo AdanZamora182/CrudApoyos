@@ -63,10 +63,10 @@ const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
   };
 
   return (
-    <SidebarContainer $collapsed={collapsed} $isMobile={isMobile}>
+    <SidebarContainer $collapsed={collapsed}>
       <SidebarHeader>
-        <SidebarLogo 
-          src={logoApoyos} 
+        <SidebarLogo
+          src={logoApoyos}
           alt="Logo Apoyos"
           onClick={onToggle}
           title={collapsed ? "Expandir menú" : "Colapsar menú"}

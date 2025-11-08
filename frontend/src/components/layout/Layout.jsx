@@ -12,7 +12,7 @@ const Layout = ({ collapsed, onToggleSidebar, user, onLogout, title, children })
     <LayoutContainer>
       {/* Overlay para móviles cuando el sidebar está abierto */}
       {isMobile && !collapsed && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -20,9 +20,11 @@ const Layout = ({ collapsed, onToggleSidebar, user, onLogout, title, children })
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 99,
+            zIndex: 999,
+            backdropFilter: 'blur(2px)',
           }}
           onClick={() => onToggleSidebar()}
+          aria-label="Cerrar menú"
         />
       )}
 

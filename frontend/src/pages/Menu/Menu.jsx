@@ -21,15 +21,20 @@ function Menu() {
     if (isMobile) return true;
     return savedState ? JSON.parse(savedState) : false;
   });
-  
+
   const [title, setTitle] = useState("Inicio");
 
-  // Efecto para manejar el colapso automático en móviles
+  // Efecto para manejar cambios en el tamaño de pantalla
+  // Solo se ejecuta cuando isMobile cambia (no cuando collapsed cambia)
   useEffect(() => {
-    if (isMobile && !collapsed) {
-      setCollapsed(true);
+    if (isMobile) {
+      // En móvil, cerrar el sidebar al cambiar de vista desktop a móvil
+      const savedState = localStorage.getItem('sidebarCollapsed');
+      if (!savedState || savedState === 'false') {
+        setCollapsed(true);
+      }
     }
-  }, [isMobile, collapsed]);
+  }, [isMobile]);
 
   const handleLogout = () => {
     try {
