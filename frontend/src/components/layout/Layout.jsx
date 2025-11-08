@@ -1,27 +1,49 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { ThemeProvider } from 'styled-components';
-import { theme } from '../styles/theme';
+import { useResponsive } from '../../hooks/useResponsive';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import { LayoutContainer, MainContent } from './Layout.styles';
+import { LayoutContainer } from './Layout.styles';
+import { MainContent, ContentBody } from './Navbar.styles';
 
-const Layout = ({ collapsed, onToggleSidebar, user, onLogout, title }) => {
+const Layout = ({ collapsed, onToggleSidebar, user, onLogout, title, children }) => {
+  const { isMobile } = useResponsive();
+
   return (
-    <ThemeProvider theme={theme}>
-      <LayoutContainer>
-        <Sidebar 
-          collapsed={collapsed}
-          onToggle={onToggleSidebar}
-          user={user}
-          onLogout={onLogout}
+    <LayoutContainer>
+      {/* Overlay para móviles cuando el sidebar está abierto */}
+      {isMobile && !collapsed && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 99,
+          }}
+          onClick={() => onToggleSidebar()}
         />
-        <MainContent $collapsed={collapsed}>
-          <Navbar title={title} user={user} />
-          <Outlet />
-        </MainContent>
-      </LayoutContainer>
-    </ThemeProvider>
+      )}
+
+      <Sidebar 
+        collapsed={collapsed}
+        onToggle={onToggleSidebar}
+        user={user}
+        onLogout={onLogout}
+      />
+      <MainContent $collapsed={collapsed}>
+        <Navbar 
+          title={title} 
+          user={user} 
+          onToggleSidebar={onToggleSidebar}
+          collapsed={collapsed}
+        />
+        <ContentBody>
+          {children}
+        </ContentBody>
+      </MainContent>
+    </LayoutContainer>
   );
 };
 

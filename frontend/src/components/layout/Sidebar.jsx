@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useResponsive } from '../../hooks/useResponsive';
 import logoApoyos from '../../assets/logoApoyos.png';
 import {
   SidebarContainer,
@@ -18,23 +19,51 @@ import {
 
 const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isMobile, getResponsiveValue } = useResponsive();
 
   const menuItems = [
-    { path: '/menu', icon: '🏠', text: 'Inicio' },
-    { path: '/cabezas-circulo', icon: '👥', text: 'Cabezas de Círculo' },
-    { path: '/integrantes-circulo', icon: '👪', text: 'Integrantes de Círculo' },
-    { path: '/apoyos', icon: '🎁', text: 'Apoyos' },
-    { path: '/dashboard', icon: '📊', text: 'Dashboard' }
+    { 
+      path: '/menu', 
+      icon: '🏠', 
+      text: getResponsiveValue('Inicio', 'Inicio', 'Inicio') 
+    },
+    { 
+      path: '/cabezas-circulo', 
+      icon: '👥', 
+      text: getResponsiveValue('Cabezas', 'Cabezas de Círculo', 'Cabezas de Círculo') 
+    },
+    { 
+      path: '/integrantes-circulo', 
+      icon: '👪', 
+      text: getResponsiveValue('Integrantes', 'Integrantes', 'Integrantes de Círculo') 
+    },
+    { 
+      path: '/apoyos', 
+      icon: '🎁', 
+      text: 'Apoyos' 
+    },
+    { 
+      path: '/dashboard', 
+      icon: '📊', 
+      text: 'Dashboard' 
+    }
   ];
 
   const navigateToPage = (path) => {
     if (user) {
-      window.location.href = path;
+      navigate(path);
+      // Cerrar sidebar en móviles después de navegar
+      if (isMobile) {
+        setTimeout(() => onToggle(), 150);
+      }
+    } else {
+      navigate('/login');
     }
   };
 
   return (
-    <SidebarContainer $collapsed={collapsed}>
+    <SidebarContainer $collapsed={collapsed} $isMobile={isMobile}>
       <SidebarHeader>
         <SidebarLogo 
           src={logoApoyos} 
@@ -65,7 +94,7 @@ const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
         {!collapsed && (
           <UserInfo>
             <UserName>{user?.nombre}</UserName>
-            <UserRole>Administrador</UserRole>
+            <UserRole>{getResponsiveValue('Admin', 'Admin', 'Administrador')}</UserRole>
           </UserInfo>
         )}
         
@@ -73,7 +102,7 @@ const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
           <MenuIcon>
             <i className="bi bi-box-arrow-right"></i>
           </MenuIcon>
-          {!collapsed && <MenuText>Cerrar Sesión</MenuText>}
+          {!collapsed && <MenuText>{getResponsiveValue('Salir', 'Salir', 'Cerrar Sesión')}</MenuText>}
         </MenuItem>
       </SidebarFooter>
     </SidebarContainer>
