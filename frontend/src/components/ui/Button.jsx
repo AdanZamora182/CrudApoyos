@@ -62,6 +62,7 @@ const Button = ({
   className,
   ...props 
 }) => {
+  // useResponsive ahora usa breakpoints.jsx (mobile = 576px)
   const { isMobile } = useResponsive();
 
   return (

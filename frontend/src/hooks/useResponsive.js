@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react';
+import { breakpoints as bpValues } from '../styles/breakpoints.jsx';
 
-// Breakpoints del tema
+/**
+ * Hook useResponsive - Detección responsiva usando breakpoints.jsx
+ * 
+ * ✅ FUENTE ÚNICA: Importa breakpoints desde breakpoints.jsx
+ * ✅ CONSISTENTE: Usa los mismos valores que styled-components
+ * ✅ ACTUALIZADO: mobile=576px, tablet=768px, desktop=992px
+ */
+
+// Convertir breakpoints de string a número para comparaciones JavaScript
 const breakpoints = {
-  mobile: 600,
-  tablet: 768,
-  desktop: 1024,
+  mobile: parseInt(bpValues.sm),      // 576px (breakpoints.sm)
+  tablet: parseInt(bpValues.md),      // 768px (breakpoints.md)
+  desktop: parseInt(bpValues.lg),     // 992px (breakpoints.lg)
 };
 
 export const useResponsive = () => {
@@ -65,6 +74,6 @@ export const useResponsive = () => {
     isMobileOrTablet,
     isTabletOrDesktop,
     getResponsiveValue,
-    breakpoints,
+    breakpoints, // Valores numéricos para comparaciones (importados de breakpoints.jsx)
   };
 };
