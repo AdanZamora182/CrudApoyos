@@ -27,6 +27,17 @@ export const deleteIntegranteCirculo = async (id) => {
   return await api.delete(`/integrantes-circulo/${id}`);
 };
 
+// Función para obtener todos los integrantes de círculo
+export const getAllIntegrantesCirculo = async () => {
+  try {
+    const response = await buscarIntegrantesCirculo("");
+    return response.sort((a, b) => b.id - a.id);
+  } catch (error) {
+    console.error("Error fetching all integrantes de círculo:", error);
+    throw error;
+  }
+};
+
 // Función para actualizar un integrante de círculo
 export const updateIntegranteCirculo = async (id, data) => {
   return await api.put(`/integrantes-circulo/${id}`, data);

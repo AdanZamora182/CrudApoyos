@@ -1,29 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { buscarIntegrantesCirculo, deleteIntegranteCirculo, updateIntegranteCirculo, buscarCabezasCirculo } from "../../api";
+import React, { useState, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  getAllIntegrantesCirculo, 
+  deleteIntegranteCirculo, 
+  updateIntegranteCirculo, 
+  buscarCabezasCirculo 
+} from "../../api";
 import "./IntegranteCirculo.css";
 
 const IntegranteCirculoCRUD = () => {
-  const [integrantesCirculo, setIntegrantesCirculo] = useState([]);
-  const [filteredIntegrantes, setFilteredIntegrantes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // Estado para manejar el registro seleccionado para edición
   const [selectedIntegrante, setSelectedIntegrante] = useState(null);
-  const [message, setMessage] = useState({ type: "", text: "" });
-  const [isLoading, setIsLoading] = useState(true);
   
-  // Pagination states - update to use unique localStorage key and properly manage page across navigation
-  const [currentPage, setCurrentPage] = useState(() => {
-    const savedPage = localStorage.getItem('integranteCirculoCurrentPage');
-    return savedPage ? parseInt(savedPage, 10) : 1;
-  });
-  const [recordsPerPage] = useState(12);
-
-  // Ensure the pagination state is loaded when component mounts and whenever we return to this component
-  useEffect(() => {
-    const savedPage = localStorage.getItem('integranteCirculoCurrentPage');
-    if (savedPage) {
-      setCurrentPage(parseInt(savedPage, 10));
-    }
-  }, []);
+  // Estado para el filtro global de búsqueda en la tabla
+  const [globalFilter, setGlobalFilter] = useState("");
+  
+  // Estado para mostrar mensajes de éxito o error al usuario
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   // Add these new state variables for leader search and selection
   const [searchLiderQuery, setSearchLiderQuery] = useState("");
@@ -31,49 +32,223 @@ const IntegranteCirculoCRUD = () => {
 
   // Add new state for view details modal
   const [viewDetailsIntegrante, setViewDetailsIntegrante] = useState(null);
+  
+  // Hooks de TanStack Query para manejo de estado del servidor
+  const queryClient = useQueryClient();
+  const columnHelper = createColumnHelper();
 
-  useEffect(() => {
-    fetchIntegrantesCirculo();
-  }, []);
+  // Consulta para obtener todos los registros de integrantes de círculo
+  const {
+    data: integrantesCirculo = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["integrantesCirculo"],
+    queryFn: getAllIntegrantesCirculo,
+    staleTime: 5 * 60 * 1000, // Los datos se consideran frescos por 5 minutos
+  });
 
-  const fetchIntegrantesCirculo = async () => {
-    setIsLoading(true);
-    try {
-      const response = await buscarIntegrantesCirculo(""); // Fetch all records
-      // Sort records by ID in descending order (newest first)
-      const sortedRecords = response.sort((a, b) => b.id - a.id);
-      setIntegrantesCirculo(sortedRecords);
-      setFilteredIntegrantes(sortedRecords); // Inicialmente, todos los registros están visibles
-    } catch (error) {
-      console.error("Error fetching integrantes de círculo:", error);
-      setMessage({ type: "error", text: "Error al cargar los datos." });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Mutación para eliminar un registro de integrante de círculo
+  const deleteMutation = useMutation({
+    mutationFn: deleteIntegranteCirculo,
+    onSuccess: () => {
+      // Invalidar la consulta para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ["integrantesCirculo"] });
+      setMessage({ type: "success", text: "Registro eliminado exitosamente." });
+      // Limpiar mensaje después de 5 segundos
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+    onError: (error) => {
+      console.error("Error deleting record:", error);
+      setMessage({ type: "error", text: "Error al eliminar el registro." });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+  });
 
+  // Mutación para actualizar un registro de integrante de círculo
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => updateIntegranteCirculo(id, data),
+    onSuccess: () => {
+      // Invalidar la consulta para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ["integrantesCirculo"] });
+      setMessage({ type: "success", text: "Registro actualizado exitosamente." });
+      setSelectedIntegrante(null); // Cerrar el modal de edición
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+    onError: (error) => {
+      console.error("Error updating record:", error);
+      setMessage({ type: "error", text: "Error al actualizar el registro." });
+      setTimeout(() => setMessage({ type: "", text: "" }), 10000);
+    },
+  });
+
+  // Función para confirmar y ejecutar la eliminación de un registro
   const handleDelete = async (id) => {
     if (window.confirm("¿Está seguro de que desea eliminar este registro?")) {
-      try {
-        await deleteIntegranteCirculo(id);
-        setMessage({ type: "success", text: "Registro eliminado exitosamente." });
-        
-        // Clear message after 5 seconds
-        setTimeout(() => {
-          setMessage({ type: "", text: "" });
-        }, 5000);
-        
-        fetchIntegrantesCirculo(); // Refresh the list
-      } catch (error) {
-        console.error("Error deleting record:", error);
-        setMessage({ type: "error", text: "Error al eliminar el registro." });
-      }
+      deleteMutation.mutate(id);
     }
   };
 
+  // Función para abrir el modal de edición con los datos del registro seleccionado
   const handleEdit = (integrante) => {
-    setSelectedIntegrante(integrante); // Abre el formulario de edición
+    setSelectedIntegrante(integrante);
   };
+
+  // Definición de las columnas de la tabla con TanStack Table
+  const columns = useMemo(
+    () => [
+      // Columna para el nombre
+      columnHelper.accessor("nombre", {
+        header: "Nombre",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para apellido paterno
+      columnHelper.accessor("apellidoPaterno", {
+        header: "Apellido Paterno",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para apellido materno
+      columnHelper.accessor("apellidoMaterno", {
+        header: "Apellido Materno",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para fecha de nacimiento con formato
+      columnHelper.accessor("fechaNacimiento", {
+        header: "Fecha de Nacimiento",
+        cell: (info) => {
+          const date = info.getValue();
+          return date ? new Date(date).toISOString().split('T')[0] : "";
+        },
+        enableGlobalFilter: false,
+      }),
+      // Columna para calle
+      columnHelper.accessor("calle", {
+        header: "Calle",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para número exterior
+      columnHelper.accessor("noExterior", {
+        header: "No. Exterior",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para número interior (opcional)
+      columnHelper.accessor("noInterior", {
+        header: "No. Interior",
+        cell: (info) => info.getValue() || "-",
+        enableGlobalFilter: false,
+      }),
+      // Columna para colonia
+      columnHelper.accessor("colonia", {
+        header: "Colonia",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para código postal
+      columnHelper.accessor("codigoPostal", {
+        header: "Código Postal",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para clave de elector
+      columnHelper.accessor("claveElector", {
+        header: "Clave de Elector",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para teléfono
+      columnHelper.accessor("telefono", {
+        header: "Teléfono",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para líder
+      columnHelper.accessor("lider", {
+        header: "Líder",
+        cell: (info) => {
+          const lider = info.getValue();
+          return lider ? 
+            `${lider.nombre} ${lider.apellidoPaterno} ${lider.apellidoMaterno}` : 
+            "-";
+        },
+        filterFn: "includesString",
+      }),
+      // Columna para clave de elector del líder
+      columnHelper.accessor("lider.claveElector", {
+        header: "Clave de Elector Líder",
+        cell: (info) => {
+          const claveElector = info.getValue();
+          return claveElector || "-";
+        },
+        enableGlobalFilter: false,
+      }),
+      // Columna de acciones (ver, editar y eliminar)
+      columnHelper.display({
+        id: "actions",
+        header: "Acciones",
+        cell: (props) => (
+          <div className="action-column">
+            <button 
+              className="action-button view" 
+              onClick={() => handleViewDetails(props.row.original)}
+              title="Ver Detalles"
+            >
+              <i className="bi bi-eye"></i>
+            </button>
+            <button 
+              className="action-button edit" 
+              onClick={() => handleEdit(props.row.original)}
+              title="Editar"
+            >
+              <i className="bi bi-pencil-square"></i>
+            </button>
+            <button 
+              className="action-button delete" 
+              onClick={() => handleDelete(props.row.original.id)}
+              title="Eliminar"
+            >
+              <i className="bi bi-trash3"></i>
+            </button>
+          </div>
+        ),
+        enableGlobalFilter: false,
+        enableSorting: false,
+        meta: {
+          headerClassName: "fixed-column",
+          cellClassName: "fixed-column",
+        },
+      }),
+    ],
+    [columnHelper]
+  );
+
+  // Configuración de la tabla con TanStack Table
+  const table = useReactTable({
+    data: integrantesCirculo,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
+    initialState: {
+      pagination: {
+        pageSize: 12, // Mostrar 12 registros por página
+        pageIndex: 0, // Empezar en la primera página
+      },
+    },
+    manualPagination: false,
+    enableColumnResizing: false,
+  });
 
   // Input validation for specific fields
   const handleInputChange = (e, field) => {
@@ -83,13 +258,13 @@ const IntegranteCirculoCRUD = () => {
     switch (field) {
       case 'telefono':
         // Only allow numbers, max 10 characters
-        if (value !== '' && !/^\d+$/.test(value) || value.length > 10) {
+        if (value !== '' && (!/^\d+$/.test(value) || value.length > 10)) {
           return;
         }
         break;
       case 'codigoPostal':
         // Only allow numbers, max 5 characters
-        if (value !== '' && !/^\d+$/.test(value) || value.length > 5) {
+        if (value !== '' && (!/^\d+$/.test(value) || value.length > 5)) {
           return;
         }
         break;
@@ -149,54 +324,20 @@ const IntegranteCirculoCRUD = () => {
     });
   };
 
+  // Función para procesar y enviar la actualización del registro
   const handleUpdateSubmit = async (updatedIntegrante) => {
-    try {
-      // Parse numeric fields
-      const formattedIntegrante = {
-        ...updatedIntegrante,
-        telefono: updatedIntegrante.telefono ? Number.parseInt(updatedIntegrante.telefono) : null,
-        noExterior: updatedIntegrante.noExterior ? Number.parseInt(updatedIntegrante.noExterior) : null,
-        noInterior: updatedIntegrante.noInterior ? Number.parseInt(updatedIntegrante.noInterior) : null,
-        codigoPostal: updatedIntegrante.codigoPostal ? Number.parseInt(updatedIntegrante.codigoPostal) : null,
-        // Properly format the lider field - if there's a lider object, keep only its id
-        lider: updatedIntegrante.lider ? { id: updatedIntegrante.lider.id } : null
-      };
+    // Parse numeric fields
+    const formattedIntegrante = {
+      ...updatedIntegrante,
+      telefono: updatedIntegrante.telefono ? Number.parseInt(updatedIntegrante.telefono) : null,
+      noExterior: updatedIntegrante.noExterior ? Number.parseInt(updatedIntegrante.noExterior) : null,
+      noInterior: updatedIntegrante.noInterior ? Number.parseInt(updatedIntegrante.noInterior) : null,
+      codigoPostal: updatedIntegrante.codigoPostal ? Number.parseInt(updatedIntegrante.codigoPostal) : null,
+      // Properly format the lider field - if there's a lider object, keep only its id
+      lider: updatedIntegrante.lider ? { id: updatedIntegrante.lider.id } : null
+    };
 
-      await updateIntegranteCirculo(formattedIntegrante.id, formattedIntegrante);
-      setMessage({ type: "success", text: "Registro actualizado exitosamente." });
-      
-      // Clear message after 5 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 5000);
-      
-      setSelectedIntegrante(null); // Cierra el formulario de edición
-      fetchIntegrantesCirculo(); // Refresca la lista
-    } catch (error) {
-      console.error("Error updating record:", error);
-      setMessage({ type: "error", text: "Error al actualizar el registro." });
-      
-      // Clear error message after 10 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 10000);
-    }
-  };
-
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-
-    const filtered = integrantesCirculo.filter((integrante) =>
-      integrante.nombre?.toLowerCase().includes(query) ||
-      integrante.apellidoPaterno?.toLowerCase().includes(query) ||
-      integrante.apellidoMaterno?.toLowerCase().includes(query) ||
-      integrante.claveElector?.toLowerCase().includes(query)
-    );
-
-    // Ensure filtered results are also sorted by ID in descending order
-    const sortedFiltered = filtered.sort((a, b) => b.id - a.id);
-    setFilteredIntegrantes(sortedFiltered);
+    updateMutation.mutate({ id: formattedIntegrante.id, data: formattedIntegrante });
   };
 
   // Format date for display (YYYY-MM-DD)
@@ -205,169 +346,182 @@ const IntegranteCirculoCRUD = () => {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0];
   };
-  
-  // Get current records for pagination
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredIntegrantes.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(filteredIntegrantes.length / recordsPerPage);
 
-  // Save current page to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('integranteCirculoCurrentPage', currentPage.toString());
-  }, [currentPage]);
+  // Mostrar estado de carga
+  if (isLoading) {
+    return (
+      <div className="neumorphic-crud-container">
+        <div className="neumorphic-loader-container">
+          <div className="neumorphic-loader"></div>
+          <p>Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Change page with localStorage persistence
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    localStorage.setItem('integranteCirculoCurrentPage', pageNumber.toString());
-  };
+  // Mostrar estado de error
+  if (isError) {
+    return (
+      <div className="neumorphic-crud-container">
+        <div className="neumorphic-empty-state">
+          <span className="empty-icon">⚠️</span>
+          <p>Error al cargar los datos: {error?.message}</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Next page with localStorage persistence
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      const newPage = currentPage + 1;
-      setCurrentPage(newPage);
-      localStorage.setItem('integranteCirculoCurrentPage', newPage.toString());
-    }
-  };
-
-  // Previous page with localStorage persistence
-  const prevPage = () => {
-    if (currentPage > 1) {
-      const newPage = currentPage - 1;
-      setCurrentPage(newPage);
-      localStorage.setItem('integranteCirculoCurrentPage', newPage.toString());
-    }
-  };
-
-  // Reset to first page when search changes, but preserve in localStorage
-  useEffect(() => {
-    setCurrentPage(1);
-    localStorage.setItem('integranteCirculoCurrentPage', '1');
-  }, [searchQuery]);
-
-  const jumpBack = () => {
-    setCurrentPage((prev) => Math.max(1, prev - 6));
-    localStorage.setItem('integranteCirculoCurrentPage', Math.max(1, currentPage - 6).toString());
-  };
-  const jumpForward = () => {
-    setCurrentPage((prev) => {
-      const next = prev + 6;
-      return next > totalPages ? totalPages : next;
-    });
-    localStorage.setItem('integranteCirculoCurrentPage', Math.min(totalPages, currentPage + 6).toString());
-  };
-
-  // Improved page number display logic for pagination
-  const renderPageNumbers = () => {
-    const pageNumbers = [];
-    const maxVisiblePages = 7; // Maximum number of page buttons to show
+  // Función auxiliar para generar números de página visibles en la paginación
+  const getVisiblePageNumbers = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    const delta = 2; // Número de páginas a mostrar a cada lado de la página actual
     
-    if (totalPages <= maxVisiblePages) {
-      // If we have fewer pages than our max, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(
-          <button
-            key={i}
-            onClick={() => paginate(i)}
-            className={`page-number ${currentPage === i ? 'active' : ''}`}
-          >
-            {i}
-          </button>
-        );
-      }
-    } else {
-      // Always show first page
-      pageNumbers.push(
-        <button
-          key={1}
-          onClick={() => paginate(1)}
-          className={`page-number ${currentPage === 1 ? 'active' : ''}`}
-        >
-          1
-        </button>
-      );
-
-      // If current page is close to the beginning
-      if (currentPage < maxVisiblePages - 2) {
-        for (let i = 2; i < maxVisiblePages; i++) {
-          pageNumbers.push(
-            <button
-              key={i}
-              onClick={() => paginate(i)}
-              className={`page-number ${currentPage === i ? 'active' : ''}`}
-            >
-              {i}
-            </button>
-          );
-        }
-        // Show ellipsis and last page
-        pageNumbers.push(<span key="ellipsis-end" className="ellipsis">...</span>);
-        pageNumbers.push(
-          <button
-            key={totalPages}
-            onClick={() => paginate(totalPages)}
-            className={`page-number ${currentPage === totalPages ? 'active' : ''}`}
-          >
-            {totalPages}
-          </button>
-        );
-      } 
-      // If current page is close to the end
-      else if (currentPage > totalPages - (maxVisiblePages - 3)) {
-        // Show ellipsis after first page
-        pageNumbers.push(<span key="ellipsis-start" className="ellipsis">...</span>);
-        
-        // Show the last several pages
-        for (let i = totalPages - (maxVisiblePages - 2); i <= totalPages; i++) {
-          pageNumbers.push(
-            <button
-              key={i}
-              onClick={() => paginate(i)}
-              className={`page-number ${currentPage === i ? 'active' : ''}`}
-            >
-              {i}
-            </button>
-          );
-        }
-      } 
-      // If current page is in the middle
-      else {
-        // Show ellipsis after first page
-        pageNumbers.push(<span key="ellipsis-start" className="ellipsis">...</span>);
-        
-        // Show pages around current page
-        const startPage = currentPage - 2;
-        const endPage = currentPage + 2;
-        
-        for (let i = startPage; i <= endPage; i++) {
-          pageNumbers.push(
-            <button
-              key={i}
-              onClick={() => paginate(i)}
-              className={`page-number ${currentPage === i ? 'active' : ''}`}
-            >
-              {i}
-            </button>
-          );
-        }
-        
-        // Show ellipsis and last page
-        pageNumbers.push(<span key="ellipsis-end" className="ellipsis">...</span>);
-        pageNumbers.push(
-          <button
-            key={totalPages}
-            onClick={() => paginate(totalPages)}
-            className={`page-number ${currentPage === totalPages ? 'active' : ''}`}
-          >
-            {totalPages}
-          </button>
-        );
-      }
+    let start = Math.max(0, currentPage - delta);
+    let end = Math.min(totalPages - 1, currentPage + delta);
+    
+    // Ajustar si estamos cerca del inicio o final
+    if (currentPage <= delta) {
+      end = Math.min(totalPages - 1, 2 * delta);
+    }
+    if (currentPage >= totalPages - delta - 1) {
+      start = Math.max(0, totalPages - 2 * delta - 1);
     }
     
-    return pageNumbers;
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  // Componente de controles de paginación mejorado
+  const PaginationControls = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    const pageSize = table.getState().pagination.pageSize;
+    const totalRows = table.getFilteredRowModel().rows.length;
+    
+    const startRow = currentPage * pageSize + 1;
+    const endRow = Math.min((currentPage + 1) * pageSize, totalRows);
+    
+    return (
+      <div className="tanstack-pagination-container">
+        {/* Fila superior con selector de registros por página */}
+        <div className="pagination-top-row">
+          <div className="page-size-selector-top">
+            <label htmlFor="pageSize">Registros por página:</label>
+            <select
+              id="pageSize"
+              value={pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              className="page-size-select"
+            >
+              {[5, 10, 12, 15, 20, 25, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Información de paginación centrada */}
+        <div className="pagination-info">
+          Mostrando {startRow}-{endRow} de {totalRows} registros
+          {totalRows > 0 && (
+            <span className="page-info">
+              {" "}(Página {currentPage + 1} de {totalPages})
+            </span>
+          )}
+        </div>
+
+        {/* Controles de navegación de páginas */}
+        <div className="pagination-controls">
+          {/* Botón para ir a la primera página */}
+          <button
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className="pagination-button"
+            title="Primera página"
+          >
+            <i className="bi bi-chevron-double-left"></i>
+          </button>
+
+          {/* Botón para página anterior */}
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="pagination-button"
+            title="Página anterior"
+          >
+            <i className="bi bi-chevron-left"></i>
+          </button>
+
+          {/* Números de página */}
+          <div className="page-numbers">
+            {/* Mostrar primera página si no está en el rango visible */}
+            {getVisiblePageNumbers()[0] > 0 && (
+              <>
+                <button 
+                  onClick={() => table.setPageIndex(0)}
+                  className="page-number"
+                >
+                  1
+                </button>
+                {getVisiblePageNumbers()[0] > 1 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+              </>
+            )}
+
+            {getVisiblePageNumbers().map((pageIndex) => (
+              <button
+                key={pageIndex}
+                onClick={() => table.setPageIndex(pageIndex)}
+                className={`page-number ${currentPage === pageIndex ? 'active' : ''}`}
+              >
+                {pageIndex + 1}
+              </button>
+            ))}
+
+            {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 1 && (
+              <>
+                {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 2 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+                <button 
+                  onClick={() => table.setPageIndex(totalPages - 1)}
+                  className="page-number"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Botón para página siguiente */}
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="pagination-button"
+            title="Página siguiente"
+          >
+            <i className="bi bi-chevron-right"></i>
+          </button>
+
+          {/* Botón para ir a la última página */}
+          <button
+            onClick={() => table.setPageIndex(totalPages - 1)}
+            disabled={!table.getCanNextPage()}
+            className="pagination-button"
+            title="Última página"
+          >
+            <i className="bi bi-chevron-double-right"></i>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   // Add handler for viewing details
@@ -376,21 +530,21 @@ const IntegranteCirculoCRUD = () => {
   };
 
   return (
-    <div className="neumorphic-crud-container responsive-container">
-      <div className="neumorphic-controls responsive-controls">
-        <div className="neumorphic-search responsive-search w-100 w-md-50 position-relative">
+    <div className="neumorphic-crud-container">
+      <div className="neumorphic-controls">
+        <div className="neumorphic-search w-100 w-md-50 position-relative">
           <input
             type="text"
             placeholder="Buscar por Nombre o Clave de Elector..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="neumorphic-input search-input responsive-input w-100 pe-5"
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="neumorphic-input search-input w-100 pe-5"
           />
-          <span className="search-icon responsive-icon position-absolute end-0 top-50 translate-middle-y me-2">
+          <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
             <i className="bi bi-search"></i>
           </span>
         </div>
-        {/* New position for messages */}
+        {/* Message display */}
         {message.text && (
           <div className="inline-message-container">
             <div className={`inline-message inline-message-${message.type}`}>
@@ -401,92 +555,58 @@ const IntegranteCirculoCRUD = () => {
         )}
       </div>
 
-      {isLoading ? (
-        <div className="neumorphic-loader-container">
-          <div className="neumorphic-loader"></div>
-          <p>Cargando datos...</p>
-        </div>
-      ) : filteredIntegrantes.length === 0 ? (
+      {table.getFilteredRowModel().rows.length === 0 ? (
         <div className="neumorphic-empty-state">
           <span className="empty-icon">🔍</span>
           <p>No se encontraron registros que coincidan con su búsqueda</p>
         </div>
       ) : (
         <>
-          <div className="neumorphic-table-container responsive-table-container">
-            <table className="neumorphic-table responsive-table">
+          <div className="neumorphic-table-container">
+            <table className="neumorphic-table">
               <thead>
-                <tr>
-                  <th className="col-name responsive-column">Nombre</th>
-                  <th className="col-apellido">Apellido Paterno</th>
-                  <th className="col-apellido">Apellido Materno</th>
-                  <th className="col-date">Fecha de Nacimiento</th>
-                  <th className="col-address">Calle</th>
-                  <th className="col-number">No. Exterior</th>
-                  <th className="col-number">No. Interior</th>
-                  <th className="col-address">Colonia</th>
-                  <th className="col-number">Código Postal</th>
-                  <th className="col-address">Clave de Elector</th>
-                  <th className="col-number">Teléfono</th>
-                  <th className="col-leader">Líder</th>
-                  <th className="col-address">Clave de Elector Líder</th>
-                  <th className="fixed-column responsive-column">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRecords.map((integrante) => (
-                  <tr key={integrante.id} className="responsive-row">
-                    <td className="responsive-cell">{integrante.nombre}</td>
-                    <td>{integrante.apellidoPaterno}</td>
-                    <td>{integrante.apellidoMaterno}</td>
-                    <td>{formatDate(integrante.fechaNacimiento)}</td>
-                    <td>{integrante.calle}</td>
-                    <td>{integrante.noExterior}</td>
-                    <td>{integrante.noInterior || "-"}</td>
-                    <td>{integrante.colonia}</td>
-                    <td>{integrante.codigoPostal}</td>
-                    <td>{integrante.claveElector}</td>
-                    <td>{integrante.telefono}</td>
-                    <td>
-                      {integrante.lider ? 
-                        `${integrante.lider.nombre} ${integrante.lider.apellidoPaterno} ${integrante.lider.apellidoMaterno}` : 
-                        "-"}
-                    </td>
-                    <td>
-                      {integrante.lider ? 
-                        `${integrante.lider.claveElector}` : 
-                        "-"}
-                    </td>
-                    <td className="fixed-column action-column responsive-action-column">
-                      <button 
-                        className="action-button view responsive-button"
-                        onClick={() => handleViewDetails(integrante)}
-                        title="Ver Detalles"
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th 
+                        key={header.id}
+                        className={header.column.columnDef.meta?.headerClassName || ''}
                       >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                      <button 
-                        className="action-button edit responsive-button"
-                        onClick={() => handleEdit(integrante)}
-                        title="Editar"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button 
-                        className="action-button delete responsive-button"
-                        onClick={() => handleDelete(integrante.id)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
+                        {header.isPlaceholder ? null : (
+                          <div
+                            {...{
+                              className: header.column.getCanSort()
+                                ? 'cursor-pointer select-none'
+                                : '',
+                              onClick: header.column.getToggleSortingHandler(),
+                            }}
+                          >
+                            {typeof header.column.columnDef.header === 'function'
+                              ? header.column.columnDef.header(header.getContext())
+                              : header.column.columnDef.header}
+                            {{
+                              asc: ' 🔼',
+                              desc: ' 🔽',
+                            }[header.column.getIsSorted()] ?? null}
+                          </div>
+                        )}
+                      </th>
+                    ))}
                   </tr>
                 ))}
-                {/* Rellenar filas vacías si hay menos de 12 resultados */}
-                {Array.from({ length: recordsPerPage - currentRecords.length }).map((_, idx) => (
-                  <tr key={`empty-row-${idx}`} className="responsive-row empty-row">
-                    {Array.from({ length: 14 }).map((_, cellIdx) => (
-                      <td key={cellIdx}>&nbsp;</td>
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td 
+                        key={cell.id}
+                        className={cell.column.columnDef.meta?.cellClassName || ''}
+                      >
+                        {typeof cell.column.columnDef.cell === 'function'
+                          ? cell.column.columnDef.cell(cell.getContext())
+                          : cell.getValue()}
+                      </td>
                     ))}
                   </tr>
                 ))}
@@ -494,52 +614,8 @@ const IntegranteCirculoCRUD = () => {
             </table>
           </div>
           
-          {/* Pagination */}
-          <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
-            <div className="pagination-info responsive-pagination-info">
-              Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredIntegrantes.length)} de {filteredIntegrantes.length} registros
-            </div>
-            <div className="pagination-controls responsive-pagination-controls flex-wrap justify-content-center">
-              <button 
-                onClick={jumpBack} 
-                disabled={currentPage <= 6} 
-                className="pagination-button responsive-pagination-button"
-                title="Salto atrás"
-              >
-                <i className="bi bi-chevron-double-left"></i>
-              </button>
-              <button 
-                onClick={prevPage} 
-                disabled={currentPage === 1} 
-                className="pagination-button responsive-pagination-button"
-                title="Página anterior"
-              >
-                <i className="bi bi-chevron-left"></i>
-              </button>
-              
-              {/* Show page numbers */}
-              <div className="page-numbers responsive-page-numbers">
-                {renderPageNumbers()}
-              </div>
-              
-              <button 
-                onClick={nextPage} 
-                disabled={currentPage === totalPages} 
-                className="pagination-button responsive-pagination-button"
-                title="Página siguiente"
-              >
-                <i className="bi bi-chevron-right"></i>
-              </button>
-              <button 
-                onClick={jumpForward} 
-                disabled={currentPage === totalPages} 
-                className="pagination-button responsive-pagination-button"
-                title="Salto adelante"
-              >
-                <i className="bi bi-chevron-double-right"></i>
-              </button>
-            </div>
-          </div>
+          {/* Paginación usando TanStack Table */}
+          <PaginationControls />
         </>
       )}
 

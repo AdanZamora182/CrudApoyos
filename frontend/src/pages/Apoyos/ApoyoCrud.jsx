@@ -1,72 +1,97 @@
-import React, { useState, useEffect } from "react";
-import { getApoyos, deleteApoyo, updateApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
+import React, { useState, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  getApoyos, 
+  deleteApoyo, 
+  updateApoyo, 
+  buscarCabezasCirculo, 
+  buscarIntegrantesCirculo 
+} from "../../api";
 import "./ApoyoForm.css";
 
 const ApoyoCRUD = () => {
-  const [apoyos, setApoyos] = useState([]);
-  const [filteredApoyos, setFilteredApoyos] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // Estado para manejar el registro seleccionado para edición
   const [selectedApoyo, setSelectedApoyo] = useState(null);
+  
+  // Estado para el filtro global de búsqueda en la tabla
+  const [globalFilter, setGlobalFilter] = useState("");
+  
+  // Estado para mostrar mensajes de éxito o error al usuario
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [isLoading, setIsLoading] = useState(true);
+
   const [viewDetailsApoyo, setViewDetailsApoyo] = useState(null);
   const [searchBeneficiarioQuery, setSearchBeneficiarioQuery] = useState("");
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [selectedNewBeneficiario, setSelectedNewBeneficiario] = useState(null);
   
-  // Pagination states - load from localStorage
-  const [currentPage, setCurrentPage] = useState(() => {
-    const savedPage = localStorage.getItem('apoyoCurrentPage');
-    return savedPage ? parseInt(savedPage, 10) : 1;
-  });
-  const [recordsPerPage] = useState(12);
+  // Hooks de TanStack Query para manejo de estado del servidor
+  const queryClient = useQueryClient();
+  const columnHelper = createColumnHelper();
 
-  // Ensure the pagination state is loaded when component mounts
-  useEffect(() => {
-    const savedPage = localStorage.getItem('apoyoCurrentPage');
-    if (savedPage) {
-      setCurrentPage(parseInt(savedPage, 10));
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchApoyos();
-  }, []);
-
-  const fetchApoyos = async () => {
-    setIsLoading(true);
-    try {
+  // Consulta para obtener todos los registros de apoyos
+  const {
+    data: apoyos = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["apoyos"],
+    queryFn: async () => {
       const response = await getApoyos();
-      // Sort records by ID in descending order (newest first)
-      const sortedRecords = response.sort((a, b) => b.id - a.id);
-      setApoyos(sortedRecords);
-      setFilteredApoyos(sortedRecords);
-    } catch (error) {
-      console.error("Error fetching apoyos:", error);
-      setMessage({ type: "error", text: "Error al cargar los datos de apoyos." });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return response.sort((a, b) => b.id - a.id);
+    },
+    staleTime: 5 * 60 * 1000, // Los datos se consideran frescos por 5 minutos
+  });
 
+  // Mutación para eliminar un registro de apoyo
+  const deleteMutation = useMutation({
+    mutationFn: deleteApoyo,
+    onSuccess: () => {
+      // Invalidar la consulta para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ["apoyos"] });
+      setMessage({ type: "success", text: "Apoyo eliminado exitosamente." });
+      // Limpiar mensaje después de 5 segundos
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+    onError: (error) => {
+      console.error("Error deleting apoyo:", error);
+      setMessage({ type: "error", text: "Error al eliminar el apoyo." });
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+  });
+
+  // Función para confirmar y ejecutar la eliminación de un registro
   const handleDelete = async (id) => {
     if (window.confirm("¿Está seguro de que desea eliminar este apoyo?")) {
-      try {
-        await deleteApoyo(id);
-        setMessage({ type: "success", text: "Apoyo eliminado exitosamente." });
-        
-        // Clear message after 5 seconds
-        setTimeout(() => {
-          setMessage({ type: "", text: "" });
-        }, 5000);
-        
-        fetchApoyos(); // Refresh the list
-      } catch (error) {
-        console.error("Error deleting apoyo:", error);
-        setMessage({ type: "error", text: "Error al eliminar el apoyo." });
-      }
+      deleteMutation.mutate(id);
     }
   };
+
+  // Mutación para actualizar un registro de apoyo
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => updateApoyo(id, data),
+    onSuccess: () => {
+      // Invalidar la consulta para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ["apoyos"] });
+      setMessage({ type: "success", text: "Apoyo actualizado exitosamente." });
+      setSelectedApoyo(null); // Cerrar el modal de edición
+      setSelectedNewBeneficiario(null); // Reset selected beneficiary
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    },
+    onError: (error) => {
+      console.error("Error updating apoyo:", error);
+      setMessage({ type: "error", text: "Error al actualizar el apoyo." });
+      setTimeout(() => setMessage({ type: "", text: "" }), 10000);
+    },
+  });
 
   // Modified handleEdit function to reset the beneficiary search state
   const handleEdit = (apoyo) => {
@@ -125,6 +150,201 @@ const ApoyoCRUD = () => {
     setBeneficiarios([]); // Clear the search results
   };
 
+  // Definición de las columnas de la tabla con TanStack Table
+  const columns = useMemo(
+    () => [
+      // Columna para tipo de apoyo
+      columnHelper.accessor("tipoApoyo", {
+        header: "Tipo de Apoyo",
+        cell: (info) => info.getValue(),
+        filterFn: "includesString",
+      }),
+      // Columna para cantidad
+      columnHelper.accessor("cantidad", {
+        header: "Cantidad",
+        cell: (info) => info.getValue(),
+        enableGlobalFilter: false,
+      }),
+      // Columna para fecha de entrega con formato
+      columnHelper.accessor("fechaEntrega", {
+        header: "Fecha de Entrega",
+        cell: (info) => {
+          const date = info.getValue();
+          return date ? new Date(date).toISOString().split('T')[0] : "";
+        },
+        enableGlobalFilter: false,
+      }),
+      // Columna para beneficiario
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? `${row.persona.nombre} ${row.persona.apellidoPaterno} ${row.persona.apellidoMaterno}`
+          : row.cabeza
+            ? `${row.cabeza.nombre} ${row.cabeza.apellidoPaterno} ${row.cabeza.apellidoMaterno}`
+            : "No asignado";
+      }, {
+        id: "beneficiario",
+        header: "Beneficiario",
+        filterFn: "includesString",
+      }),
+      // Columna para tipo de beneficiario
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? "Integrante de Círculo" 
+          : row.cabeza 
+            ? "Cabeza de Círculo" 
+            : "-";
+      }, {
+        id: "tipoBeneficiario",
+        header: "Tipo de Beneficiario",
+        enableGlobalFilter: false,
+      }),
+      // Columna para clave de elector
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? row.persona.claveElector 
+          : row.cabeza 
+            ? row.cabeza.claveElector 
+            : "-";
+      }, {
+        id: "claveElector",
+        header: "Clave de Elector",
+        filterFn: "includesString",
+      }),
+      // Columna para teléfono
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? row.persona.telefono 
+          : row.cabeza 
+            ? row.cabeza.telefono 
+            : "-";
+      }, {
+        id: "telefono",
+        header: "Teléfono",
+        enableGlobalFilter: false,
+      }),
+      // Columna para calle
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? row.persona.calle 
+          : row.cabeza 
+            ? row.cabeza.calle 
+            : "-";
+      }, {
+        id: "calle",
+        header: "Calle",
+        filterFn: "includesString",
+      }),
+      // Columna para número exterior
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? row.persona.noExterior 
+          : row.cabeza 
+            ? row.cabeza.noExterior 
+            : "-";
+      }, {
+        id: "noExterior",
+        header: "No. Exterior",
+        enableGlobalFilter: false,
+      }),
+      // Columna para número interior
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? (row.persona.noInterior || "-") 
+          : row.cabeza 
+            ? (row.cabeza.noInterior || "-") 
+            : "-";
+      }, {
+        id: "noInterior",
+        header: "No. Interior",
+        enableGlobalFilter: false,
+      }),
+      // Columna para colonia
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? row.persona.colonia 
+          : row.cabeza 
+            ? row.cabeza.colonia 
+            : "-";
+      }, {
+        id: "colonia",
+        header: "Colonia",
+        filterFn: "includesString",
+      }),
+      // Columna para código postal
+      columnHelper.accessor((row) => {
+        return row.persona 
+          ? row.persona.codigoPostal 
+          : row.cabeza 
+            ? row.cabeza.codigoPostal 
+            : "-";
+      }, {
+        id: "codigoPostal",
+        header: "Código Postal",
+        enableGlobalFilter: false,
+      }),
+      // Columna de acciones (ver, editar y eliminar)
+      columnHelper.display({
+        id: "actions",
+        header: "Acciones",
+        cell: (props) => (
+          <div className="action-column">
+            <button 
+              className="action-button view" 
+              onClick={() => handleViewDetails(props.row.original)}
+              title="Ver Detalles"
+            >
+              <i className="bi bi-eye"></i>
+            </button>
+            <button 
+              className="action-button edit" 
+              onClick={() => handleEdit(props.row.original)}
+              title="Editar"
+            >
+              <i className="bi bi-pencil-square"></i>
+            </button>
+            <button 
+              className="action-button delete" 
+              onClick={() => handleDelete(props.row.original.id)}
+              title="Eliminar"
+            >
+              <i className="bi bi-trash3"></i>
+            </button>
+          </div>
+        ),
+        enableGlobalFilter: false,
+        enableSorting: false,
+        meta: {
+          headerClassName: "fixed-column",
+          cellClassName: "fixed-column",
+        },
+      }),
+    ],
+    [columnHelper]
+  );
+
+  // Configuración de la tabla con TanStack Table
+  const table = useReactTable({
+    data: apoyos,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
+    initialState: {
+      pagination: {
+        pageSize: 12, // Mostrar 12 registros por página
+        pageIndex: 0, // Empezar en la primera página
+      },
+    },
+    manualPagination: false,
+    enableColumnResizing: false,
+  });
+
   // Add the predefined options list (same as in ApoyoForm)
   const predefinedOptions = [
     "Tinaco",
@@ -146,88 +366,35 @@ const ApoyoCRUD = () => {
 
   // Update handleUpdateSubmit function to handle custom tipo apoyo
   const handleUpdateSubmit = async (updatedApoyo) => {
-    try {
-      // Create a copy of the updated apoyo to modify
-      const apoyoToUpdate = { ...updatedApoyo };
+    // Create a copy of the updated apoyo to modify
+    const apoyoToUpdate = { ...updatedApoyo };
+    
+    // If a new beneficiary was selected, update the apoyo data
+    if (selectedNewBeneficiario) {
+      // Reset both beneficiary types first
+      apoyoToUpdate.persona = null;
+      apoyoToUpdate.cabeza = null;
       
-      // If a new beneficiary was selected, update the apoyo data
-      if (selectedNewBeneficiario) {
-        // Reset both beneficiary types first
-        apoyoToUpdate.persona = null;
-        apoyoToUpdate.cabeza = null;
-        
-        // Set the appropriate beneficiary based on type
-        if (selectedNewBeneficiario.tipo === "integrante") {
-          apoyoToUpdate.persona = { id: selectedNewBeneficiario.id };
-        } else if (selectedNewBeneficiario.tipo === "cabeza") {
-          apoyoToUpdate.cabeza = { id: selectedNewBeneficiario.id };
-        }
+      // Set the appropriate beneficiary based on type
+      if (selectedNewBeneficiario.tipo === "integrante") {
+        apoyoToUpdate.persona = { id: selectedNewBeneficiario.id };
+      } else if (selectedNewBeneficiario.tipo === "cabeza") {
+        apoyoToUpdate.cabeza = { id: selectedNewBeneficiario.id };
       }
-
-      // Handle custom tipo apoyo if "Otro" is selected
-      if (apoyoToUpdate.tipoApoyo === "Otro" && apoyoToUpdate.tipoApoyoCustom) {
-        apoyoToUpdate.tipoApoyo = apoyoToUpdate.tipoApoyoCustom.trim();
-        delete apoyoToUpdate.tipoApoyoCustom; // Remove the custom field before sending to API
-      }
-
-      // Ensure cantidad is a number
-      if (apoyoToUpdate.cantidad) {
-        apoyoToUpdate.cantidad = parseInt(apoyoToUpdate.cantidad, 10);
-      }
-
-      await updateApoyo(apoyoToUpdate.id, apoyoToUpdate);
-      setMessage({ type: "success", text: "Apoyo actualizado exitosamente." });
-      
-      // Clear message after 5 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 5000);
-      
-      setSelectedApoyo(null); // Close the edit form
-      setSelectedNewBeneficiario(null); // Reset selected beneficiary
-      fetchApoyos(); // Refresh the list
-    } catch (error) {
-      console.error("Error updating apoyo:", error);
-      setMessage({ type: "error", text: "Error al actualizar el apoyo." });
-      
-      // Clear error message after 10 seconds
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 10000);
     }
-  };
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
+    // Handle custom tipo apoyo if "Otro" is selected
+    if (apoyoToUpdate.tipoApoyo === "Otro" && apoyoToUpdate.tipoApoyoCustom) {
+      apoyoToUpdate.tipoApoyo = apoyoToUpdate.tipoApoyoCustom.trim();
+      delete apoyoToUpdate.tipoApoyoCustom; // Remove the custom field before sending to API
+    }
 
-    const filtered = apoyos.filter((apoyo) => {
-      // Check if the apoyo matches the query in any of the relevant fields
-      const matchesTipoApoyo = apoyo.tipoApoyo?.toLowerCase().includes(query);
-      
-      // Check beneficiary name (either persona or cabeza)
-      const beneficiarioNombre = apoyo.persona 
-        ? `${apoyo.persona.nombre} ${apoyo.persona.apellidoPaterno} ${apoyo.persona.apellidoMaterno}`
-        : apoyo.cabeza
-          ? `${apoyo.cabeza.nombre} ${apoyo.cabeza.apellidoPaterno} ${apoyo.cabeza.apellidoMaterno}`
-          : "";
-    
-      const matchesBeneficiario = beneficiarioNombre.toLowerCase().includes(query);
-    
-      // Check clave de elector (either persona or cabeza)
-      const claveElector = apoyo.persona 
-        ? apoyo.persona.claveElector
-        : apoyo.cabeza
-          ? apoyo.cabeza.claveElector
-          : "";
-    
-      const matchesClaveElector = claveElector.toLowerCase().includes(query);
-    
-      // Return true if any field matches
-      return matchesTipoApoyo || matchesBeneficiario || matchesClaveElector;
-    });
+    // Ensure cantidad is a number
+    if (apoyoToUpdate.cantidad) {
+      apoyoToUpdate.cantidad = parseInt(apoyoToUpdate.cantidad, 10);
+    }
 
-    setFilteredApoyos(filtered);
+    updateMutation.mutate({ id: apoyoToUpdate.id, data: apoyoToUpdate });
   };
 
   // Format date for display (YYYY-MM-DD)
@@ -235,60 +402,6 @@ const ApoyoCRUD = () => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toISOString().split('T')[0];
-  };
-
-  // Get current records for pagination
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredApoyos.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(filteredApoyos.length / recordsPerPage);
-
-  // Save current page to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('apoyoCurrentPage', currentPage.toString());
-  }, [currentPage]);
-
-  // Change page with localStorage persistence
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    localStorage.setItem('apoyoCurrentPage', pageNumber.toString());
-  };
-
-  // Next page with localStorage persistence
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      const newPage = currentPage + 1;
-      setCurrentPage(newPage);
-      localStorage.setItem('apoyoCurrentPage', newPage.toString());
-    }
-  };
-
-  // Previous page with localStorage persistence
-  const prevPage = () => {
-    if (currentPage > 1) {
-      const newPage = currentPage - 1;
-      setCurrentPage(newPage);
-      localStorage.setItem('apoyoCurrentPage', newPage.toString());
-    }
-  };
-
-  // Reset to first page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-    localStorage.setItem('apoyoCurrentPage', '1');
-  }, [searchQuery]);
-
-  // Nueva función de salto rápido
-  const jumpBack = () => {
-    setCurrentPage((prev) => Math.max(1, prev - 6));
-    localStorage.setItem('apoyoCurrentPage', Math.max(1, currentPage - 6).toString());
-  };
-  const jumpForward = () => {
-    setCurrentPage((prev) => {
-      const next = prev + 6;
-      return next > totalPages ? totalPages : next;
-    });
-    localStorage.setItem('apoyoCurrentPage', Math.min(totalPages, currentPage + 6).toString());
   };
 
   const handleViewDetails = (apoyo) => {
@@ -304,48 +417,195 @@ const ApoyoCRUD = () => {
     setViewDetailsApoyo(apoyoDetails);
   };
 
-  // Improved page number display logic for pagination
-  const renderPageNumbers = () => {
-    const pageNumbers = [];
-    const maxVisiblePages = 7;
-    let startPage = 1;
-    let endPage = Math.min(totalPages, maxVisiblePages);
+  // Mostrar estado de carga
+  if (isLoading) {
+    return (
+      <div className="neumorphic-crud-container">
+        <div className="neumorphic-loader-container">
+          <div className="neumorphic-loader"></div>
+          <p>Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
 
-    if (currentPage > 4 && totalPages > maxVisiblePages) {
-      startPage = currentPage - 3;
-      endPage = currentPage + 3;
-      if (endPage > totalPages) {
-        endPage = totalPages;
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-      }
-    }
+  // Mostrar estado de error
+  if (isError) {
+    return (
+      <div className="neumorphic-crud-container">
+        <div className="neumorphic-empty-state">
+          <span className="empty-icon">⚠️</span>
+          <p>Error al cargar los datos: {error?.message}</p>
+        </div>
+      </div>
+    );
+  }
 
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(
-        <button
-          key={i}
-          onClick={() => paginate(i)}
-          className={`page-number ${currentPage === i ? 'active' : ''}`}
-        >
-          {i}
-        </button>
-      );
+  // Función auxiliar para generar números de página visibles en la paginación
+  const getVisiblePageNumbers = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    const delta = 2; // Número de páginas a mostrar a cada lado de la página actual
+    
+    let start = Math.max(0, currentPage - delta);
+    let end = Math.min(totalPages - 1, currentPage + delta);
+    
+    // Ajustar si estamos cerca del inicio o final
+    if (currentPage <= delta) {
+      end = Math.min(totalPages - 1, 2 * delta);
     }
-    return pageNumbers;
+    if (currentPage >= totalPages - delta - 1) {
+      start = Math.max(0, totalPages - 2 * delta - 1);
+    }
+    
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  // Componente de controles de paginación mejorado
+  const PaginationControls = () => {
+    const currentPage = table.getState().pagination.pageIndex;
+    const totalPages = table.getPageCount();
+    const pageSize = table.getState().pagination.pageSize;
+    const totalRows = table.getFilteredRowModel().rows.length;
+    
+    const startRow = currentPage * pageSize + 1;
+    const endRow = Math.min((currentPage + 1) * pageSize, totalRows);
+    
+    return (
+      <div className="tanstack-pagination-container">
+        {/* Fila superior con selector de registros por página */}
+        <div className="pagination-top-row">
+          <div className="page-size-selector-top">
+            <label htmlFor="pageSize">Registros por página:</label>
+            <select
+              id="pageSize"
+              value={pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              className="page-size-select"
+            >
+              {[5, 10, 12, 15, 20, 25, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Información de paginación centrada */}
+        <div className="pagination-info">
+          Mostrando {startRow}-{endRow} de {totalRows} registros
+          {totalRows > 0 && (
+            <span className="page-info">
+              {" "}(Página {currentPage + 1} de {totalPages})
+            </span>
+          )}
+        </div>
+
+        {/* Controles de navegación de páginas */}
+        <div className="pagination-controls">
+          {/* Botón para ir a la primera página */}
+          <button
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className="pagination-button"
+            title="Primera página"
+          >
+            <i className="bi bi-chevron-double-left"></i>
+          </button>
+
+          {/* Botón para página anterior */}
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="pagination-button"
+            title="Página anterior"
+          >
+            <i className="bi bi-chevron-left"></i>
+          </button>
+
+          {/* Números de página */}
+          <div className="page-numbers">
+            {/* Mostrar primera página si no está en el rango visible */}
+            {getVisiblePageNumbers()[0] > 0 && (
+              <>
+                <button 
+                  onClick={() => table.setPageIndex(0)}
+                  className="page-number"
+                >
+                  1
+                </button>
+                {getVisiblePageNumbers()[0] > 1 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+              </>
+            )}
+
+            {getVisiblePageNumbers().map((pageIndex) => (
+              <button
+                key={pageIndex}
+                onClick={() => table.setPageIndex(pageIndex)}
+                className={`page-number ${currentPage === pageIndex ? 'active' : ''}`}
+              >
+                {pageIndex + 1}
+              </button>
+            ))}
+
+            {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 1 && (
+              <>
+                {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 2 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+                <button 
+                  onClick={() => table.setPageIndex(totalPages - 1)}
+                  className="page-number"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Botón para página siguiente */}
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="pagination-button"
+            title="Página siguiente"
+          >
+            <i className="bi bi-chevron-right"></i>
+          </button>
+
+          {/* Botón para ir a la última página */}
+          <button
+            onClick={() => table.setPageIndex(totalPages - 1)}
+            disabled={!table.getCanNextPage()}
+            className="pagination-button"
+            title="Última página"
+          >
+            <i className="bi bi-chevron-double-right"></i>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="neumorphic-crud-container responsive-container">
-      <div className="neumorphic-controls responsive-controls">
-        <div className="neumorphic-search responsive-search w-100 w-md-50 position-relative">
+    <div className="neumorphic-crud-container">
+      <div className="neumorphic-controls">
+        <div className="neumorphic-search w-100 w-md-50 position-relative">
           <input
             type="text"
             placeholder="Buscar por Tipo de Apoyo o Beneficiario..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="neumorphic-input search-input responsive-input w-100 pe-5"
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="neumorphic-input search-input w-100 pe-5"
           />
-          <span className="search-icon responsive-icon position-absolute end-0 top-50 translate-middle-y me-2">
+          <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
             <i className="bi bi-search"></i>
           </span>
         </div>
@@ -360,136 +620,58 @@ const ApoyoCRUD = () => {
         )}
       </div>
 
-      {isLoading ? (
-        <div className="neumorphic-loader-container">
-          <div className="neumorphic-loader"></div>
-          <p>Cargando datos...</p>
-        </div>
-      ) : filteredApoyos.length === 0 ? (
+      {table.getFilteredRowModel().rows.length === 0 ? (
         <div className="neumorphic-empty-state">
           <span className="empty-icon">🔍</span>
           <p>No se encontraron apoyos que coincidan con su búsqueda</p>
         </div>
       ) : (
         <>
-          <div className="neumorphic-table-container responsive-table-container">
-            <table className="neumorphic-table responsive-table">
+          <div className="neumorphic-table-container">
+            <table className="neumorphic-table">
               <thead>
-                <tr>
-                  <th className="responsive-column">Tipo de Apoyo</th>
-                  <th> cantidad</th>
-                  <th>fecha de entrega</th>
-                  <th>Beneficiario</th>
-                  <th>Tipo de Beneficiario</th>
-                  <th>Clave de Elector</th>
-                  <th>Teléfono</th>
-                  <th>Calle</th>
-                  <th>No. Exterior</th>
-                  <th>No. Interior</th>
-                  <th>Colonia</th>
-                  <th>Código Postal</th>
-                  <th className="fixed-column responsive-column">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRecords.map((apoyo) => (
-                  <tr key={apoyo.id} className="responsive-row">
-                    <td className="responsive-cell">{apoyo.tipoApoyo}</td>
-                    <td>{apoyo.cantidad}</td>
-                    <td>{formatDate(apoyo.fechaEntrega)}</td>
-                    <td>
-                      {apoyo.persona 
-                        ? `${apoyo.persona.nombre} ${apoyo.persona.apellidoPaterno} ${apoyo.persona.apellidoMaterno}`
-                        : apoyo.cabeza
-                          ? `${apoyo.cabeza.nombre} ${apoyo.cabeza.apellidoPaterno} ${apoyo.cabeza.apellidoMaterno}`
-                          : "No asignado"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? "Integrante de Círculo" 
-                        : apoyo.cabeza 
-                          ? "Cabeza de Círculo" 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? apoyo.persona.claveElector 
-                        : apoyo.cabeza 
-                          ? apoyo.cabeza.claveElector 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? apoyo.persona.telefono 
-                        : apoyo.cabeza 
-                          ? apoyo.cabeza.telefono 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? apoyo.persona.calle 
-                        : apoyo.cabeza 
-                          ? apoyo.cabeza.calle 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? apoyo.persona.noExterior 
-                        : apoyo.cabeza 
-                          ? apoyo.cabeza.noExterior 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? (apoyo.persona.noInterior || "-") 
-                        : apoyo.cabeza 
-                          ? (apoyo.cabeza.noInterior || "-") 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? apoyo.persona.colonia 
-                        : apoyo.cabeza 
-                          ? apoyo.cabeza.colonia 
-                          : "-"}
-                    </td>
-                    <td>
-                      {apoyo.persona 
-                        ? apoyo.persona.codigoPostal 
-                        : apoyo.cabeza 
-                          ? apoyo.cabeza.codigoPostal 
-                          : "-"}
-                    </td>
-                    <td className="fixed-column action-column responsive-action-column">
-                      <button 
-                        className="action-button view responsive-button" 
-                        onClick={() => handleViewDetails(apoyo)}
-                        title="Ver Detalles"
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th 
+                        key={header.id}
+                        className={header.column.columnDef.meta?.headerClassName || ''}
                       >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                      <button 
-                        className="action-button edit responsive-button" 
-                        onClick={() => handleEdit(apoyo)}
-                        title="Editar"
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                      <button 
-                        className="action-button delete responsive-button" 
-                        onClick={() => handleDelete(apoyo.id)}
-                        title="Eliminar"
-                      >
-                        <i className="bi bi-trash3"></i>
-                      </button>
-                    </td>
+                        {header.isPlaceholder ? null : (
+                          <div
+                            {...{
+                              className: header.column.getCanSort()
+                                ? 'cursor-pointer select-none'
+                                : '',
+                              onClick: header.column.getToggleSortingHandler(),
+                            }}
+                          >
+                            {typeof header.column.columnDef.header === 'function'
+                              ? header.column.columnDef.header(header.getContext())
+                              : header.column.columnDef.header}
+                            {{
+                              asc: ' 🔼',
+                              desc: ' 🔽',
+                            }[header.column.getIsSorted()] ?? null}
+                          </div>
+                        )}
+                      </th>
+                    ))}
                   </tr>
                 ))}
-                {/* Rellenar filas vacías si hay menos de 12 resultados */}
-                {Array.from({ length: recordsPerPage - currentRecords.length }).map((_, idx) => (
-                  <tr key={`empty-row-${idx}`} className="responsive-row empty-row">
-                    {Array.from({ length: 13 }).map((_, cellIdx) => (
-                      <td key={cellIdx}>&nbsp;</td>
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td 
+                        key={cell.id}
+                        className={cell.column.columnDef.meta?.cellClassName || ''}
+                      >
+                        {typeof cell.column.columnDef.cell === 'function'
+                          ? cell.column.columnDef.cell(cell.getContext())
+                          : cell.getValue()}
+                      </td>
                     ))}
                   </tr>
                 ))}
@@ -497,49 +679,8 @@ const ApoyoCRUD = () => {
             </table>
           </div>
           
-          {/* Pagination controls */}
-          <div className="pagination-container responsive-pagination-container" style={{ background: 'none', boxShadow: 'none' }}>
-            <div className="pagination-info responsive-pagination-info">
-              Mostrando {indexOfFirstRecord + 1}-{Math.min(indexOfLastRecord, filteredApoyos.length)} de {filteredApoyos.length} apoyos
-            </div>
-            <div className="pagination-controls responsive-pagination-controls flex-wrap justify-content-center">
-              <button 
-                onClick={jumpBack} 
-                disabled={currentPage <= 6} 
-                className="pagination-button responsive-pagination-button"
-                title="Salto atrás"
-              >
-                <i className="bi bi-chevron-double-left"></i>
-              </button>
-              <button 
-                onClick={prevPage} 
-                disabled={currentPage === 1} 
-                className="pagination-button responsive-pagination-button"
-                title="Página anterior"
-              >
-                <i className="bi bi-chevron-left"></i>
-              </button>
-              <div className="page-numbers responsive-page-numbers">
-                {renderPageNumbers()}
-              </div>
-              <button 
-                onClick={nextPage} 
-                disabled={currentPage === totalPages} 
-                className="pagination-button responsive-pagination-button"
-                title="Página siguiente"
-              >
-                <i className="bi bi-chevron-right"></i>
-              </button>
-              <button 
-                onClick={jumpForward} 
-                disabled={currentPage === totalPages} 
-                className="pagination-button responsive-pagination-button"
-                title="Salto adelante"
-              >
-                <i className="bi bi-chevron-double-right"></i>
-              </button>
-            </div>
-          </div>
+          {/* Paginación usando TanStack Table */}
+          <PaginationControls />
         </>
       )}
 
