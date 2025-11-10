@@ -9,8 +9,9 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import { getAllCabezasCirculo, deleteCabezaCirculo, updateCabezaCirculo } from "../../api";
+import { getAllCabezasCirculo, deleteCabezaCirculo, updateCabezaCirculo, exportCabezasCirculoToExcel } from "../../api";
 import "./CabezaCirculo.css";
+import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar import
 
 const CabezaCirculoCRUD = () => {
   // Estado para manejar el registro seleccionado para edición
@@ -19,8 +20,8 @@ const CabezaCirculoCRUD = () => {
   // Estado para el filtro global de búsqueda en la tabla
   const [globalFilter, setGlobalFilter] = useState("");
   
-  // Estado para mostrar mensajes de éxito o error al usuario
-  const [message, setMessage] = useState({ type: "", text: "" });
+  // Reemplazar estado de mensaje local con ToasterProvider
+  const { showSuccess, showError } = useToaster();
   
   // Hooks de TanStack Query para manejo de estado del servidor
   const queryClient = useQueryClient();
@@ -44,14 +45,11 @@ const CabezaCirculoCRUD = () => {
     onSuccess: () => {
       // Invalidar la consulta para refrescar los datos
       queryClient.invalidateQueries({ queryKey: ["cabezasCirculo"] });
-      setMessage({ type: "success", text: "Registro eliminado exitosamente." });
-      // Limpiar mensaje después de 5 segundos
-      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      showSuccess("Registro eliminado exitosamente.");
     },
     onError: (error) => {
       console.error("Error deleting record:", error);
-      setMessage({ type: "error", text: "Error al eliminar el registro." });
-      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      showError("Error al eliminar el registro.");
     },
   });
 
@@ -61,14 +59,12 @@ const CabezaCirculoCRUD = () => {
     onSuccess: () => {
       // Invalidar la consulta para refrescar los datos
       queryClient.invalidateQueries({ queryKey: ["cabezasCirculo"] });
-      setMessage({ type: "success", text: "Registro actualizado exitosamente." });
+      showSuccess("Registro actualizado exitosamente.");
       setSelectedCabeza(null); // Cerrar el modal de edición
-      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
     },
     onError: (error) => {
       console.error("Error updating record:", error);
-      setMessage({ type: "error", text: "Error al actualizar el registro." });
-      setTimeout(() => setMessage({ type: "", text: "" }), 10000);
+      showError("Error al actualizar el registro.");
     },
   });
 
@@ -304,6 +300,28 @@ const CabezaCirculoCRUD = () => {
     return date.toISOString().split('T')[0];
   };
 
+  // Función para descargar el archivo Excel
+  const handleExportToExcel = async () => {
+    try {
+      const blob = await exportCabezasCirculoToExcel();
+      
+      // Crear URL para el blob y descargar
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cabezas-circulo-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      showSuccess("Archivo Excel descargado exitosamente");
+    } catch (error) {
+      console.error('Error al exportar a Excel:', error);
+      showError("Error al exportar a Excel");
+    }
+  };
+
   // Mostrar estado de carga
   if (isLoading) {
     return (
@@ -485,30 +503,42 @@ const CabezaCirculoCRUD = () => {
 
   return (
     <div className="neumorphic-crud-container">
-      {/* Barra de controles con búsqueda y mensajes */}
+      {/* Barra de controles con búsqueda */}
       <div className="neumorphic-controls">
-        <div className="neumorphic-search w-100 w-md-50 position-relative">
-          <input
-            type="text"
-            placeholder="Buscar por Nombre o Clave de Elector..."
-            value={globalFilter ?? ""}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="neumorphic-input search-input w-100 pe-5"
-          />
-          <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
-            <i className="bi bi-search"></i>
-          </span>
-        </div>
-
-        {/* Mostrar mensajes de éxito o error */}
-        {message.text && (
-          <div className="inline-message-container">
-            <div className={`inline-message inline-message-${message.type}`}>
-              {message.type === "success" ? "✅ " : "⚠️ "}
-              {message.text}
-            </div>
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 w-100">
+          <div className="neumorphic-search w-100 w-md-50 position-relative">
+            <input
+              type="text"
+              placeholder="Buscar por Nombre o Clave de Elector..."
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="neumorphic-input search-input w-100 pe-5"
+            />
+            <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
+              <i className="bi bi-search"></i>
+            </span>
           </div>
-        )}
+
+          {/* Botón de exportar a Excel */}
+          <button
+            onClick={handleExportToExcel}
+            className="neumorphic-button d-flex align-items-center gap-2"
+            style={{ 
+              whiteSpace: 'nowrap',
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            <i className="bi bi-file-earmark-excel"></i>
+            <span className="d-none d-sm-inline">Exportar Excel</span>
+          </button>
+        </div>
+        {/* Remover el div de mensajes locales ya que ahora se usa ToasterProvider */}
       </div>
 
       {/* Mostrar tabla o estado vacío */}

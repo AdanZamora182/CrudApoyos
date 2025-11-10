@@ -13,9 +13,11 @@ import {
   deleteApoyo, 
   updateApoyo, 
   buscarCabezasCirculo, 
-  buscarIntegrantesCirculo 
+  buscarIntegrantesCirculo,
+  exportApoyosToExcel
 } from "../../api";
 import "./ApoyoForm.css";
+import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar import
 
 const ApoyoCRUD = () => {
   // Estado para manejar el registro seleccionado para edición
@@ -24,8 +26,8 @@ const ApoyoCRUD = () => {
   // Estado para el filtro global de búsqueda en la tabla
   const [globalFilter, setGlobalFilter] = useState("");
   
-  // Estado para mostrar mensajes de éxito o error al usuario
-  const [message, setMessage] = useState({ type: "", text: "" });
+  // Reemplazar estado de mensaje local con ToasterProvider
+  const { showSuccess, showError } = useToaster();
 
   const [viewDetailsApoyo, setViewDetailsApoyo] = useState(null);
   const [searchBeneficiarioQuery, setSearchBeneficiarioQuery] = useState("");
@@ -57,14 +59,11 @@ const ApoyoCRUD = () => {
     onSuccess: () => {
       // Invalidar la consulta para refrescar los datos
       queryClient.invalidateQueries({ queryKey: ["apoyos"] });
-      setMessage({ type: "success", text: "Apoyo eliminado exitosamente." });
-      // Limpiar mensaje después de 5 segundos
-      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      showSuccess("Apoyo eliminado exitosamente.");
     },
     onError: (error) => {
       console.error("Error deleting apoyo:", error);
-      setMessage({ type: "error", text: "Error al eliminar el apoyo." });
-      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      showError("Error al eliminar el apoyo.");
     },
   });
 
@@ -81,15 +80,13 @@ const ApoyoCRUD = () => {
     onSuccess: () => {
       // Invalidar la consulta para refrescar los datos
       queryClient.invalidateQueries({ queryKey: ["apoyos"] });
-      setMessage({ type: "success", text: "Apoyo actualizado exitosamente." });
+      showSuccess("Apoyo actualizado exitosamente.");
       setSelectedApoyo(null); // Cerrar el modal de edición
       setSelectedNewBeneficiario(null); // Reset selected beneficiary
-      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
     },
     onError: (error) => {
       console.error("Error updating apoyo:", error);
-      setMessage({ type: "error", text: "Error al actualizar el apoyo." });
-      setTimeout(() => setMessage({ type: "", text: "" }), 10000);
+      showError("Error al actualizar el apoyo.");
     },
   });
 
@@ -148,6 +145,28 @@ const ApoyoCRUD = () => {
     setSelectedNewBeneficiario(beneficiario);
     setSearchBeneficiarioQuery(""); // Clear the search query
     setBeneficiarios([]); // Clear the search results
+  };
+
+  // Función para descargar el archivo Excel
+  const handleExportToExcel = async () => {
+    try {
+      const blob = await exportApoyosToExcel();
+      
+      // Crear URL para el blob y descargar
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `apoyos-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      showSuccess("Archivo Excel descargado exitosamente");
+    } catch (error) {
+      console.error('Error al exportar a Excel:', error);
+      showError("Error al exportar a Excel");
+    }
   };
 
   // Definición de las columnas de la tabla con TanStack Table
@@ -597,27 +616,40 @@ const ApoyoCRUD = () => {
   return (
     <div className="neumorphic-crud-container">
       <div className="neumorphic-controls">
-        <div className="neumorphic-search w-100 w-md-50 position-relative">
-          <input
-            type="text"
-            placeholder="Buscar por Tipo de Apoyo o Beneficiario..."
-            value={globalFilter ?? ""}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="neumorphic-input search-input w-100 pe-5"
-          />
-          <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
-            <i className="bi bi-search"></i>
-          </span>
-        </div>
-        {/* Message display */}
-        {message.text && (
-          <div className="inline-message-container">
-            <div className={`inline-message inline-message-${message.type}`}>
-              {message.type === "success" ? "✅ " : "⚠️ "}
-              {message.text}
-            </div>
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 w-100">
+          <div className="neumorphic-search w-100 w-md-50 position-relative">
+            <input
+              type="text"
+              placeholder="Buscar por Tipo de Apoyo o Beneficiario..."
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="neumorphic-input search-input w-100 pe-5"
+            />
+            <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
+              <i className="bi bi-search"></i>
+            </span>
           </div>
-        )}
+
+          {/* Botón de exportar a Excel */}
+          <button
+            onClick={handleExportToExcel}
+            className="neumorphic-button d-flex align-items-center gap-2"
+            style={{ 
+              whiteSpace: 'nowrap',
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            <i className="bi bi-file-earmark-excel"></i>
+            <span className="d-none d-sm-inline">Exportar Excel</span>
+          </button>
+        </div>
+        {/* Remover el div de mensajes locales ya que ahora se usa ToasterProvider */}
       </div>
 
       {table.getFilteredRowModel().rows.length === 0 ? (

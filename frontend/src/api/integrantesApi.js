@@ -42,3 +42,16 @@ export const getAllIntegrantesCirculo = async () => {
 export const updateIntegranteCirculo = async (id, data) => {
   return await api.put(`/integrantes-circulo/${id}`, data);
 };
+
+// Función para exportar todos los integrantes de círculo a Excel
+export const exportIntegrantesCirculoToExcel = async () => {
+  try {
+    const response = await api.get('/integrantes-circulo/export/excel', {
+      responseType: 'blob', // Importante para manejar archivos binarios
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en exportIntegrantesCirculoToExcel:", error.response?.data || error.message);
+    throw error;
+  }
+};

@@ -31,3 +31,16 @@ export const deleteApoyo = async (id) => {
 export const updateApoyo = async (id, data) => {
   return await api.put(`/apoyos/${id}`, data);
 };
+
+// Función para exportar todos los apoyos a Excel
+export const exportApoyosToExcel = async () => {
+  try {
+    const response = await api.get('/apoyos/export/excel', {
+      responseType: 'blob', // Importante para manejar archivos binarios
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en exportApoyosToExcel:", error.response?.data || error.message);
+    throw error;
+  }
+};

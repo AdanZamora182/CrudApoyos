@@ -37,3 +37,16 @@ export const deleteCabezaCirculo = async (id) => {
 export const updateCabezaCirculo = async (id, data) => {
   return await api.put(`/cabezas-circulo/${id}`, data);
 };
+
+// Función para exportar todas las cabezas de círculo a Excel
+export const exportCabezasCirculoToExcel = async () => {
+  try {
+    const response = await api.get('/cabezas-circulo/export/excel', {
+      responseType: 'blob', // Importante para manejar archivos binarios
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en exportCabezasCirculoToExcel:", error.response?.data || error.message);
+    throw error;
+  }
+};
