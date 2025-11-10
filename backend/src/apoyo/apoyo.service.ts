@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Apoyo } from './apoyo.entity';
+import * as ExcelJS from 'exceljs';
 
 // Servicio que contiene la lógica de negocio para la gestión de apoyos
 @Injectable()
@@ -75,5 +76,95 @@ export class ApoyoService {
     if (result.affected === 0) {
       throw new NotFoundException(`Apoyo con ID ${id} no encontrado`);
     }
+  }
+
+  // Método para exportar todos los registros de apoyos a Excel con información del beneficiario
+  async exportToExcel(): Promise<Buffer> {
+    // Obtener todos los registros con sus relaciones
+    const apoyos = await this.findAll();
+
+    // Crear un nuevo libro de trabajo
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Apoyos');
+
+    // Definir las columnas (incluye información del apoyo y del beneficiario)
+    worksheet.columns = [
+      { header: 'ID Apoyo', key: 'id', width: 10 },
+      { header: 'Cantidad', key: 'cantidad', width: 12 },
+      { header: 'Tipo de Apoyo', key: 'tipoApoyo', width: 30 },
+      { header: 'Fecha de Entrega', key: 'fechaEntrega', width: 20 },
+      { header: 'Tipo de Beneficiario', key: 'tipoBeneficiario', width: 20 },
+      { header: 'ID Beneficiario', key: 'beneficiarioId', width: 15 },
+      { header: 'Nombre', key: 'nombre', width: 20 },
+      { header: 'Apellido Paterno', key: 'apellidoPaterno', width: 20 },
+      { header: 'Apellido Materno', key: 'apellidoMaterno', width: 20 },
+      { header: 'Fecha de Nacimiento', key: 'fechaNacimiento', width: 20 },
+      { header: 'Teléfono', key: 'telefono', width: 15 },
+      { header: 'Calle', key: 'calle', width: 25 },
+      { header: 'No. Exterior', key: 'noExterior', width: 12 },
+      { header: 'No. Interior', key: 'noInterior', width: 12 },
+      { header: 'Colonia', key: 'colonia', width: 25 },
+      { header: 'Código Postal', key: 'codigoPostal', width: 15 },
+      { header: 'Municipio', key: 'municipio', width: 25 },
+      { header: 'Clave de Elector', key: 'claveElector', width: 20 },
+      { header: 'Email', key: 'email', width: 30 },
+    ];
+
+    // Estilizar el encabezado
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+    // Agregar los datos
+    apoyos.forEach((apoyo) => {
+      let beneficiario: any;
+      let tipoBeneficiario: string;
+      let beneficiarioId: number | string;
+
+      // Determinar si el beneficiario es una cabeza de círculo o un integrante
+      if (apoyo.cabeza) {
+        beneficiario = apoyo.cabeza;
+        tipoBeneficiario = 'Cabeza de Círculo';
+        beneficiarioId = apoyo.cabeza.id;
+      } else if (apoyo.persona) {
+        beneficiario = apoyo.persona;
+        tipoBeneficiario = 'Integrante de Círculo';
+        beneficiarioId = apoyo.persona.id;
+      } else {
+        beneficiario = null;
+        tipoBeneficiario = 'Sin beneficiario';
+        beneficiarioId = '';
+      }
+
+      worksheet.addRow({
+        id: apoyo.id,
+        cantidad: apoyo.cantidad,
+        tipoApoyo: apoyo.tipoApoyo,
+        fechaEntrega: apoyo.fechaEntrega,
+        tipoBeneficiario: tipoBeneficiario,
+        beneficiarioId: beneficiarioId,
+        nombre: beneficiario?.nombre || '',
+        apellidoPaterno: beneficiario?.apellidoPaterno || '',
+        apellidoMaterno: beneficiario?.apellidoMaterno || '',
+        fechaNacimiento: beneficiario?.fechaNacimiento || '',
+        telefono: beneficiario?.telefono?.toString() || '',
+        calle: beneficiario?.calle || '',
+        noExterior: beneficiario?.noExterior || '',
+        noInterior: beneficiario?.noInterior || '',
+        colonia: beneficiario?.colonia || '',
+        codigoPostal: beneficiario?.codigoPostal || '',
+        municipio: beneficiario?.municipio || '',
+        claveElector: beneficiario?.claveElector || '',
+        email: beneficiario?.email || '',
+      });
+    });
+
+    // Generar el archivo Excel como buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 }

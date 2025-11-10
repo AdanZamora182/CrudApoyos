@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete, BadRequestException, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { ApoyoService } from './apoyo.service';
 import { Apoyo } from './apoyo.entity';
 
@@ -18,6 +19,18 @@ export class ApoyoController {
       console.error("Error en el controlador al crear Apoyo:", error);
       throw new BadRequestException("Error al registrar el Apoyo. Verifique los datos enviados.");
     }
+  }
+
+  // Endpoint GET para exportar todos los registros a Excel
+  @Get('export/excel')
+  async exportToExcel(@Res() res: Response): Promise<void> {
+    const buffer = await this.apoyoService.exportToExcel();
+
+    const fileName = `apoyos-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(buffer);
   }
 
   // Endpoint GET para obtener todos los apoyos registrados

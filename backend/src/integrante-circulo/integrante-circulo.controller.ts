@@ -1,4 +1,5 @@
-import { Controller, Post, Body, BadRequestException, Get, Param, ParseIntPipe, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Get, Param, ParseIntPipe, Put, Delete, Query, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { IntegranteCirculoService } from './integrante-circulo.service';
 import { IntegranteCirculo } from './integrante-circulo.entity';
 
@@ -19,7 +20,19 @@ export class IntegranteCirculoController {
       throw new BadRequestException("Error al registrar el Integrante de Círculo.");
     }
   }
-  
+
+  // Endpoint GET para exportar todos los registros a Excel
+  @Get('export/excel')
+  async exportToExcel(@Res() res: Response): Promise<void> {
+    const buffer = await this.integranteCirculoService.exportToExcel();
+
+    const fileName = `integrantes-circulo-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(buffer);
+  }
+
   // Endpoint GET para obtener todos los integrantes o buscar por query
   @Get()
   async findAll(@Query('query') query?: string): Promise<IntegranteCirculo[]> {

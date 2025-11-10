@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IntegranteCirculo } from './integrante-circulo.entity';
+import * as ExcelJS from 'exceljs';
 
 // Servicio que contiene la lógica de negocio para la gestión de integrantes de círculo
 @Injectable()
@@ -74,7 +75,7 @@ export class IntegranteCirculoService {
     if (!query || query.trim() === '') {
       return await this.findAll();
     }
-    
+
     // Realizar búsqueda usando Query Builder incluyendo la relación con el líder
     return this.integranteCirculoRepo
       .createQueryBuilder('integranteCirculo')
@@ -84,5 +85,72 @@ export class IntegranteCirculoService {
       .orWhere('integranteCirculo.apellidoMaterno LIKE :query', { query: `%${query}%` })
       .orWhere('integranteCirculo.claveElector LIKE :query', { query: `%${query}%` })
       .getMany();
+  }
+
+  // Método para exportar todos los registros de integrantes de círculo a Excel
+  async exportToExcel(): Promise<Buffer> {
+    // Obtener todos los registros con sus relaciones
+    const integrantes = await this.findAll();
+
+    // Crear un nuevo libro de trabajo
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Integrantes de Círculo');
+
+    // Definir las columnas
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'Nombre', key: 'nombre', width: 20 },
+      { header: 'Apellido Paterno', key: 'apellidoPaterno', width: 20 },
+      { header: 'Apellido Materno', key: 'apellidoMaterno', width: 20 },
+      { header: 'Fecha de Nacimiento', key: 'fechaNacimiento', width: 20 },
+      { header: 'Calle', key: 'calle', width: 25 },
+      { header: 'No. Exterior', key: 'noExterior', width: 12 },
+      { header: 'No. Interior', key: 'noInterior', width: 12 },
+      { header: 'Colonia', key: 'colonia', width: 25 },
+      { header: 'Código Postal', key: 'codigoPostal', width: 15 },
+      { header: 'Municipio', key: 'municipio', width: 25 },
+      { header: 'Clave de Elector', key: 'claveElector', width: 20 },
+      { header: 'Teléfono', key: 'telefono', width: 15 },
+      { header: 'Líder (ID)', key: 'liderId', width: 12 },
+      { header: 'Líder (Nombre Completo)', key: 'liderNombre', width: 40 },
+    ];
+
+    // Estilizar el encabezado
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+    // Agregar los datos
+    integrantes.forEach((integrante) => {
+      const liderNombre = integrante.lider
+        ? `${integrante.lider.nombre} ${integrante.lider.apellidoPaterno} ${integrante.lider.apellidoMaterno}`
+        : '';
+
+      worksheet.addRow({
+        id: integrante.id,
+        nombre: integrante.nombre,
+        apellidoPaterno: integrante.apellidoPaterno,
+        apellidoMaterno: integrante.apellidoMaterno,
+        fechaNacimiento: integrante.fechaNacimiento,
+        calle: integrante.calle,
+        noExterior: integrante.noExterior || '',
+        noInterior: integrante.noInterior || '',
+        colonia: integrante.colonia,
+        codigoPostal: integrante.codigoPostal || '',
+        municipio: integrante.municipio || '',
+        claveElector: integrante.claveElector,
+        telefono: integrante.telefono?.toString(),
+        liderId: integrante.lider?.id || '',
+        liderNombre: liderNombre,
+      });
+    });
+
+    // Generar el archivo Excel como buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 }

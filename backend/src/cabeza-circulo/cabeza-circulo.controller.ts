@@ -1,4 +1,5 @@
-import { Controller, Post, Body, BadRequestException, Get, Param, ParseIntPipe, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Get, Param, ParseIntPipe, Put, Delete, Query, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { CabezaCirculoService } from './cabeza-circulo.service';
 import { CabezaCirculo } from './cabeza-circulo.entity';
 
@@ -27,13 +28,25 @@ export class CabezaCirculoController {
   async buscar(@Query('query') query: string): Promise<CabezaCirculo[]> {
     return this.cabezaCirculoService.buscar(query);
   }
-  
+
+  // Endpoint GET para exportar todos los registros a Excel
+  @Get('export/excel')
+  async exportToExcel(@Res() res: Response): Promise<void> {
+    const buffer = await this.cabezaCirculoService.exportToExcel();
+
+    const fileName = `cabezas-circulo-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(buffer);
+  }
+
   // Endpoint GET para obtener todas las cabezas de círculo registradas
   @Get()
   async findAll(): Promise<CabezaCirculo[]> {
     return this.cabezaCirculoService.findAll();
   }
-  
+
   // Endpoint GET para obtener una cabeza de círculo específica por su ID
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<CabezaCirculo> {
