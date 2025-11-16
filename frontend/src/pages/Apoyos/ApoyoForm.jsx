@@ -1,7 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ApoyoForm.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
+import {
+  FormContainer,
+  FormSection,
+  SectionHeading,
+  FormRow,
+  FormCol,
+  ColoniaDropdown,
+  ColoniaDropdownItem,
+  DropdownToggleButton,
+  BeneficiaryContainer,
+  SearchResults,
+  SearchResultItem,
+  SelectedBeneficiaryContainer,
+  SelectedBeneficiaryWrapper,
+  SelectedBeneficiaryInput,
+  RemoveBeneficiaryButton,
+  EmptyBeneficiaryPlaceholder,
+  ErrorText,
+  FormActions,
+  PrimaryButton,
+  SecondaryButton,
+  CompactAlert
+} from '../../components/forms/FormSections.styles';
 
 const ApoyoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
@@ -28,7 +51,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
   // Estado para el dropdown de tipos de apoyo
   const [showTipoApoyoDropdown, setShowTipoApoyoDropdown] = useState(false);
 
-  // Opciones predefinidas de tipos de apoyo (sin "Otro")
+  // Opciones predefinidas de tipos de apoyo
   const predefinedOptions = [
     "Tinaco",
     "Silla de ruedas",
@@ -50,19 +73,16 @@ const ApoyoForm = ({ hideHeader = false }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restricción de entrada para campos numéricos específicos
     const numericFields = ["cantidad"];
     if (numericFields.includes(name) && value !== "" && !/^\d*$/.test(value)) {
       return;
     }
 
-    // Actualizar el estado del formulario
     setFormData({
       ...formData,
       [name]: value,
     });
 
-    // Limpiar errores cuando el usuario comience a escribir
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -70,7 +90,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
       });
     }
 
-    // Ocultar dropdown de tipos de apoyo al escribir
     if (name === "tipoApoyo") {
       setShowTipoApoyoDropdown(false);
     }
@@ -248,7 +267,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
   };
 
   return (
-    <div className={`container mt-3`}>
+    <FormContainer className={`container mt-3`}>
       {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">
@@ -259,17 +278,14 @@ const ApoyoForm = ({ hideHeader = false }) => {
       {/* Mostrar mensajes al usuario */}
       {message.text && (
         message.text === "Por favor, complete todos los campos obligatorios." ? (
-          <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
+          <CompactAlert>
             <small>
-              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+              <i className="fas fa-exclamation-circle me-2 alert-icon"></i>
               {message.text}
             </small>
-          </div>
+          </CompactAlert>
         ) : (
-          <div className={`form-message form-message-${message.type}`}>
-            {message.type === "error" && (
-              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
-            )}
+          <div className={`alert alert-${message.type === "success" ? "success" : "danger"} mb-3`}>
             {message.text}
           </div>
         )
@@ -278,12 +294,12 @@ const ApoyoForm = ({ hideHeader = false }) => {
       {/* Formulario principal */}
       <form onSubmit={handleSubmit}>
         {/* Sección: Información del Apoyo */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Información del Apoyo</h5>
-          <div className="form-row">
+        <FormSection>
+          <SectionHeading>Información del Apoyo</SectionHeading>
+          <FormRow>
             {/* Campo de cantidad */}
-            <div className="form-col" style={{ flex: "0 0 50%" }}>
-              <label>Cantidad</label>
+            <FormCol flex="0 0 50%">
+              <label className="form-label">Cantidad</label>
               <input
                 type="number"
                 name="cantidad"
@@ -292,16 +308,12 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.cantidad ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.cantidad && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  {errors.cantidad}
-                </span>
-              )}
-            </div>
+              {errors.cantidad && <div className="invalid-feedback">{errors.cantidad}</div>}
+            </FormCol>
             
             {/* Campo de tipo de apoyo con dropdown de sugerencias */}
-            <div className="form-col" style={{ flex: "0 0 50%" }}>
-              <label>Tipo de Apoyo</label>
+            <FormCol flex="0 0 50%">
+              <label className="form-label">Tipo de Apoyo</label>
               <div style={{ position: "relative" }}>
                 <div className="input-group">
                   <input
@@ -314,76 +326,61 @@ const ApoyoForm = ({ hideHeader = false }) => {
                     placeholder="Selecciona un tipo o escribe uno nuevo"
                   />
                   {/* Botón para mostrar/ocultar dropdown de tipos de apoyo */}
-                  <button
+                  <DropdownToggleButton
                     type="button"
                     className="btn btn-outline-secondary btn-sm"
                     onClick={toggleTipoApoyoDropdown}
                     title="Mostrar tipos de apoyo disponibles"
-                    style={{
-                      borderTopLeftRadius: 0,
-                      borderBottomLeftRadius: 0,
-                      fontSize: '12px',
-                      padding: '4px 8px'
-                    }}
                   >
                     <i className={`bi bi-chevron-${showTipoApoyoDropdown ? 'up' : 'down'}`}></i>
-                  </button>
+                  </DropdownToggleButton>
                 </div>
                 
                 {/* Dropdown con lista de tipos de apoyo */}
                 {showTipoApoyoDropdown && predefinedOptions.length > 0 && (
-                  <ul className="tipo-apoyo-dropdown">
+                  <ColoniaDropdown>
                     {predefinedOptions.map((tipo, index) => (
-                      <li
+                      <ColoniaDropdownItem
                         key={index}
                         onClick={() => handleTipoApoyoSelect(tipo)}
-                        className="tipo-apoyo-dropdown-item"
                       >
                         {tipo}
-                      </li>
+                      </ColoniaDropdownItem>
                     ))}
-                  </ul>
+                  </ColoniaDropdown>
                 )}
-                {errors.tipoApoyo && (
-                  <span className="invalid-feedback" style={{ display: "block" }}>
-                    {errors.tipoApoyo}
-                  </span>
-                )}
+                {errors.tipoApoyo && <div className="invalid-feedback d-block">{errors.tipoApoyo}</div>}
               </div>
-            </div>
-          </div>
+            </FormCol>
+          </FormRow>
           
-          <div className="form-row">
+          <FormRow>
             {/* Campo de fecha de entrega */}
-            <div className="form-col" style={{ flex: "0 0 50%" }}>
-              <label>Fecha de Entrega</label>
+            <FormCol flex="0 0 50%">
+              <label className="form-label">Fecha de Entrega</label>
               <input
                 type="date"
                 name="fechaEntrega"
                 value={formData.fechaEntrega}
                 onChange={handleChange}
-                className={errors.fechaEntrega ? "input-error" : ""}
+                className={`form-control form-control-sm${errors.fechaEntrega ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.fechaEntrega && (
-                <span className="error-text">
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.fechaEntrega}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+              {errors.fechaEntrega && <div className="invalid-feedback">{errors.fechaEntrega}</div>}
+            </FormCol>
+          </FormRow>
+        </FormSection>
 
         {/* Sección: Asociar Beneficiario */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Asociar Beneficiario</h5>
-          <div className="beneficiary-container">
-            <div className="form-row">
-              <div className="form-col" style={{ position: "relative", flex: "0 0 50%" }}>
-                <label>Buscar Beneficiario</label>
+        <FormSection>
+          <SectionHeading>Asociar Beneficiario</SectionHeading>
+          <BeneficiaryContainer>
+            <FormRow>
+              <FormCol flex="0 0 50%" style={{ position: "relative" }}>
+                <label className="form-label">Buscar Beneficiario</label>
                 <input
                   type="text"
+                  className="form-control form-control-sm"
                   placeholder="Nombre o Clave de Elector"
                   value={searchQuery}
                   onChange={handleSearchBeneficiarios}
@@ -391,72 +388,69 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 />
                 {/* Lista de resultados de búsqueda */}
                 {beneficiarios.length > 0 && (
-                  <ul className="search-results">
+                  <SearchResults>
                     {beneficiarios.map((beneficiario) => (
-                      <li
+                      <SearchResultItem
                         key={`${beneficiario.tipo}-${beneficiario.id}`}
                         onClick={() => handleSelectBeneficiario(beneficiario)}
-                        className="search-result-item"
                       >
                         {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
-                      </li>
+                      </SearchResultItem>
                     ))}
-                  </ul>
+                  </SearchResults>
                 )}
-              </div>
-            </div>
+              </FormCol>
+            </FormRow>
 
             {/* Contenedor para el beneficiario seleccionado */}
-            <div className="selected-beneficiary-container">
+            <SelectedBeneficiaryContainer>
               {selectedBeneficiario ? (
-                <div className="form-row">
-                  <div className="form-col" style={{ flex: "0 0 50%" }}>
-                    <label>Beneficiario Seleccionado</label>
-                    <div className="selected-beneficiary-wrapper">
-                      <input
+                <FormRow>
+                  <FormCol flex="0 0 50%">
+                    <label className="form-label">Beneficiario Seleccionado</label>
+                    <SelectedBeneficiaryWrapper>
+                      <SelectedBeneficiaryInput
                         type="text"
+                        className="form-control form-control-sm"
                         value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
                         readOnly
-                        className="selected-beneficiary"
                       />
-                      <button
+                      <RemoveBeneficiaryButton
                         type="button"
-                        className="remove-beneficiary-btn"
                         onClick={handleRemoveBeneficiario}
                         title="Quitar selección"
                       >
                         <i className="bi bi-x"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                      </RemoveBeneficiaryButton>
+                    </SelectedBeneficiaryWrapper>
+                  </FormCol>
+                </FormRow>
               ) : (
-                <div className="empty-beneficiary-placeholder">
-                </div>
+                <EmptyBeneficiaryPlaceholder />
               )}
-            </div>
+            </SelectedBeneficiaryContainer>
 
             {/* Mostrar error si no se ha seleccionado beneficiario */}
             {errors.beneficiarioId && (
-              <span className="error-text">
-                <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
+              <ErrorText>
+                <i className="fa fa-exclamation-circle"></i>
                 {errors.beneficiarioId}
-              </span>
+              </ErrorText>
             )}
-          </div>
-        </div>
+          </BeneficiaryContainer>
+        </FormSection>
 
         {/* Botones de acción del formulario */}
-        <div className="form-actions">
-          <button type="button" className="form-button form-button-secondary" onClick={handleReset}>
+        <FormActions>
+          <SecondaryButton type="button" onClick={handleReset}>
             Limpiar
-          </button>
-          <button type="submit" className="form-button form-button-primary" disabled={loading}>
+          </SecondaryButton>
+          <PrimaryButton type="submit" disabled={loading}>
             {loading ? "Registrando..." : "Registrar"}
-          </button>
-        </div>
+          </PrimaryButton>
+        </FormActions>
       </form>
-    </div>
+    </FormContainer>
   );
 };
 

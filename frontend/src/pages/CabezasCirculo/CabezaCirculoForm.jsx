@@ -15,7 +15,7 @@ import {
   SecondaryButton,
   ButtonContainer,
   CompactAlert
-} from './CabezaCirculoForm.styles';
+} from '../../components/forms/FormSections.styles';
 
 const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();

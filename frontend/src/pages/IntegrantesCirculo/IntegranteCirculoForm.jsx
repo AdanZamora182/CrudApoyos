@@ -1,7 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./FormIntegrantes.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { createIntegranteCirculo, buscarCabezasCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
+import {
+  FormContainer,
+  FormSection,
+  SectionHeading,
+  FormRow,
+  FormCol,
+  ColoniaDropdownContainer,
+  ColoniaDropdown,
+  ColoniaDropdownItem,
+  DropdownToggleButton,
+  LeaderSection,
+  LeaderPlaceholder,
+  SearchResults,
+  SearchResultItem,
+  SelectedLiderContainer,
+  SelectedBeneficiaryInput,
+  RemoveLiderButton,
+  PrimaryButton,
+  SecondaryButton,
+  ButtonContainer,
+  CompactAlert
+} from '../../components/forms/FormSections.styles';
 
 const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
@@ -302,7 +324,7 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   };
 
   return (
-    <div className={`container mt-3 mb-4`}>
+    <FormContainer className={`container mt-3 mb-4`}>
       {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">
@@ -313,17 +335,14 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       {/* Mostrar mensajes al usuario */}
       {message.text && (
         message.text === "Por favor, complete correctamente todos los campos obligatorios." ? (
-          <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
+          <CompactAlert>
             <small>
-              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+              <i className="fas fa-exclamation-circle me-2 alert-icon"></i>
               {message.text}
             </small>
-          </div>
+          </CompactAlert>
         ) : (
-          <div className={`form-message form-message-${message.type}`}>
-            {message.type === "error" && (
-              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
-            )}
+          <div className={`alert alert-${message.type === "success" ? "success" : "danger"} mb-3`}>
             {message.text}
           </div>
         )
@@ -332,12 +351,12 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       {/* Formulario principal */}
       <form onSubmit={handleSubmit}>
         {/* Sección: Información Personal */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Información Personal</h5>
-          <div className="form-row">
+        <FormSection>
+          <SectionHeading>Información Personal</SectionHeading>
+          <FormRow>
             {/* Campos de nombre y apellidos */}
-            <div className="form-col">
-              <label>Nombre(s)</label>
+            <FormCol>
+              <label className="form-label">Nombre(s)</label>
               <input
                 type="text"
                 name="nombre"
@@ -346,15 +365,10 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.nombre ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.nombre && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.nombre}
-                </span>
-              )}
-            </div>
-            <div className="form-col">
-              <label>Apellido Paterno</label>
+              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+            </FormCol>
+            <FormCol>
+              <label className="form-label">Apellido Paterno</label>
               <input
                 type="text"
                 name="apellidoPaterno"
@@ -363,15 +377,10 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.apellidoPaterno ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.apellidoPaterno && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.apellidoPaterno}
-                </span>
-              )}
-            </div>
-            <div className="form-col">
-              <label>Apellido Materno</label>
+              {errors.apellidoPaterno && <div className="invalid-feedback">{errors.apellidoPaterno}</div>}
+            </FormCol>
+            <FormCol>
+              <label className="form-label">Apellido Materno</label>
               <input
                 type="text"
                 name="apellidoMaterno"
@@ -380,18 +389,13 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.apellidoMaterno ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.apellidoMaterno && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.apellidoMaterno}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="form-row">
+              {errors.apellidoMaterno && <div className="invalid-feedback">{errors.apellidoMaterno}</div>}
+            </FormCol>
+          </FormRow>
+          <FormRow>
             {/* Campos de fecha de nacimiento y teléfono */}
-            <div className="form-col">
-              <label>Fecha de Nacimiento</label>
+            <FormCol>
+              <label className="form-label">Fecha de Nacimiento</label>
               <input
                 type="date"
                 name="fechaNacimiento"
@@ -400,15 +404,10 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.fechaNacimiento ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.fechaNacimiento && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.fechaNacimiento}
-                </span>
-              )}
-            </div>
-            <div className="form-col">
-              <label>Teléfono</label>
+              {errors.fechaNacimiento && <div className="invalid-feedback">{errors.fechaNacimiento}</div>}
+            </FormCol>
+            <FormCol>
+              <label className="form-label">Teléfono</label>
               <input
                 type="text"
                 name="telefono"
@@ -418,23 +417,18 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 maxLength="10"
                 autoComplete="off"
               />
-              {errors.telefono && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.telefono}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+              {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
+            </FormCol>
+          </FormRow>
+        </FormSection>
         
         {/* Sección: Dirección */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Dirección</h5>
-          <div className="form-row">
+        <FormSection>
+          <SectionHeading>Dirección</SectionHeading>
+          <FormRow>
             {/* Campo de calle */}
-            <div className="form-col">
-              <label>Calle</label>
+            <FormCol>
+              <label className="form-label">Calle</label>
               <input
                 type="text"
                 name="calle"
@@ -443,18 +437,13 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.calle ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.calle && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.calle}
-                </span>
-              )}
-            </div>
+              {errors.calle && <div className="invalid-feedback">{errors.calle}</div>}
+            </FormCol>
             
             {/* Campo de colonia con dropdown de sugerencias */}
-            <div className="form-col">
-              <label>Colonia</label>
-              <div style={{ position: "relative" }}>
+            <FormCol>
+              <label className="form-label">Colonia</label>
+              <ColoniaDropdownContainer>
                 <div className="input-group">
                   <input
                     type="text"
@@ -465,53 +454,39 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                     autoComplete="off"
                     placeholder={colonias.length > 0 ? "Selecciona una colonia o escribe una nueva" : "Ingresa código postal primero"}
                   />
-                  {/* Botón para mostrar/ocultar dropdown de colonias */}
                   {colonias.length > 0 && (
-                    <button
+                    <DropdownToggleButton
                       type="button"
                       className="btn btn-outline-secondary btn-sm"
                       onClick={toggleColoniaDropdown}
                       title="Mostrar colonias disponibles"
-                      style={{
-                        borderTopLeftRadius: 0,
-                        borderBottomLeftRadius: 0,
-                        fontSize: '12px',
-                        padding: '4px 8px'
-                      }}
                     >
                       <i className={`bi bi-chevron-${showColoniaDropdown ? 'up' : 'down'}`}></i>
-                    </button>
+                    </DropdownToggleButton>
                   )}
                 </div>
                 
-                {/* Dropdown con lista de colonias */}
                 {showColoniaDropdown && colonias.length > 0 && (
-                  <ul className="colonia-dropdown">
+                  <ColoniaDropdown>
                     {colonias.map((colonia, index) => (
-                      <li
+                      <ColoniaDropdownItem
                         key={index}
                         onClick={() => handleColoniaSelect(colonia)}
-                        className="colonia-dropdown-item"
                       >
                         {colonia}
-                      </li>
+                      </ColoniaDropdownItem>
                     ))}
-                  </ul>
+                  </ColoniaDropdown>
                 )}
-                {errors.colonia && (
-                  <span className="invalid-feedback" style={{ display: "block" }}>
-                    <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                    {errors.colonia}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
+                {errors.colonia && <div className="invalid-feedback d-block">{errors.colonia}</div>}
+              </ColoniaDropdownContainer>
+            </FormCol>
+          </FormRow>
           
-          <div className="form-row">
+          <FormRow>
             {/* Campos de números de casa y código postal */}
-            <div className="form-col">
-              <label>No. Exterior</label>
+            <FormCol>
+              <label className="form-label">No. Exterior</label>
               <input
                 type="text"
                 name="noExterior"
@@ -520,15 +495,10 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.noExterior ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.noExterior && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.noExterior}
-                </span>
-              )}
-            </div>
-            <div className="form-col">
-              <label>No. Interior (opcional)</label>
+              {errors.noExterior && <div className="invalid-feedback">{errors.noExterior}</div>}
+            </FormCol>
+            <FormCol>
+              <label className="form-label">No. Interior (opcional)</label>
               <input
                 type="text"
                 name="noInterior"
@@ -537,15 +507,10 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 className={`form-control form-control-sm${errors.noInterior ? " is-invalid" : ""}`}
                 autoComplete="off"
               />
-              {errors.noInterior && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.noInterior}
-                </span>
-              )}
-            </div>
-            <div className="form-col">
-              <label>Código Postal</label>
+              {errors.noInterior && <div className="invalid-feedback">{errors.noInterior}</div>}
+            </FormCol>
+            <FormCol>
+              <label className="form-label">Código Postal</label>
               <input
                 type="text"
                 name="codigoPostal"
@@ -556,19 +521,14 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
                 placeholder="Ingresa 5 dígitos"
               />
-              {errors.codigoPostal && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.codigoPostal}
-                </span>
-              )}
-            </div>
-          </div>
+              {errors.codigoPostal && <div className="invalid-feedback">{errors.codigoPostal}</div>}
+            </FormCol>
+          </FormRow>
           
-          <div className="form-row">
+          <FormRow>
             {/* Campo de municipio (autocompletado) */}
-            <div className="form-col" style={{ flex: "0 0 50%" }}>
-              <label>Municipio</label>
+            <FormCol flex="0 0 50%">
+              <label className="form-label">Municipio</label>
               <input
                 type="text"
                 name="municipio"
@@ -578,22 +538,17 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
                 placeholder="Se autocompleta con el código postal"
               />
-              {errors.municipio && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.municipio}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+              {errors.municipio && <div className="invalid-feedback">{errors.municipio}</div>}
+            </FormCol>
+          </FormRow>
+        </FormSection>
         
         {/* Sección: Información Electoral */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Información Electoral</h5>
-          <div className="form-row">
-            <div className="form-col" style={{ flex: "0 0 50%" }}>
-              <label>Clave de Elector</label>
+        <FormSection>
+          <SectionHeading>Información Electoral</SectionHeading>
+          <FormRow>
+            <FormCol flex="0 0 50%">
+              <label className="form-label">Clave de Elector</label>
               <input
                 type="text"
                 name="claveElector"
@@ -603,87 +558,79 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 maxLength="18"
                 autoComplete="off"
               />
-              {errors.claveElector && (
-                <span className="invalid-feedback" style={{ display: "block" }}>
-                  <i className="fa fa-exclamation-circle me-1" style={{ color: "#d32f2f" }}></i>
-                  {errors.claveElector}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+              {errors.claveElector && <div className="invalid-feedback">{errors.claveElector}</div>}
+            </FormCol>
+          </FormRow>
+        </FormSection>
 
         {/* Sección: Asociar Cabeza de Círculo */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Asociar Cabeza de Círculo</h5>
-          <div className="leader-section">
-            <div className="form-row">
-              <div className="form-col" style={{ position: "relative", flex: "0 0 50%" }}>
-                <label>Buscar Cabeza de Círculo</label>
+        <FormSection>
+          <SectionHeading>Asociar Cabeza de Círculo</SectionHeading>
+          <LeaderSection>
+            <FormRow>
+              <FormCol flex="0 0 50%" style={{ position: "relative" }}>
+                <label className="form-label">Buscar Cabeza de Círculo</label>
                 <input
                   type="text"
+                  className="form-control form-control-sm"
                   placeholder="Nombre o Clave de Elector"
                   value={searchQuery}
                   onChange={handleSearchCabezas}
                   autoComplete="off"
                 />
-                {/* Lista de resultados de búsqueda */}
                 {cabezasCirculo.length > 0 && (
-                  <ul className="search-results">
+                  <SearchResults>
                     {cabezasCirculo.map((cabeza) => (
-                      <li
+                      <SearchResultItem
                         key={cabeza.id}
                         onClick={() => handleSelectLider(cabeza)}
-                        className="search-result-item"
                       >
                         {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
-                      </li>
+                      </SearchResultItem>
                     ))}
-                  </ul>
+                  </SearchResults>
                 )}
-              </div>
-            </div>
+              </FormCol>
+            </FormRow>
             
-            {/* Mostrar líder seleccionado o placeholder */}
             {selectedLider ? (
-              <div className="form-row">
-                <div className="form-col" style={{ flex: "0 0 50%" }}>
-                  <label>Cabeza de Círculo Seleccionada</label>
-                  <div className="selected-lider-container">
-                    <input
+              <FormRow>
+                <FormCol flex="0 0 50%">
+                  <label className="form-label">Cabeza de Círculo Seleccionada</label>
+                  <SelectedLiderContainer>
+                    <SelectedBeneficiaryInput
                       type="text"
+                      className="form-control form-control-sm"
                       value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
                       readOnly
-                      className="selected-beneficiary"
                     />
-                    <button
+                    <RemoveLiderButton
                       type="button"
-                      className="remove-lider-btn"
                       onClick={handleRemoveLider}
                       title="Quitar selección"
                     >
                       <i className="bi bi-x"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
+                    </RemoveLiderButton>
+                  </SelectedLiderContainer>
+                </FormCol>
+              </FormRow>
             ) : (
-              <div className="leader-placeholder"></div>
+              <LeaderPlaceholder />
             )}
-          </div>
-        </div>
+          </LeaderSection>
+        </FormSection>
 
         {/* Botones de acción del formulario */}
-        <div className="d-flex justify-content-end gap-2 mt-4 mb-5">
-          <button type="button" className="form-button form-button-secondary" onClick={handleReset}>
+        <ButtonContainer>
+          <SecondaryButton type="button" onClick={handleReset}>
             Limpiar
-          </button>
-          <button type="submit" className="form-button form-button-primary" disabled={loading}>
+          </SecondaryButton>
+          <PrimaryButton type="submit" disabled={loading}>
             {loading ? "Registrando..." : "Registrar"}
-          </button>
-        </div>
+          </PrimaryButton>
+        </ButtonContainer>
       </form>
-    </div>
+    </FormContainer>
   );
 };
 
