@@ -1,9 +1,21 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "./CabezaCirculo.css";
 import { createCabezaCirculo } from "../../api/cabezasApi";
 import { buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api/direccionesApi";
+import {
+  FormContainer,
+  FormSection,
+  SectionHeading,
+  ColoniaDropdownContainer,
+  ColoniaDropdown,
+  ColoniaDropdownItem,
+  DropdownToggleButton,
+  PrimaryButton,
+  SecondaryButton,
+  ButtonContainer,
+  CompactAlert
+} from './CabezaCirculoForm.styles';
 
 const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
@@ -278,7 +290,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
   };
 
   return (
-    <div className={`container mt-3`}>
+    <FormContainer className={`container mt-3`}>
       {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">
@@ -289,12 +301,12 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       {/* Mostrar mensajes al usuario */}
       {message.text && (
         message.text === "Por favor, complete correctamente todos los campos obligatorios." ? (
-          <div className="alert alert-danger py-1 px-2 mb-2 d-inline-block" style={{ fontSize: "0.95rem", borderRadius: "8px" }}>
+          <CompactAlert>
             <small>
-              <i className="fas fa-exclamation-circle me-2" style={{ color: "#d32f2f" }}></i>
+              <i className="fas fa-exclamation-circle me-2 alert-icon"></i>
               {message.text}
             </small>
-          </div>
+          </CompactAlert>
         ) : (
           <div className={`alert alert-${message.type === "success" ? "success" : "danger"} mb-3`}>
             {message.text}
@@ -305,8 +317,8 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       {/* Formulario principal */}
       <form onSubmit={handleSubmit}>
         {/* Sección: Información Personal */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Información Personal</h5>
+        <FormSection>
+          <SectionHeading>Información Personal</SectionHeading>
           <div className="row">
             {/* Campos de nombre y apellidos */}
             <div className="col-md-4 mb-2">
@@ -375,11 +387,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
             </div>
           </div>
-        </div>
+        </FormSection>
 
         {/* Sección: Dirección */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Dirección</h5>
+        <FormSection>
+          <SectionHeading>Dirección</SectionHeading>
           <div className="row">
             {/* Campo de calle */}
             <div className="col-md-6 mb-2">
@@ -398,7 +410,7 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
             {/* Campo de colonia con dropdown de sugerencias */}
             <div className="col-md-6 mb-2">
               <label className="form-label">Colonia</label>
-              <div style={{ position: "relative" }}>
+              <ColoniaDropdownContainer>
                 <div className="input-group">
                   <input
                     type="text"
@@ -411,39 +423,32 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
                   />
                   {/* Botón para mostrar/ocultar dropdown de colonias */}
                   {colonias.length > 0 && (
-                    <button
+                    <DropdownToggleButton
                       type="button"
                       className="btn btn-outline-secondary btn-sm"
                       onClick={toggleColoniaDropdown}
                       title="Mostrar colonias disponibles"
-                      style={{
-                        borderTopLeftRadius: 0,
-                        borderBottomLeftRadius: 0,
-                        fontSize: '12px',
-                        padding: '4px 8px'
-                      }}
                     >
                       <i className={`bi bi-chevron-${showColoniaDropdown ? 'up' : 'down'}`}></i>
-                    </button>
+                    </DropdownToggleButton>
                   )}
                 </div>
                 
                 {/* Dropdown con lista de colonias */}
                 {showColoniaDropdown && colonias.length > 0 && (
-                  <ul className="colonia-dropdown">
+                  <ColoniaDropdown>
                     {colonias.map((colonia, index) => (
-                      <li
+                      <ColoniaDropdownItem
                         key={index}
                         onClick={() => handleColoniaSelect(colonia)}
-                        className="colonia-dropdown-item"
                       >
                         {colonia}
-                      </li>
+                      </ColoniaDropdownItem>
                     ))}
-                  </ul>
+                  </ColoniaDropdown>
                 )}
-                {errors.colonia && <div className="invalid-feedback">{errors.colonia}</div>}
-              </div>
+                {errors.colonia && <div className="invalid-feedback d-block">{errors.colonia}</div>}
+              </ColoniaDropdownContainer>
             </div>
           </div>
           
@@ -505,11 +510,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               {errors.municipio && <div className="invalid-feedback">{errors.municipio}</div>}
             </div>
           </div>
-        </div>
+        </FormSection>
 
         {/* Sección: Información Electoral y Contacto */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Información Electoral y Contacto</h5>
+        <FormSection>
+          <SectionHeading>Información Electoral y Contacto</SectionHeading>
           <div className="row">
             {/* Campos de clave de elector y email */}
             <div className="col-md-6 mb-2">
@@ -563,11 +568,11 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               />
             </div>
           </div>
-        </div>
+        </FormSection>
 
         {/* Sección: Estructura */}
-        <div className="mb-3 bg-contrast rounded shadow-sm p-3">
-          <h5 className="mb-2 heading-morado">Estructura</h5>
+        <FormSection>
+          <SectionHeading>Estructura</SectionHeading>
           <div className="row">
             {/* Campos de estructura territorial y posición */}
             <div className="col-md-6 mb-2">
@@ -595,27 +600,25 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
               {errors.posicionEstructura && <div className="invalid-feedback">{errors.posicionEstructura}</div>}
             </div>
           </div>
-        </div>
+        </FormSection>
 
         {/* Botones de acción del formulario */}
-        <div className="d-flex justify-content-end gap-2 mt-4 mb-4">
-          <button
+        <ButtonContainer>
+          <SecondaryButton
             type="button"
-            className="form-button form-button-secondary"
             onClick={handleReset}
           >
             Limpiar
-          </button>
-          <button
+          </SecondaryButton>
+          <PrimaryButton
             type="submit"
-            className="form-button form-button-primary"
             disabled={loading}
           >
             {loading ? "Registrando..." : "Registrar"}
-          </button>
-        </div>
+          </PrimaryButton>
+        </ButtonContainer>
       </form>
-    </div>
+    </FormContainer>
   );
 };
 

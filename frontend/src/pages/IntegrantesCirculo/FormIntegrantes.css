@@ -1,0 +1,315 @@
+:root {
+  --primary-color: #5c6bc0;
+  --secondary-color: #26c6da;
+  --dark-color: #2c3e50;
+  --light-color: #f5f7fa;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --danger-color: #f44336;
+  --background-color: #f0f2f5;
+  --shadow-light: #ffffff;
+  --shadow-dark: #d1d9e6;
+  --form-reduced-scale: 0.9; /* New variable for scaling form elements */
+}
+
+body {
+  background: #f0f2f5;
+}
+
+/* Form sections */
+.bg-contrast {
+  background-color: #fafafa;
+  border: 1px solid #eee;
+}
+
+.heading-morado {
+  color: var(--primary-color);
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+.colonia-dropdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #5c6bc0;
+  max-height: 200px; /* Increased height for better visibility */
+  overflow-y: auto;
+  background-color: white;
+  position: absolute;
+  z-index: 1060; /* High z-index to appear above other elements */
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  top: 100%; /* Position below the input */
+  left: 0;
+  border-top: none;
+}
+
+.colonia-dropdown-item {
+  padding: 10px 14px; /* Increased padding for better click area */
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.input-group .btn-outline-secondary:hover {
+  background-color: #6c757d; /* Bootstrap secondary grey */
+  border-color: #6c757d;
+  color: white;
+  outline: none !important; /* Remove focus outline on hover */
+  box-shadow: none !important; /* Remove any box-shadow on hover */
+}
+
+.input-group .btn-outline-secondary:focus {
+  outline: none !important; /* Remove focus outline */
+  box-shadow: none !important; /* Remove focus box-shadow */
+  border-color: #dee2e6 !important; /* Keep original border color on focus */
+  background-color: #fff !important; /* Keep original background on focus */
+  color: #6c757d !important; /* Keep original text color on focus */
+}
+
+.input-group .btn-outline-secondary:active {
+  background-color: #6c757d; /* Keep hover style when active */
+  border-color: #6c757d;
+  color: white;
+  outline: none !important; /* Remove focus outline when active/pressed */
+  box-shadow: none !important; /* Remove any box-shadow when active/pressed */
+}
+
+.input-group .btn-outline-secondary:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #dee2e6 !important; /* Reset border color */
+  background-color: #fff !important; /* Reset background color */
+  color: #6c757d !important; /* Reset text color */
+}
+
+/* Override Bootstrap's focus-visible styles */
+.input-group .btn-outline-secondary:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #dee2e6 !important;
+  background-color: #fff !important;
+  color: #6c757d !important;
+}
+
+/* Ensure the button returns to normal state after being clicked */
+.input-group .btn-outline-secondary:not(:hover):not(:active) {
+  border-color: #dee2e6 !important;
+  background-color: #fff !important;
+  color: #6c757d !important;
+}
+
+/* Colonia dropdown styles */
+.colonia-dropdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #5c6bc0;
+  max-height: 200px; /* Increased height for better visibility */
+  overflow-y: auto;
+  background-color: white;
+  position: absolute;
+  z-index: 1060; /* High z-index to appear above other elements */
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  top: 100%; /* Position below the input */
+  left: 0;
+  border-top: none;
+}
+
+.colonia-dropdown-item {
+  padding: 10px 14px; /* Increased padding for better click area */
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.colonia-dropdown-item:hover {
+  background-color: rgba(92, 107, 192, 0.1);
+  color: #5c6bc0;
+}
+
+.colonia-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+/* Custom scrollbar for colonia dropdown */
+.colonia-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.colonia-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.colonia-dropdown::-webkit-scrollbar-thumb {
+  background: #5c6bc0;
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+.colonia-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #4a5ba8;
+  opacity: 1;
+}
+
+.form-button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.form-button-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.form-button-primary:hover {
+  background-color: #4a5ba8;
+}
+
+.form-button-secondary {
+  background-color: #ddd;
+  color: #333;
+}
+
+.form-button-secondary:hover {
+  background-color: #ccc;
+}
+
+
+.leader-section input:focus,
+.beneficiary-container input:focus {
+  border-color: var(--primary-color) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2) !important;
+  background-color: white !important;
+}
+
+.form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+.form-col {
+  flex: 1;
+}
+
+/* Asegurar que el efecto se aplique a todos los inputs dentro de form-col */
+.form-col input:focus,
+.form-col select:focus,
+.form-col textarea:focus {
+  border-color: var(--primary-color) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2) !important;
+  background-color: white !important;
+}
+
+/* Efecto de hover para inputs */
+.form-col input:hover:not(:focus),
+.form-col select:hover:not(:focus) {
+  border-color: rgba(92, 107, 192, 0.4);
+}
+
+/* Mantener el estilo del input de colonia con el dropdown */
+.form-col .input-group input:focus {
+  border-color: var(--primary-color) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2) !important;
+  background-color: white !important;
+}
+
+/* Asegurar que el input tenga borde derecho completo cuando no hay botón */
+.input-group .form-control:only-child,
+.form-col .input-group > input:only-child {
+  border-right: 1px solid #dee2e6 !important;
+  border-top-right-radius: 0.375rem !important;
+  border-bottom-right-radius: 0.375rem !important;
+}
+
+/* Cuando el input está dentro de un input-group sin botón */
+.form-col .input-group > input.form-control-sm {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+}
+
+/* Cuando hay un botón presente, ajustar los bordes */
+.form-col .input-group:has(.btn) > input.form-control-sm {
+  border-right: none;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.selected-lider-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selected-lider {
+  flex-grow: 1;
+  background-color: rgba(92, 107, 192, 0.05);
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.remove-lider-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #9e9e9e; /* Grey color for uniform styling */
+  font-size: 16px; /* Slightly larger for better visibility */
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.remove-lider-btn:hover {
+  opacity: 1;
+  background-color: rgba(158, 158, 158, 0.1);
+  color: #757575; /* Darker grey on hover */
+}
+
+.remove-lider-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(158, 158, 158, 0.3);
+}
+
+/* Style the X icon specifically */
+.remove-lider-btn i {
+  font-size: 23px; /* Increased from 14px */
+  font-weight: normal;
+}
+
+.leader-placeholder {
+  height: 70px; /* Igual que .empty-beneficiary-placeholder en ApoyoForm */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
+}
