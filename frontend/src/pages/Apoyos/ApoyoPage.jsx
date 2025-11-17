@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import ApoyoForm from "./ApoyoForm";
 import ApoyoCRUD from "./ApoyoCrud";
 import { useNavigate } from "react-router-dom";
-import "./ApoyoForm.css";
+import { HomeButton, TabsContainer, NeumorphicTab } from "../../components/layout/Pagebar";
+
 
 const ApoyoPage = () => {
   // Load the active tab from localStorage or use default ("form")
@@ -29,29 +30,28 @@ const ApoyoPage = () => {
       <div className="row">
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <button 
-              className="neumorphic-button home-button"
+            <HomeButton 
               style={{ fontSize: '0.95rem', padding: '4px 12px', height: '32px', minHeight: 'unset' }}
               onClick={() => navigate('/menu')}
             >
               🏠 <span className="d-none d-sm-inline">Inicio</span>
-            </button>
-            <div className="tabs-container">
-              <button
-                className={`neumorphic-tab${activeSection === "form" ? " active" : ""}`}
+            </HomeButton>
+            <TabsContainer>
+              <NeumorphicTab
+                className={activeSection === "form" ? "active" : ""}
                 style={{ fontSize: '0.95rem', padding: '4px 12px', height: '32px', minHeight: 'unset' }}
                 onClick={() => handleTabChange("form")}
               >
                 ➕ <span className="d-none d-sm-inline">Registrar</span>
-              </button>
-              <button
-                className={`neumorphic-tab${activeSection === "crud" ? " active" : ""}`}
+              </NeumorphicTab>
+              <NeumorphicTab
+                className={activeSection === "crud" ? "active" : ""}
                 style={{ fontSize: '0.95rem', padding: '4px 12px', height: '32px', minHeight: 'unset' }}
                 onClick={() => handleTabChange("crud")}
               >
                 📋 <span className="d-none d-sm-inline">Gestionar</span>
-              </button>
-            </div>
+              </NeumorphicTab>
+            </TabsContainer>
           </div>
           <div className="mt-3">
             {activeSection === "form" && <ApoyoForm hideHeader={true} />}
