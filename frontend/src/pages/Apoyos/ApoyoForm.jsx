@@ -296,9 +296,8 @@ const ApoyoForm = ({ hideHeader = false }) => {
         {/* Sección: Información del Apoyo */}
         <FormSection>
           <SectionHeading>Información del Apoyo</SectionHeading>
-          <FormRow>
-            {/* Campo de cantidad */}
-            <FormCol flex="0 0 50%">
+          <div className="row">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Cantidad</label>
               <input
                 type="number"
@@ -309,10 +308,9 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.cantidad && <div className="invalid-feedback">{errors.cantidad}</div>}
-            </FormCol>
+            </div>
             
-            {/* Campo de tipo de apoyo con dropdown de sugerencias */}
-            <FormCol flex="0 0 50%">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Tipo de Apoyo</label>
               <div style={{ position: "relative" }}>
                 <div className="input-group">
@@ -325,7 +323,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
                     autoComplete="off"
                     placeholder="Selecciona un tipo o escribe uno nuevo"
                   />
-                  {/* Botón para mostrar/ocultar dropdown de tipos de apoyo */}
                   <DropdownToggleButton
                     type="button"
                     className="btn btn-outline-secondary btn-sm"
@@ -336,7 +333,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
                   </DropdownToggleButton>
                 </div>
                 
-                {/* Dropdown con lista de tipos de apoyo */}
                 {showTipoApoyoDropdown && predefinedOptions.length > 0 && (
                   <ColoniaDropdown>
                     {predefinedOptions.map((tipo, index) => (
@@ -351,12 +347,11 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 )}
                 {errors.tipoApoyo && <div className="invalid-feedback d-block">{errors.tipoApoyo}</div>}
               </div>
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
           
-          <FormRow>
-            {/* Campo de fecha de entrega */}
-            <FormCol flex="0 0 50%">
+          <div className="row">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Fecha de Entrega</label>
               <input
                 type="date"
@@ -367,46 +362,46 @@ const ApoyoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.fechaEntrega && <div className="invalid-feedback">{errors.fechaEntrega}</div>}
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
         </FormSection>
 
         {/* Sección: Asociar Beneficiario */}
         <FormSection>
           <SectionHeading>Asociar Beneficiario</SectionHeading>
           <BeneficiaryContainer>
-            <FormRow>
-              <FormCol flex="0 0 50%" style={{ position: "relative" }}>
+            <div className="row">
+              <div className="col-md-6 mb-2">
                 <label className="form-label">Buscar Beneficiario</label>
-                <input
-                  type="text"
-                  className="form-control form-control-sm"
-                  placeholder="Nombre o Clave de Elector"
-                  value={searchQuery}
-                  onChange={handleSearchBeneficiarios}
-                  autoComplete="off"
-                />
-                {/* Lista de resultados de búsqueda */}
-                {beneficiarios.length > 0 && (
-                  <SearchResults>
-                    {beneficiarios.map((beneficiario) => (
-                      <SearchResultItem
-                        key={`${beneficiario.tipo}-${beneficiario.id}`}
-                        onClick={() => handleSelectBeneficiario(beneficiario)}
-                      >
-                        {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
-                      </SearchResultItem>
-                    ))}
-                  </SearchResults>
-                )}
-              </FormCol>
-            </FormRow>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="Nombre o Clave de Elector"
+                    value={searchQuery}
+                    onChange={handleSearchBeneficiarios}
+                    autoComplete="off"
+                  />
+                  {beneficiarios.length > 0 && (
+                    <SearchResults>
+                      {beneficiarios.map((beneficiario) => (
+                        <SearchResultItem
+                          key={`${beneficiario.tipo}-${beneficiario.id}`}
+                          onClick={() => handleSelectBeneficiario(beneficiario)}
+                        >
+                          {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
+                        </SearchResultItem>
+                      ))}
+                    </SearchResults>
+                  )}
+                </div>
+              </div>
+            </div>
 
-            {/* Contenedor para el beneficiario seleccionado */}
             <SelectedBeneficiaryContainer>
               {selectedBeneficiario ? (
-                <FormRow>
-                  <FormCol flex="0 0 50%">
+                <div className="row">
+                  <div className="col-md-6 mb-2">
                     <label className="form-label">Beneficiario Seleccionado</label>
                     <SelectedBeneficiaryWrapper>
                       <SelectedBeneficiaryInput
@@ -423,14 +418,13 @@ const ApoyoForm = ({ hideHeader = false }) => {
                         <i className="bi bi-x"></i>
                       </RemoveBeneficiaryButton>
                     </SelectedBeneficiaryWrapper>
-                  </FormCol>
-                </FormRow>
+                  </div>
+                </div>
               ) : (
                 <EmptyBeneficiaryPlaceholder />
               )}
             </SelectedBeneficiaryContainer>
 
-            {/* Mostrar error si no se ha seleccionado beneficiario */}
             {errors.beneficiarioId && (
               <ErrorText>
                 <i className="fa fa-exclamation-circle"></i>

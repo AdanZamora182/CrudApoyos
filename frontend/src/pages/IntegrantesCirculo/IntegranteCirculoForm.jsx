@@ -6,8 +6,6 @@ import {
   FormContainer,
   FormSection,
   SectionHeading,
-  FormRow,
-  FormCol,
   ColoniaDropdownContainer,
   ColoniaDropdown,
   ColoniaDropdownItem,
@@ -353,9 +351,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
         {/* Sección: Información Personal */}
         <FormSection>
           <SectionHeading>Información Personal</SectionHeading>
-          <FormRow>
-            {/* Campos de nombre y apellidos */}
-            <FormCol>
+          <div className="row">
+            <div className="col-md-4 mb-2">
               <label className="form-label">Nombre(s)</label>
               <input
                 type="text"
@@ -366,8 +363,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
-            </FormCol>
-            <FormCol>
+            </div>
+            <div className="col-md-4 mb-2">
               <label className="form-label">Apellido Paterno</label>
               <input
                 type="text"
@@ -378,8 +375,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.apellidoPaterno && <div className="invalid-feedback">{errors.apellidoPaterno}</div>}
-            </FormCol>
-            <FormCol>
+            </div>
+            <div className="col-md-4 mb-2">
               <label className="form-label">Apellido Materno</label>
               <input
                 type="text"
@@ -390,11 +387,11 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.apellidoMaterno && <div className="invalid-feedback">{errors.apellidoMaterno}</div>}
-            </FormCol>
-          </FormRow>
-          <FormRow>
-            {/* Campos de fecha de nacimiento y teléfono */}
-            <FormCol>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Fecha de Nacimiento</label>
               <input
                 type="date"
@@ -405,8 +402,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.fechaNacimiento && <div className="invalid-feedback">{errors.fechaNacimiento}</div>}
-            </FormCol>
-            <FormCol>
+            </div>
+            <div className="col-md-6 mb-2">
               <label className="form-label">Teléfono</label>
               <input
                 type="text"
@@ -418,16 +415,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.telefono && <div className="invalid-feedback">{errors.telefono}</div>}
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
         </FormSection>
         
         {/* Sección: Dirección */}
         <FormSection>
           <SectionHeading>Dirección</SectionHeading>
-          <FormRow>
-            {/* Campo de calle */}
-            <FormCol>
+          <div className="row">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Calle</label>
               <input
                 type="text"
@@ -438,10 +434,9 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.calle && <div className="invalid-feedback">{errors.calle}</div>}
-            </FormCol>
+            </div>
             
-            {/* Campo de colonia con dropdown de sugerencias */}
-            <FormCol>
+            <div className="col-md-6 mb-2">
               <label className="form-label">Colonia</label>
               <ColoniaDropdownContainer>
                 <div className="input-group">
@@ -480,12 +475,11 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 )}
                 {errors.colonia && <div className="invalid-feedback d-block">{errors.colonia}</div>}
               </ColoniaDropdownContainer>
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
           
-          <FormRow>
-            {/* Campos de números de casa y código postal */}
-            <FormCol>
+          <div className="row">
+            <div className="col-md-4 mb-2">
               <label className="form-label">No. Exterior</label>
               <input
                 type="text"
@@ -496,8 +490,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.noExterior && <div className="invalid-feedback">{errors.noExterior}</div>}
-            </FormCol>
-            <FormCol>
+            </div>
+            <div className="col-md-4 mb-2">
               <label className="form-label">No. Interior (opcional)</label>
               <input
                 type="text"
@@ -508,8 +502,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.noInterior && <div className="invalid-feedback">{errors.noInterior}</div>}
-            </FormCol>
-            <FormCol>
+            </div>
+            <div className="col-md-4 mb-2">
               <label className="form-label">Código Postal</label>
               <input
                 type="text"
@@ -522,12 +516,11 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 placeholder="Ingresa 5 dígitos"
               />
               {errors.codigoPostal && <div className="invalid-feedback">{errors.codigoPostal}</div>}
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
           
-          <FormRow>
-            {/* Campo de municipio (autocompletado) */}
-            <FormCol flex="0 0 50%">
+          <div className="row">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Municipio</label>
               <input
                 type="text"
@@ -539,15 +532,15 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 placeholder="Se autocompleta con el código postal"
               />
               {errors.municipio && <div className="invalid-feedback">{errors.municipio}</div>}
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
         </FormSection>
         
         {/* Sección: Información Electoral */}
         <FormSection>
           <SectionHeading>Información Electoral</SectionHeading>
-          <FormRow>
-            <FormCol flex="0 0 50%">
+          <div className="row">
+            <div className="col-md-6 mb-2">
               <label className="form-label">Clave de Elector</label>
               <input
                 type="text"
@@ -559,43 +552,45 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 autoComplete="off"
               />
               {errors.claveElector && <div className="invalid-feedback">{errors.claveElector}</div>}
-            </FormCol>
-          </FormRow>
+            </div>
+          </div>
         </FormSection>
 
         {/* Sección: Asociar Cabeza de Círculo */}
         <FormSection>
           <SectionHeading>Asociar Cabeza de Círculo</SectionHeading>
           <LeaderSection>
-            <FormRow>
-              <FormCol flex="0 0 50%" style={{ position: "relative" }}>
+            <div className="row">
+              <div className="col-md-6 mb-2">
                 <label className="form-label">Buscar Cabeza de Círculo</label>
-                <input
-                  type="text"
-                  className="form-control form-control-sm"
-                  placeholder="Nombre o Clave de Elector"
-                  value={searchQuery}
-                  onChange={handleSearchCabezas}
-                  autoComplete="off"
-                />
-                {cabezasCirculo.length > 0 && (
-                  <SearchResults>
-                    {cabezasCirculo.map((cabeza) => (
-                      <SearchResultItem
-                        key={cabeza.id}
-                        onClick={() => handleSelectLider(cabeza)}
-                      >
-                        {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
-                      </SearchResultItem>
-                    ))}
-                  </SearchResults>
-                )}
-              </FormCol>
-            </FormRow>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="Nombre o Clave de Elector"
+                    value={searchQuery}
+                    onChange={handleSearchCabezas}
+                    autoComplete="off"
+                  />
+                  {cabezasCirculo.length > 0 && (
+                    <SearchResults>
+                      {cabezasCirculo.map((cabeza) => (
+                        <SearchResultItem
+                          key={cabeza.id}
+                          onClick={() => handleSelectLider(cabeza)}
+                        >
+                          {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
+                        </SearchResultItem>
+                      ))}
+                    </SearchResults>
+                  )}
+                </div>
+              </div>
+            </div>
             
             {selectedLider ? (
-              <FormRow>
-                <FormCol flex="0 0 50%">
+              <div className="row">
+                <div className="col-md-6 mb-2">
                   <label className="form-label">Cabeza de Círculo Seleccionada</label>
                   <SelectedLiderContainer>
                     <SelectedBeneficiaryInput
@@ -612,8 +607,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                       <i className="bi bi-x"></i>
                     </RemoveLiderButton>
                   </SelectedLiderContainer>
-                </FormCol>
-              </FormRow>
+                </div>
+              </div>
             ) : (
               <LeaderPlaceholder />
             )}

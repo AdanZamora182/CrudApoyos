@@ -18,6 +18,7 @@ import {
 import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar import
 import { ExcelButton } from '../../components/buttons/ExcelButton.styles';
 import "./IntegranteCirculo.css";
+import IntegranteCirculoEdit from './IntegranteCirculoEdit';
 
 const IntegranteCirculoCRUD = () => {
   // Estado para manejar el registro seleccionado para edición
@@ -91,6 +92,10 @@ const IntegranteCirculoCRUD = () => {
   // Función para abrir el modal de edición con los datos del registro seleccionado
   const handleEdit = (integrante) => {
     setSelectedIntegrante(integrante);
+  };
+
+  const handleCloseEdit = () => {
+    setSelectedIntegrante(null);
   };
 
   // Función para descargar el archivo Excel
@@ -639,240 +644,15 @@ const IntegranteCirculoCRUD = () => {
         </>
       )}
 
+      {/* Modal de edición */}
       {selectedIntegrante && (
-        <div className="neumorphic-modal">
-          <div className="neumorphic-modal-content large-modal">
-            <div className="modal-header">
-              <h3>Editar Registro</h3>
-              <button 
-                className="close" 
-                onClick={() => setSelectedIntegrante(null)}
-              >
-                <i className="bi bi-x-lg"></i>
-              </button>
-            </div>
-            <div className="modal-body">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleUpdateSubmit(selectedIntegrante);
-                }}
-                className="edit-form"
-              >
-                <div className="modal-sections">
-                  <div className="modal-section">
-                    <h4 className="section-title">Información Personal</h4>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Nombre(s)</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.nombre || ''}
-                          onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, nombre: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Apellido Paterno</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.apellidoPaterno || ''}
-                          onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, apellidoPaterno: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Apellido Materno</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.apellidoMaterno || ''}
-                          onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, apellidoMaterno: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Fecha de Nacimiento</label>
-                        <input
-                          type="date"
-                          className="neumorphic-input"
-                          value={formatDate(selectedIntegrante.fechaNacimiento) || ''}
-                          onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, fechaNacimiento: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Teléfono</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.telefono || ''}
-                          onChange={(e) => handleInputChange(e, 'telefono')}
-                          maxLength="10"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="modal-section">
-                    <h4 className="section-title">Dirección</h4>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Calle</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.calle || ''}
-                          onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, calle: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Colonia</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.colonia || ''}
-                          onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, colonia: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>No. Exterior</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.noExterior || ''}
-                          onChange={(e) => handleInputChange(e, 'noExterior')}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>No. Interior</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.noInterior || ''}
-                          onChange={(e) => handleInputChange(e, 'noInterior')}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Código Postal</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.codigoPostal || ''}
-                          onChange={(e) => handleInputChange(e, 'codigoPostal')}
-                          maxLength="5"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="modal-section">
-                    <h4 className="section-title">Información Electoral</h4>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Clave de Elector</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          value={selectedIntegrante.claveElector || ''}
-                          onChange={(e) => handleInputChange(e, 'claveElector')}
-                          maxLength="18"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Add new Leader Section */}
-                  <div className="modal-section">
-                    <h4 className="section-title">Cabeza de Círculo</h4>
-                    <div className="form-row">
-                      <div className="form-group" style={{ position: "relative" }}>
-                        <label>Buscar Cabeza de Círculo</label>
-                        <input
-                          type="text"
-                          className="neumorphic-input"
-                          placeholder="Nombre o Clave de Elector"
-                          value={searchLiderQuery}
-                          onChange={handleSearchLider}
-                          autoComplete="off"
-                        />
-                        {searchLiderResults.length > 0 && (
-                          <ul className="search-results">
-                            {searchLiderResults.map((cabeza) => (
-                              <li
-                                key={cabeza.id}
-                                onClick={() => handleSelectLider(cabeza)}
-                                className="search-result-item"
-                              >
-                                {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {selectedIntegrante.lider ? (
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label>Cabeza de Círculo Seleccionada</label>
-                          <div className="selected-lider-container">
-                            <input
-                              type="text"
-                              className="neumorphic-input selected-lider"
-                              value={`${selectedIntegrante.lider.nombre} ${selectedIntegrante.lider.apellidoPaterno} ${selectedIntegrante.lider.apellidoMaterno} - ${selectedIntegrante.lider.claveElector}`}
-                              readOnly
-                            />
-                            <button 
-                              type="button" 
-                              className="remove-lider-btn"
-                              onClick={handleRemoveLider}
-                              title="Eliminar asociación"
-                            >
-                              ❌
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="form-row">
-                        <div className="form-group">
-                          <p className="no-leader-text">Sin Cabeza de Círculo asignada</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedIntegrante(null)}>
-                    <i className="bi bi-x-circle me-2"></i>Cancelar
-                  </button>
-                  <button type="submit" className="neumorphic-button primary">
-                    <i className="bi bi-floppy me-2"></i>Guardar Cambios
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <IntegranteCirculoEdit 
+          integrante={selectedIntegrante} 
+          onClose={handleCloseEdit}
+        />
       )}
 
-      {/* Add new details view modal */}
+      {/* Modal de detalles (mantener como está) */}
       {viewDetailsIntegrante && (
         <div className="neumorphic-modal" onClick={() => setViewDetailsIntegrante(null)}>
           <div className="neumorphic-modal-content large-modal" onClick={(e) => e.stopPropagation()}>
