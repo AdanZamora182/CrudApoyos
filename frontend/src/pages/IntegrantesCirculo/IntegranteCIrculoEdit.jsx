@@ -18,6 +18,8 @@ import {
   ColoniaDropdown,
   ColoniaDropdownItem,
   DropdownToggleButton,
+  LeaderSection,
+  LeaderPlaceholder,
 } from '../../components/forms/FormSections.styles';
 
 const IntegranteCirculoEdit = ({ integrante, onClose }) => {
@@ -434,60 +436,58 @@ const IntegranteCirculoEdit = ({ integrante, onClose }) => {
             {/* Sección: Cabeza de Círculo */}
             <FormSection>
               <SectionHeading>Cabeza de Círculo</SectionHeading>
-              <div className="row">
-                <div className="col-md-6 mb-2" style={{ position: "relative" }}>
-                  <label className="form-label">Buscar Cabeza de Círculo</label>
-                  <input
-                    type="text"
-                    className="form-control form-control-sm"
-                    placeholder="Nombre o Clave de Elector"
-                    value={searchLiderQuery}
-                    onChange={handleSearchLider}
-                    autoComplete="off"
-                  />
-                  {searchLiderResults.length > 0 && (
-                    <SearchResults>
-                      {searchLiderResults.map((cabeza) => (
-                        <SearchResultItem
-                          key={cabeza.id}
-                          onClick={() => handleSelectLider(cabeza)}
+              <LeaderSection>
+                <div className="row">
+                  <div className="col-md-6 mb-2" style={{ position: "relative" }}>
+                    <label className="form-label">Buscar Cabeza de Círculo</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      placeholder="Nombre o Clave de Elector"
+                      value={searchLiderQuery}
+                      onChange={handleSearchLider}
+                      autoComplete="off"
+                    />
+                    {searchLiderResults.length > 0 && (
+                      <SearchResults>
+                        {searchLiderResults.map((cabeza) => (
+                          <SearchResultItem
+                            key={cabeza.id}
+                            onClick={() => handleSelectLider(cabeza)}
+                          >
+                            {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
+                          </SearchResultItem>
+                        ))}
+                      </SearchResults>
+                    )}
+                  </div>
+                </div>
+                
+                {selectedIntegrante.lider ? (
+                  <div className="row">
+                    <div className="col-md-6 mb-2">
+                      <label className="form-label">Cabeza de Círculo Asociado</label>
+                      <SelectedLiderContainer>
+                        <SelectedBeneficiaryInput
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={`${selectedIntegrante.lider.nombre} ${selectedIntegrante.lider.apellidoPaterno} ${selectedIntegrante.lider.apellidoMaterno} - ${selectedIntegrante.lider.claveElector}`}
+                          readOnly
+                        />
+                        <RemoveLiderButton
+                          type="button"
+                          onClick={handleRemoveLider}
+                          title="Quitar selección"
                         >
-                          {`${cabeza.nombre} ${cabeza.apellidoPaterno} ${cabeza.apellidoMaterno} - ${cabeza.claveElector}`}
-                        </SearchResultItem>
-                      ))}
-                    </SearchResults>
-                  )}
-                </div>
-              </div>
-              
-              {selectedIntegrante.lider ? (
-                <div className="row">
-                  <div className="col-md-6 mb-2">
-                    <label className="form-label">Cabeza de Círculo Seleccionada</label>
-                    <SelectedLiderContainer>
-                      <SelectedBeneficiaryInput
-                        type="text"
-                        className="form-control form-control-sm"
-                        value={`${selectedIntegrante.lider.nombre} ${selectedIntegrante.lider.apellidoPaterno} ${selectedIntegrante.lider.apellidoMaterno} - ${selectedIntegrante.lider.claveElector}`}
-                        readOnly
-                      />
-                      <RemoveLiderButton
-                        type="button"
-                        onClick={handleRemoveLider}
-                        title="Quitar selección"
-                      >
-                        <i className="bi bi-x"></i>
-                      </RemoveLiderButton>
-                    </SelectedLiderContainer>
+                          <i className="bi bi-x"></i>
+                        </RemoveLiderButton>
+                      </SelectedLiderContainer>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="row">
-                  <div className="col-md-6 mb-2">
-                    <p className="text-muted small">Sin Cabeza de Círculo asignada</p>
-                  </div>
-                </div>
-              )}
+                ) : (
+                  <LeaderPlaceholder />
+                )}
+              </LeaderSection>
             </FormSection>
 
             {/* Botones de acción del formulario */}

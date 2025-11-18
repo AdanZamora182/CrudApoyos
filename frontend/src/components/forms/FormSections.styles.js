@@ -263,11 +263,114 @@ export const SelectedLiderInput = styled.input`
   color: ${theme.primaryColor};
 `;
 
-// Input de beneficiario seleccionado
+// Input de beneficiario seleccionado para desktop
 export const SelectedBeneficiaryInput = styled.input`
   background-color: #f3f6ff;
   border-left: 3px solid ${theme.primaryColor};
   font-weight: 500;
+  padding-right: 35px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+
+  /* Tablet y móviles grandes */
+  @media (max-width: 992px) {
+    font-size: 0.8125rem;
+    padding-right: 32px !important;
+  }
+
+  /* Móviles */
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    padding: 0.5rem 30px 0.5rem 0.75rem !important;
+    line-height: 1.3;
+    white-space: normal;
+    min-height: 2.5rem;
+  }
+
+  /* Móviles pequeños */
+  @media (max-width: 576px) {
+    font-size: 0.6875rem;
+    padding: 0.45rem 28px 0.45rem 0.65rem !important;
+    min-height: 3rem;
+    line-height: 1.2;
+  }
+`;
+
+// Contenedor mobile para beneficiario seleccionado
+export const MobileBeneficiaryContainer = styled.div`
+  background-color: #f3f6ff;
+  border-left: 3px solid ${theme.primaryColor};
+  font-weight: 500;
+  padding-right: 35px;
+  min-height: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  border-radius: 0.25rem;
+  padding: 0.625rem 2.5rem 0.625rem 0.75rem;
+  position: relative;
+`;
+
+// Nombre del beneficiario (línea principal)
+export const BeneficiaryName = styled.div`
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: #2c3e50;
+  font-size: 0.875rem;
+  line-height: 1.35;
+
+  @media (max-width: 576px) {
+    font-size: 0.8125rem;
+  }
+`;
+
+// Clave de elector del beneficiario
+export const BeneficiaryClaveElector = styled.div`
+  font-size: 0.8125rem;
+  color: #6c757d;
+  margin-bottom: 0.15rem;
+
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+  }
+`;
+
+// Tipo de beneficiario (Cabeza/Integrante)
+export const BeneficiaryType = styled.div`
+  font-size: 0.75rem;
+  color: #495057;
+  margin-top: 0.2rem;
+  font-weight: 400;
+
+  @media (max-width: 576px) {
+    font-size: 0.7rem;
+  }
+`;
+
+// Wrapper responsivo para beneficiario
+export const ResponsiveBeneficiaryWrapper = styled.div`
+  position: relative;
+  width: 100%;
+
+  .desktop-view {
+    display: block;
+    
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  .mobile-view {
+    display: none;
+    
+    @media (max-width: 768px) {
+      display: block;
+    }
+  }
 `;
 
 // Botón para remover líder
@@ -492,4 +595,9 @@ export default {
   ButtonContainer,
   FormActions,
   CompactAlert,
+  MobileBeneficiaryContainer,
+  BeneficiaryName,
+  BeneficiaryClaveElector,
+  BeneficiaryType,
+  ResponsiveBeneficiaryWrapper,
 };

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 // Variables de tema
 const theme = {
-  primaryColor: '#5c6bc0',
+  primaryColor: '#6978c3ff',
   primaryHover: '#4a5ba8',
   primaryActive: '#3949ab',
   secondaryColor: '#26c6da',

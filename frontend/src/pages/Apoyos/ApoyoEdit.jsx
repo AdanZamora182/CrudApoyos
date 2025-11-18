@@ -10,6 +10,20 @@ import {
   SecondaryButton,
   SearchResults,
   SearchResultItem,
+  SelectedLiderContainer,
+  SelectedBeneficiaryInput,
+  RemoveLiderButton,
+  BeneficiaryContainer,
+  EmptyBeneficiaryPlaceholder,
+  MobileBeneficiaryContainer,
+  BeneficiaryName,
+  BeneficiaryClaveElector,
+  BeneficiaryType,
+  ResponsiveBeneficiaryWrapper,
+  ColoniaDropdownContainer,
+  ColoniaDropdown,
+  ColoniaDropdownItem,
+  DropdownToggleButton,
 } from '../../components/forms/FormSections.styles';
 
 const ApoyoEdit = ({ apoyo, onClose }) => {
@@ -19,6 +33,9 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
   const [selectedNewBeneficiario, setSelectedNewBeneficiario] = useState(null);
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToaster();
+
+  // Estado para el dropdown de tipos de apoyo
+  const [showTipoApoyoDropdown, setShowTipoApoyoDropdown] = useState(false);
 
   // Opciones predefinidas de tipos de apoyo
   const predefinedOptions = [
@@ -36,7 +53,6 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
     "Frijol",
     "Ropa",
     "Calzado",
-    "Otro",
   ];
 
   // Inicializar el estado con los datos del apoyo seleccionado
@@ -46,6 +62,7 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
       setSelectedNewBeneficiario(null);
       setSearchBeneficiarioQuery("");
       setBeneficiarios([]);
+      setShowTipoApoyoDropdown(false);
     }
   }, [apoyo]);
 
@@ -151,6 +168,35 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
     updateMutation.mutate({ id: apoyoToUpdate.id, data: apoyoToUpdate });
   };
 
+  // Función para formatear el nombre completo del beneficiario para móviles
+  const formatBeneficiarioDisplay = (beneficiario, tipo) => {
+    const nombreCompleto = `${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno}`;
+    const claveElector = beneficiario.claveElector;
+    const tipoBeneficiario = tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo";
+    
+    // Para desktop: formato en una línea
+    const desktopFormat = `${nombreCompleto} - ${claveElector} (${tipoBeneficiario})`;
+    
+    // Para móvil: formato en dos líneas (simulado con salto)
+    const mobileFormat = `${nombreCompleto} - ${claveElector}\n(${tipoBeneficiario})`;
+    
+    return { desktopFormat, mobileFormat };
+  };
+
+  // Función para seleccionar un tipo de apoyo del dropdown
+  const handleTipoApoyoSelect = (tipoSeleccionado) => {
+    setSelectedApoyo(prevData => ({
+      ...prevData,
+      tipoApoyo: tipoSeleccionado
+    }));
+    setShowTipoApoyoDropdown(false);
+  };
+
+  // Función para alternar la visibilidad del dropdown de tipos de apoyo
+  const toggleTipoApoyoDropdown = () => {
+    setShowTipoApoyoDropdown(!showTipoApoyoDropdown);
+  };
+
   if (!selectedApoyo) return null;
 
   return (
@@ -183,35 +229,44 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
                 </div>
                 <div className="col-md-6 mb-2">
                   <label className="form-label">Tipo de Apoyo</label>
-                  <select
-                    className="form-select form-select-sm"
-                    value={selectedApoyo.tipoApoyo || ''}
-                    onChange={(e) => setSelectedApoyo({ ...selectedApoyo, tipoApoyo: e.target.value })}
-                    required
-                  >
-                    <option value="">Seleccione una opción</option>
-                    {predefinedOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedApoyo.tipoApoyo === "Otro" && (
-                    <div className="mt-2">
+                  <ColoniaDropdownContainer>
+                    <div className="input-group">
                       <input
                         type="text"
-                        placeholder="Especifique el tipo de apoyo"
-                        value={selectedApoyo.tipoApoyoCustom || ''}
-                        onChange={(e) => setSelectedApoyo({
-                          ...selectedApoyo,
-                          tipoApoyoCustom: e.target.value,
-                        })}
+                        name="tipoApoyo"
+                        value={selectedApoyo.tipoApoyo || ''}
+                        onChange={(e) => {
+                          setSelectedApoyo({ ...selectedApoyo, tipoApoyo: e.target.value });
+                          setShowTipoApoyoDropdown(false);
+                        }}
                         className="form-control form-control-sm"
                         autoComplete="off"
+                        placeholder="Selecciona un tipo o escribe uno nuevo"
                         required
                       />
+                      <DropdownToggleButton
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={toggleTipoApoyoDropdown}
+                        title="Mostrar tipos de apoyo disponibles"
+                      >
+                        <i className={`bi bi-chevron-${showTipoApoyoDropdown ? 'up' : 'down'}`}></i>
+                      </DropdownToggleButton>
                     </div>
-                  )}
+                    
+                    {showTipoApoyoDropdown && predefinedOptions.length > 0 && (
+                      <ColoniaDropdown>
+                        {predefinedOptions.map((tipo, index) => (
+                          <ColoniaDropdownItem
+                            key={index}
+                            onClick={() => handleTipoApoyoSelect(tipo)}
+                          >
+                            {tipo}
+                          </ColoniaDropdownItem>
+                        ))}
+                      </ColoniaDropdown>
+                    )}
+                  </ColoniaDropdownContainer>
                 </div>
               </div>
               
@@ -229,67 +284,131 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
               </div>
             </FormSection>
             
-            {/* Sección: Beneficiario Actual */}
+            {/* Sección: Beneficiario */}
             <FormSection>
-              <SectionHeading>Beneficiario Actual</SectionHeading>
-              <div className="row">
-                <div className="col-md-12 mb-2">
-                  <p className="text-muted">
-                    {selectedApoyo.persona
-                      ? `${selectedApoyo.persona.nombre} ${selectedApoyo.persona.apellidoPaterno} ${selectedApoyo.persona.apellidoMaterno} - Integrante de Círculo`
-                      : selectedApoyo.cabeza
-                        ? `${selectedApoyo.cabeza.nombre} ${selectedApoyo.cabeza.apellidoPaterno} ${selectedApoyo.cabeza.apellidoMaterno} - Cabeza de Círculo`
-                        : "No hay beneficiario asignado"}
-                  </p>
-                </div>
-              </div>
-            </FormSection>
-            
-            {/* Sección: Cambiar Beneficiario */}
-            <FormSection>
-              <SectionHeading>Cambiar Beneficiario</SectionHeading>
-              <div className="row">
-                <div className="col-md-6 mb-2">
-                  <label className="form-label">Buscar Nuevo Beneficiario</label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      placeholder="Nombre o Clave de Elector"
-                      value={searchBeneficiarioQuery}
-                      onChange={handleSearchBeneficiarios}
-                      autoComplete="off"
-                    />
-                    {beneficiarios.length > 0 && (
-                      <SearchResults>
-                        {beneficiarios.map((beneficiario) => (
-                          <SearchResultItem
-                            key={`${beneficiario.tipo}-${beneficiario.id}`}
-                            onClick={() => handleSelectNewBeneficiario(beneficiario)}
-                          >
-                            {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
-                          </SearchResultItem>
-                        ))}
-                      </SearchResults>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {selectedNewBeneficiario && (
+              <SectionHeading>Beneficiario</SectionHeading>
+              <BeneficiaryContainer>
                 <div className="row">
-                  <div className="col-md-6 mb-2">
-                    <label className="form-label">Nuevo Beneficiario Seleccionado</label>
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      value={`${selectedNewBeneficiario.nombre} ${selectedNewBeneficiario.apellidoPaterno} ${selectedNewBeneficiario.apellidoMaterno} - ${selectedNewBeneficiario.claveElector}`}
-                      readOnly
-                      style={{ backgroundColor: '#f3f6ff', borderLeft: '3px solid #5c6bc0', fontWeight: '500' }}
-                    />
+                  <div className="col-12 col-md-10 col-lg-8 mb-2">
+                    <label className="form-label">Buscar Nuevo Beneficiario</label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="Nombre o Clave de Elector"
+                        value={searchBeneficiarioQuery}
+                        onChange={handleSearchBeneficiarios}
+                        autoComplete="off"
+                      />
+                      {beneficiarios.length > 0 && (
+                        <SearchResults>
+                          {beneficiarios.map((beneficiario) => (
+                            <SearchResultItem
+                              key={`${beneficiario.tipo}-${beneficiario.id}`}
+                              onClick={() => handleSelectNewBeneficiario(beneficiario)}
+                            >
+                              <div className="d-flex flex-column">
+                                <span className="fw-medium">
+                                  {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno}`}
+                                </span>
+                                <small className="text-muted">
+                                  {`${beneficiario.claveElector} • ${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"}`}
+                                </small>
+                              </div>
+                            </SearchResultItem>
+                          ))}
+                        </SearchResults>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
+                
+                {/* Mostrar beneficiario actual o nuevo seleccionado */}
+                {(selectedNewBeneficiario || selectedApoyo.persona || selectedApoyo.cabeza) ? (
+                  <div className="row">
+                    <div className="col-12 col-md-10 col-lg-8 mb-2">
+                      <label className="form-label">
+                        {selectedNewBeneficiario ? 'Nuevo Beneficiario Seleccionado' : 'Beneficiario Actual'}
+                      </label>
+                      <SelectedLiderContainer>
+                        <ResponsiveBeneficiaryWrapper>
+                          {/* Vista para desktop */}
+                          <div className="desktop-view">
+                            <SelectedBeneficiaryInput
+                              type="text"
+                              className="form-control form-control-sm"
+                              value={
+                                selectedNewBeneficiario
+                                  ? formatBeneficiarioDisplay(selectedNewBeneficiario, selectedNewBeneficiario.tipo).desktopFormat
+                                  : selectedApoyo.persona
+                                    ? formatBeneficiarioDisplay(selectedApoyo.persona, "integrante").desktopFormat
+                                    : formatBeneficiarioDisplay(selectedApoyo.cabeza, "cabeza").desktopFormat
+                              }
+                              readOnly
+                            />
+                          </div>
+                          
+                          {/* Vista para móvil */}
+                          <div className="mobile-view">
+                            <MobileBeneficiaryContainer className="form-control form-control-sm">
+                              {selectedNewBeneficiario ? (
+                                <>
+                                  <BeneficiaryName>
+                                    {`${selectedNewBeneficiario.nombre} ${selectedNewBeneficiario.apellidoPaterno} ${selectedNewBeneficiario.apellidoMaterno}`}
+                                  </BeneficiaryName>
+                                  <BeneficiaryClaveElector>
+                                    {selectedNewBeneficiario.claveElector}
+                                  </BeneficiaryClaveElector>
+                                  <BeneficiaryType>
+                                    ({selectedNewBeneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})
+                                  </BeneficiaryType>
+                                </>
+                              ) : selectedApoyo.persona ? (
+                                <>
+                                  <BeneficiaryName>
+                                    {`${selectedApoyo.persona.nombre} ${selectedApoyo.persona.apellidoPaterno} ${selectedApoyo.persona.apellidoMaterno}`}
+                                  </BeneficiaryName>
+                                  <BeneficiaryClaveElector>
+                                    {selectedApoyo.persona.claveElector}
+                                  </BeneficiaryClaveElector>
+                                  <BeneficiaryType>
+                                    (Integrante de Círculo)
+                                  </BeneficiaryType>
+                                </>
+                              ) : (
+                                <>
+                                  <BeneficiaryName>
+                                    {`${selectedApoyo.cabeza.nombre} ${selectedApoyo.cabeza.apellidoPaterno} ${selectedApoyo.cabeza.apellidoMaterno}`}
+                                  </BeneficiaryName>
+                                  <BeneficiaryClaveElector>
+                                    {selectedApoyo.cabeza.claveElector}
+                                  </BeneficiaryClaveElector>
+                                  <BeneficiaryType>
+                                    (Cabeza de Círculo)
+                                  </BeneficiaryType>
+                                </>
+                              )}
+                            </MobileBeneficiaryContainer>
+                          </div>
+                          
+                          {selectedNewBeneficiario && (
+                            <RemoveLiderButton
+                              type="button"
+                              onClick={() => setSelectedNewBeneficiario(null)}
+                              title="Quitar selección"
+                              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }}
+                            >
+                              <i className="bi bi-x"></i>
+                            </RemoveLiderButton>
+                          )}
+                        </ResponsiveBeneficiaryWrapper>
+                      </SelectedLiderContainer>
+                    </div>
+                  </div>
+                ) : (
+                  <EmptyBeneficiaryPlaceholder />
+                )}
+              </BeneficiaryContainer>
             </FormSection>
 
             {/* Botones de acción del formulario */}
