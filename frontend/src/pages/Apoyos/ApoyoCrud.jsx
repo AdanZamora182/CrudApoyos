@@ -18,6 +18,7 @@ import {
 } from "../../api";
 import "./ApoyoForm.css";
 import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar import
+import { ExcelButton } from '../../components/buttons/ExcelButton.styles';
 
 const ApoyoCRUD = () => {
   // Estado para manejar el registro seleccionado para edición
@@ -631,25 +632,11 @@ const ApoyoCRUD = () => {
           </div>
 
           {/* Botón de exportar a Excel */}
-          <button
-            onClick={handleExportToExcel}
-            className="neumorphic-button d-flex align-items-center gap-2"
-            style={{ 
-              whiteSpace: 'nowrap',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
+          <ExcelButton onClick={handleExportToExcel}>
             <i className="bi bi-file-earmark-excel"></i>
-            <span className="d-none d-sm-inline">Exportar Excel</span>
-          </button>
+            <span>Exportar Excel</span>
+          </ExcelButton>
         </div>
-        {/* Remover el div de mensajes locales ya que ahora se usa ToasterProvider */}
       </div>
 
       {table.getFilteredRowModel().rows.length === 0 ? (
