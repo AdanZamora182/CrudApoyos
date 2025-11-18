@@ -42,7 +42,7 @@ const IntegranteCirculoPage = () => {
                 style={{ fontSize: '0.95rem', padding: '4px 12px', height: '32px', minHeight: 'unset' }}
                 onClick={() => handleTabChange("form")}
               >
-                ➕ <span className="d-none d-sm-inline">Registrar</span>
+                ✏️ <span className="d-none d-sm-inline">Registrar</span>
               </Tab>
               <Tab
                 className={activeSection === "crud" ? "active" : ""}

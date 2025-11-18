@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -62,6 +62,9 @@ function Register() {
     return null;
   }
 
+  // Agregar ref para el componente ReCAPTCHA
+  const recaptchaRef = useRef(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -78,6 +81,11 @@ function Register() {
     if (formData.password !== formData.confirmPassword) {
       showError('Las contraseñas no coinciden');
       setLoading(false);
+      // Reiniciar captcha después de error
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setCaptchaToken(null);
+      }
       return;
     }
 
@@ -108,8 +116,42 @@ function Register() {
         navigate('/login?registered=true');
       }, 1500);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Error al registrar usuario. Por favor intenta de nuevo.';
+      console.error('Error completo:', err);
+      console.error('Respuesta del servidor:', err.response);
+      
+      // Extraer el mensaje de error del backend
+      let errorMessage = 'Error al registrar usuario. Por favor intenta de nuevo.';
+      
+      if (err.response?.data) {
+        // Si el mensaje viene como string
+        if (typeof err.response.data.message === 'string') {
+          errorMessage = err.response.data.message;
+        }
+        // Si el mensaje viene como array (validaciones múltiples)
+        else if (Array.isArray(err.response.data.message)) {
+          errorMessage = err.response.data.message.join(', ');
+        }
+        // Si viene directamente en data
+        else if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        }
+        // Si hay un error específico
+        else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      }
+      // Si es un error de red
+      else if (err.message) {
+        errorMessage = `Error de conexión: ${err.message}`;
+      }
+      
       showError(errorMessage);
+      
+      // Reiniciar captcha después de error
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setCaptchaToken(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -260,6 +302,7 @@ function Register() {
 
               <FormGroup>
                 <ReCAPTCHA
+                  ref={recaptchaRef}
                   sitekey="6LfJ6xgrAAAAAH9C59xsanFRbksatVnywbT886yA"
                   onChange={handleCaptchaChange}
                 />
