@@ -11,7 +11,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   getAllIntegrantesCirculo, 
   deleteIntegranteCirculo, 
-  updateIntegranteCirculo, 
   buscarCabezasCirculo,
   exportIntegrantesCirculoToExcel
 } from "../../api";
@@ -19,25 +18,14 @@ import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar imp
 import { ExcelButton } from '../../components/buttons/ExcelButton.styles';
 import "./IntegranteCirculo.css";
 import IntegranteCirculoEdit from './IntegranteCirculoEdit';
+import IntegranteCirculoView from './IntegranteCirculoView';
 
 const IntegranteCirculoCRUD = () => {
-  // Estado para manejar el registro seleccionado para edición
   const [selectedIntegrante, setSelectedIntegrante] = useState(null);
-  
-  // Estado para el filtro global de búsqueda en la tabla
   const [globalFilter, setGlobalFilter] = useState("");
-  
-  // Reemplazar estado de mensaje local con ToasterProvider
   const { showSuccess, showError } = useToaster();
-
-  // Add these new state variables for leader search and selection
-  const [searchLiderQuery, setSearchLiderQuery] = useState("");
-  const [searchLiderResults, setSearchLiderResults] = useState([]);
-
-  // Add new state for view details modal
   const [viewDetailsIntegrante, setViewDetailsIntegrante] = useState(null);
   
-  // Hooks de TanStack Query para manejo de estado del servidor
   const queryClient = useQueryClient();
   const columnHelper = createColumnHelper();
 
@@ -64,21 +52,6 @@ const IntegranteCirculoCRUD = () => {
     onError: (error) => {
       console.error("Error deleting record:", error);
       showError("Error al eliminar el registro.");
-    },
-  });
-
-  // Mutación para actualizar un registro de integrante de círculo
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => updateIntegranteCirculo(id, data),
-    onSuccess: () => {
-      // Invalidar la consulta para refrescar los datos
-      queryClient.invalidateQueries({ queryKey: ["integrantesCirculo"] });
-      showSuccess("Registro actualizado exitosamente.");
-      setSelectedIntegrante(null); // Cerrar el modal de edición
-    },
-    onError: (error) => {
-      console.error("Error updating record:", error);
-      showError("Error al actualizar el registro.");
     },
   });
 
@@ -275,103 +248,6 @@ const IntegranteCirculoCRUD = () => {
     enableColumnResizing: false,
   });
 
-  // Input validation for specific fields
-  const handleInputChange = (e, field) => {
-    const { value } = e.target;
-    
-    // Field-specific validations
-    switch (field) {
-      case 'telefono':
-        // Only allow numbers, max 10 characters
-        if (value !== '' && (!/^\d+$/.test(value) || value.length > 10)) {
-          return;
-        }
-        break;
-      case 'codigoPostal':
-        // Only allow numbers, max 5 characters
-        if (value !== '' && (!/^\d+$/.test(value) || value.length > 5)) {
-          return;
-        }
-        break;
-      case 'noExterior':
-      case 'noInterior':
-        // Only allow numbers
-        if (value !== '' && !/^\d+$/.test(value)) {
-          return;
-        }
-        break;
-      case 'claveElector':
-        // Max 18 characters
-        if (value.length > 18) {
-          return;
-        }
-        break;
-      default:
-        break;
-    }
-
-    // Update the state
-    setSelectedIntegrante({ ...selectedIntegrante, [field]: value });
-  };
-
-  // Add this function to handle searching for Cabezas de Círculo
-  const handleSearchLider = async (e) => {
-    const query = e.target.value;
-    setSearchLiderQuery(query);
-    
-    if (query.length > 2) {
-      try {
-        const results = await buscarCabezasCirculo(query);
-        setSearchLiderResults(results);
-      } catch (error) {
-        console.error("Error al buscar cabezas de círculo:", error);
-      }
-    } else {
-      setSearchLiderResults([]);
-    }
-  };
-
-  // Add this function to handle selecting a new leader
-  const handleSelectLider = (cabeza) => {
-    setSelectedIntegrante({
-      ...selectedIntegrante,
-      lider: cabeza
-    });
-    setSearchLiderQuery("");
-    setSearchLiderResults([]);
-  };
-
-  // Add this function to handle removing a leader
-  const handleRemoveLider = () => {
-    setSelectedIntegrante({
-      ...selectedIntegrante,
-      lider: null
-    });
-  };
-
-  // Función para procesar y enviar la actualización del registro
-  const handleUpdateSubmit = async (updatedIntegrante) => {
-    // Parse numeric fields
-    const formattedIntegrante = {
-      ...updatedIntegrante,
-      telefono: updatedIntegrante.telefono ? Number.parseInt(updatedIntegrante.telefono) : null,
-      noExterior: updatedIntegrante.noExterior ? Number.parseInt(updatedIntegrante.noExterior) : null,
-      noInterior: updatedIntegrante.noInterior ? Number.parseInt(updatedIntegrante.noInterior) : null,
-      codigoPostal: updatedIntegrante.codigoPostal ? Number.parseInt(updatedIntegrante.codigoPostal) : null,
-      // Properly format the lider field - if there's a lider object, keep only its id
-      lider: updatedIntegrante.lider ? { id: updatedIntegrante.lider.id } : null
-    };
-
-    updateMutation.mutate({ id: formattedIntegrante.id, data: formattedIntegrante });
-  };
-
-  // Format date for display (YYYY-MM-DD)
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
-  };
-
   // Mostrar estado de carga
   if (isLoading) {
     return (
@@ -549,9 +425,13 @@ const IntegranteCirculoCRUD = () => {
     );
   };
 
-  // Add handler for viewing details
+  // Handler para ver detalles
   const handleViewDetails = (integrante) => {
     setViewDetailsIntegrante(integrante);
+  };
+
+  const handleCloseViewDetails = () => {
+    setViewDetailsIntegrante(null);
   };
 
   return (
@@ -652,133 +532,12 @@ const IntegranteCirculoCRUD = () => {
         />
       )}
 
-      {/* Modal de detalles (mantener como está) */}
+      {/* Modal de visualización de detalles */}
       {viewDetailsIntegrante && (
-        <div className="neumorphic-modal" onClick={() => setViewDetailsIntegrante(null)}>
-          <div className="neumorphic-modal-content large-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Detalles Completos</h3>
-              <button 
-                className="close" 
-                onClick={() => setViewDetailsIntegrante(null)}
-              >
-                <i className="bi bi-x-lg"></i>
-              </button>
-            </div>
-            
-            <div className="details-container">
-              <div className="details-section">
-                <h4 className="section-title">Información del Integrante de Círculo</h4>
-                <div className="details-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">ID:</span>
-                    <span className="detail-value">{viewDetailsIntegrante.id}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Nombre Completo:</span>
-                    <span className="detail-value">{`${viewDetailsIntegrante.nombre} ${viewDetailsIntegrante.apellidoPaterno} ${viewDetailsIntegrante.apellidoMaterno}`}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Fecha de Nacimiento:</span>
-                    <span className="detail-value">{formatDate(viewDetailsIntegrante.fechaNacimiento)}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Teléfono:</span>
-                    <span className="detail-value">{viewDetailsIntegrante.telefono}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Dirección:</span>
-                    <span className="detail-value">
-                      {`${viewDetailsIntegrante.calle} ${viewDetailsIntegrante.noExterior}${viewDetailsIntegrante.noInterior ? `, Int. ${viewDetailsIntegrante.noInterior}` : ''}, ${viewDetailsIntegrante.colonia}, C.P. ${viewDetailsIntegrante.codigoPostal}`}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Clave de Elector:</span>
-                    <span className="detail-value">{viewDetailsIntegrante.claveElector}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {viewDetailsIntegrante.lider ? (
-                <div className="details-section">
-                  <h4 className="section-title">Información del Líder (Cabeza de Círculo)</h4>
-                  <div className="details-grid">
-                    <div className="detail-item">
-                      <span className="detail-label">ID:</span>
-                      <span className="detail-value">{viewDetailsIntegrante.lider.id}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Nombre Completo:</span>
-                      <span className="detail-value">{`${viewDetailsIntegrante.lider.nombre} ${viewDetailsIntegrante.lider.apellidoPaterno} ${viewDetailsIntegrante.lider.apellidoMaterno}`}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Fecha de Nacimiento:</span>
-                      <span className="detail-value">{formatDate(viewDetailsIntegrante.lider.fechaNacimiento)}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Teléfono:</span>
-                      <span className="detail-value">{viewDetailsIntegrante.lider.telefono}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Dirección:</span>
-                      <span className="detail-value">
-                        {`${viewDetailsIntegrante.lider.calle} ${viewDetailsIntegrante.lider.noExterior}${viewDetailsIntegrante.lider.noInterior ? `, Int. ${viewDetailsIntegrante.lider.noInterior}` : ''}, ${viewDetailsIntegrante.lider.colonia}, C.P. ${viewDetailsIntegrante.lider.codigoPostal}${viewDetailsIntegrante.lider.municipio ? `, ${viewDetailsIntegrante.lider.municipio}` : ''}`}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Clave de Elector:</span>
-                      <span className="detail-value">{viewDetailsIntegrante.lider.claveElector}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Email:</span>
-                      <span className="detail-value">{viewDetailsIntegrante.lider.email || "-"}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Redes Sociales:</span>
-                      <span className="detail-value">
-                        {viewDetailsIntegrante.lider.facebook ? `Facebook: ${viewDetailsIntegrante.lider.facebook}` : ''}
-                        {viewDetailsIntegrante.lider.facebook && viewDetailsIntegrante.lider.otraRedSocial ? ' | ' : ''}
-                        {viewDetailsIntegrante.lider.otraRedSocial ? `Otra: ${viewDetailsIntegrante.lider.otraRedSocial}` : ''}
-                        {!viewDetailsIntegrante.lider.facebook && !viewDetailsIntegrante.lider.otraRedSocial ? '-' : ''}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Estructura Territorial:</span>
-                      <span className="detail-value">{viewDetailsIntegrante.lider.estructuraTerritorial || "-"}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Posición en Estructura:</span>
-                      <span className="detail-value">{viewDetailsIntegrante.lider.posicionEstructura || "-"}</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="details-section">
-                  <h4 className="section-title">Información del Líder</h4>
-                  <p className="no-leader-message">Este integrante no tiene un líder (Cabeza de Círculo) asignado.</p>
-                </div>
-              )}
-              
-              <div className="modal-footer">
-                <button 
-                  className="close modal-close-button" 
-                  onClick={() => setViewDetailsIntegrante(null)}
-                  style={{
-                    backgroundColor: 'var(--primary-color)',
-                    color: 'white',
-                    borderRadius: '6px',
-                    padding: '8px 16px',
-                    width: 'auto',
-                    height: 'auto',
-                    fontSize: '14px'
-                  }}
-                >
-                  <i className="bi bi-check-circle me-2"></i>Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <IntegranteCirculoView 
+          integrante={viewDetailsIntegrante} 
+          onClose={handleCloseViewDetails}
+        />
       )}
     </div>
   );

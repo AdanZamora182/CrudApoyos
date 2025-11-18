@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { updateIntegranteCirculo, buscarCabezasCirculo } from '../../api';
+import { buscarMunicipioPorCP, buscarColoniasPorCP } from '../../api/direccionesApi';
 import { useToaster } from '../../components/ui/ToasterProvider';
 import {
   FormSection,
@@ -13,6 +14,10 @@ import {
   SelectedLiderContainer,
   SelectedBeneficiaryInput,
   RemoveLiderButton,
+  ColoniaDropdownContainer,
+  ColoniaDropdown,
+  ColoniaDropdownItem,
+  DropdownToggleButton,
 } from '../../components/forms/FormSections.styles';
 
 const IntegranteCirculoEdit = ({ integrante, onClose }) => {
@@ -22,12 +27,40 @@ const IntegranteCirculoEdit = ({ integrante, onClose }) => {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToaster();
 
+  // Estados para el dropdown de colonias
+  const [colonias, setColonias] = useState([]);
+  const [showColoniaDropdown, setShowColoniaDropdown] = useState(false);
+
   // Inicializar el estado con los datos del integrante seleccionado
   useEffect(() => {
     if (integrante) {
       setSelectedIntegrante({ ...integrante });
+      
+      // Si ya existe un código postal de 5 dígitos, cargar las colonias
+      if (integrante.codigoPostal && String(integrante.codigoPostal).length === 5) {
+        loadColoniasByCP(String(integrante.codigoPostal));
+      }
     }
   }, [integrante]);
+
+  // Función auxiliar para cargar colonias sin afectar municipio
+  const loadColoniasByCP = async (codigoPostal) => {
+    try {
+      const coloniasData = await buscarColoniasPorCP(codigoPostal);
+      
+      if (coloniasData && coloniasData.length > 0) {
+        const sortedColonias = coloniasData.sort((a, b) => 
+          a.localeCompare(b, 'es', { sensitivity: 'base' })
+        );
+        setColonias(sortedColonias);
+      } else {
+        setColonias([]);
+      }
+    } catch (error) {
+      console.error("Error al cargar colonias iniciales:", error);
+      setColonias([]);
+    }
+  };
 
   // Mutación para actualizar un registro de integrante de círculo
   const updateMutation = useMutation({
@@ -43,6 +76,54 @@ const IntegranteCirculoEdit = ({ integrante, onClose }) => {
     },
   });
 
+  // Función para manejar el autocompletado basado en código postal
+  const handleCodigoPostalChange = async (codigoPostal) => {
+    try {
+      const [municipio, coloniasData] = await Promise.all([
+        buscarMunicipioPorCP(codigoPostal),
+        buscarColoniasPorCP(codigoPostal)
+      ]);
+      
+      if (municipio) {
+        setSelectedIntegrante(prevData => ({
+          ...prevData,
+          municipio: municipio
+        }));
+      }
+      
+      if (coloniasData && coloniasData.length > 0) {
+        const sortedColonias = coloniasData.sort((a, b) => 
+          a.localeCompare(b, 'es', { sensitivity: 'base' })
+        );
+        setColonias(sortedColonias);
+        setShowColoniaDropdown(true);
+      } else {
+        setColonias([]);
+        setShowColoniaDropdown(false);
+      }
+    } catch (error) {
+      console.error("Error al buscar datos por código postal:", error);
+      setColonias([]);
+      setShowColoniaDropdown(false);
+    }
+  };
+
+  // Función para seleccionar una colonia del dropdown
+  const handleColoniaSelect = (coloniaSeleccionada) => {
+    setSelectedIntegrante(prevData => ({
+      ...prevData,
+      colonia: coloniaSeleccionada
+    }));
+    setShowColoniaDropdown(false);
+  };
+
+  // Función para alternar la visibilidad del dropdown de colonias
+  const toggleColoniaDropdown = () => {
+    if (colonias.length > 0) {
+      setShowColoniaDropdown(!showColoniaDropdown);
+    }
+  };
+
   // Función para manejar cambios en los campos del formulario con validaciones
   const handleInputChange = (e, field) => {
     const { value } = e.target;
@@ -57,6 +138,18 @@ const IntegranteCirculoEdit = ({ integrante, onClose }) => {
       case 'codigoPostal':
         if (value !== '' && (!/^\d+$/.test(value) || value.length > 5)) {
           return;
+        }
+        // Autocompletar cuando el código postal esté completo
+        if (value.length === 5) {
+          handleCodigoPostalChange(value);
+        } else {
+          setSelectedIntegrante(prevData => ({
+            ...prevData,
+            municipio: "",
+            colonia: ""
+          }));
+          setColonias([]);
+          setShowColoniaDropdown(false);
         }
         break;
       case 'noExterior':
@@ -227,15 +320,48 @@ const IntegranteCirculoEdit = ({ integrante, onClose }) => {
                     required
                   />
                 </div>
+                
+                {/* Campo de colonia con dropdown de sugerencias */}
                 <div className="col-md-6 mb-2">
                   <label className="form-label">Colonia</label>
-                  <input
-                    type="text"
-                    className="form-control form-control-sm"
-                    value={selectedIntegrante.colonia || ''}
-                    onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, colonia: e.target.value })}
-                    required
-                  />
+                  <ColoniaDropdownContainer>
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={selectedIntegrante.colonia || ''}
+                        onChange={(e) => {
+                          setSelectedIntegrante({ ...selectedIntegrante, colonia: e.target.value });
+                          setShowColoniaDropdown(false);
+                        }}
+                        placeholder={colonias.length > 0 ? "Selecciona una colonia o escribe una nueva" : "Ingresa código postal primero"}
+                        required
+                      />
+                      {colonias.length > 0 && (
+                        <DropdownToggleButton
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm"
+                          onClick={toggleColoniaDropdown}
+                          title="Mostrar colonias disponibles"
+                        >
+                          <i className={`bi bi-chevron-${showColoniaDropdown ? 'up' : 'down'}`}></i>
+                        </DropdownToggleButton>
+                      )}
+                    </div>
+                    
+                    {showColoniaDropdown && colonias.length > 0 && (
+                      <ColoniaDropdown>
+                        {colonias.map((colonia, index) => (
+                          <ColoniaDropdownItem
+                            key={index}
+                            onClick={() => handleColoniaSelect(colonia)}
+                          >
+                            {colonia}
+                          </ColoniaDropdownItem>
+                        ))}
+                      </ColoniaDropdown>
+                    )}
+                  </ColoniaDropdownContainer>
                 </div>
               </div>
 
@@ -267,7 +393,21 @@ const IntegranteCirculoEdit = ({ integrante, onClose }) => {
                     value={selectedIntegrante.codigoPostal || ''}
                     onChange={(e) => handleInputChange(e, 'codigoPostal')}
                     maxLength="5"
+                    placeholder="Ingresa 5 dígitos"
                     required
+                  />
+                </div>
+              </div>
+              
+              <div className="row">
+                <div className="col-md-6 mb-2">
+                  <label className="form-label">Municipio</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    value={selectedIntegrante.municipio || ''}
+                    onChange={(e) => setSelectedIntegrante({ ...selectedIntegrante, municipio: e.target.value })}
+                    placeholder="Se autocompleta con el código postal"
                   />
                 </div>
               </div>

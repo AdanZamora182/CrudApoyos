@@ -11,7 +11,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   getApoyos, 
   deleteApoyo, 
-  updateApoyo, 
   buscarCabezasCirculo, 
   buscarIntegrantesCirculo,
   exportApoyosToExcel
@@ -19,23 +18,15 @@ import {
 import "./ApoyoForm.css";
 import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar import
 import { ExcelButton } from '../../components/buttons/ExcelButton.styles';
+import ApoyoEdit from './ApoyoEdit';
+import ApoyoView from './ApoyoView';
 
 const ApoyoCRUD = () => {
-  // Estado para manejar el registro seleccionado para edición
   const [selectedApoyo, setSelectedApoyo] = useState(null);
-  
-  // Estado para el filtro global de búsqueda en la tabla
   const [globalFilter, setGlobalFilter] = useState("");
-  
-  // Reemplazar estado de mensaje local con ToasterProvider
   const { showSuccess, showError } = useToaster();
-
   const [viewDetailsApoyo, setViewDetailsApoyo] = useState(null);
-  const [searchBeneficiarioQuery, setSearchBeneficiarioQuery] = useState("");
-  const [beneficiarios, setBeneficiarios] = useState([]);
-  const [selectedNewBeneficiario, setSelectedNewBeneficiario] = useState(null);
   
-  // Hooks de TanStack Query para manejo de estado del servidor
   const queryClient = useQueryClient();
   const columnHelper = createColumnHelper();
 
@@ -75,77 +66,13 @@ const ApoyoCRUD = () => {
     }
   };
 
-  // Mutación para actualizar un registro de apoyo
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => updateApoyo(id, data),
-    onSuccess: () => {
-      // Invalidar la consulta para refrescar los datos
-      queryClient.invalidateQueries({ queryKey: ["apoyos"] });
-      showSuccess("Apoyo actualizado exitosamente.");
-      setSelectedApoyo(null); // Cerrar el modal de edición
-      setSelectedNewBeneficiario(null); // Reset selected beneficiary
-    },
-    onError: (error) => {
-      console.error("Error updating apoyo:", error);
-      showError("Error al actualizar el apoyo.");
-    },
-  });
-
-  // Modified handleEdit function to reset the beneficiary search state
+  // Función para abrir el modal de edición
   const handleEdit = (apoyo) => {
     setSelectedApoyo(apoyo);
-    setSelectedNewBeneficiario(null);
-    setSearchBeneficiarioQuery("");
-    setBeneficiarios([]);
   };
 
-  // Input validation for specific fields
-  const handleInputChange = (e, field) => {
-    const { value } = e.target;
-    
-    // Field-specific validations
-    switch (field) {
-      case 'cantidad':
-        // Only allow numbers
-        if (value !== '' && !/^\d+$/.test(value)) {
-          return;
-        }
-        break;
-      default:
-        break;
-    }
-
-    // Update the state
-    setSelectedApoyo({ ...selectedApoyo, [field]: value });
-  };
-
-  // Add this handler for beneficiary search when editing
-  const handleSearchBeneficiarios = async (e) => {
-    const query = e.target.value;
-    setSearchBeneficiarioQuery(query);
-    if (query.length > 2) {
-      try {
-        const [cabezas, integrantes] = await Promise.all([
-          buscarCabezasCirculo(query),
-          buscarIntegrantesCirculo(query),
-        ]);
-        setBeneficiarios([
-          ...cabezas.map((cabeza) => ({ ...cabeza, tipo: "cabeza" })),
-          ...integrantes.map((integrante) => ({ ...integrante, tipo: "integrante" })),
-        ]);
-      } catch (error) {
-        console.error("Error al buscar beneficiarios:", error);
-      }
-    } else {
-      setBeneficiarios([]);
-    }
-  };
-
-  // Add handler for selecting a new beneficiary
-  const handleSelectNewBeneficiario = (beneficiario) => {
-    setSelectedNewBeneficiario(beneficiario);
-    setSearchBeneficiarioQuery(""); // Clear the search query
-    setBeneficiarios([]); // Clear the search results
+  const handleCloseEdit = () => {
+    setSelectedApoyo(null);
   };
 
   // Función para descargar el archivo Excel
@@ -384,57 +311,19 @@ const ApoyoCRUD = () => {
     "Otro",
   ];
 
-  // Update handleUpdateSubmit function to handle custom tipo apoyo
-  const handleUpdateSubmit = async (updatedApoyo) => {
-    // Create a copy of the updated apoyo to modify
-    const apoyoToUpdate = { ...updatedApoyo };
-    
-    // If a new beneficiary was selected, update the apoyo data
-    if (selectedNewBeneficiario) {
-      // Reset both beneficiary types first
-      apoyoToUpdate.persona = null;
-      apoyoToUpdate.cabeza = null;
-      
-      // Set the appropriate beneficiary based on type
-      if (selectedNewBeneficiario.tipo === "integrante") {
-        apoyoToUpdate.persona = { id: selectedNewBeneficiario.id };
-      } else if (selectedNewBeneficiario.tipo === "cabeza") {
-        apoyoToUpdate.cabeza = { id: selectedNewBeneficiario.id };
-      }
-    }
-
-    // Handle custom tipo apoyo if "Otro" is selected
-    if (apoyoToUpdate.tipoApoyo === "Otro" && apoyoToUpdate.tipoApoyoCustom) {
-      apoyoToUpdate.tipoApoyo = apoyoToUpdate.tipoApoyoCustom.trim();
-      delete apoyoToUpdate.tipoApoyoCustom; // Remove the custom field before sending to API
-    }
-
-    // Ensure cantidad is a number
-    if (apoyoToUpdate.cantidad) {
-      apoyoToUpdate.cantidad = parseInt(apoyoToUpdate.cantidad, 10);
-    }
-
-    updateMutation.mutate({ id: apoyoToUpdate.id, data: apoyoToUpdate });
-  };
-
-  // Format date for display (YYYY-MM-DD)
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
-  };
-
+  // Función para ver detalles de un apoyo
   const handleViewDetails = (apoyo) => {
-    // Create a copy to avoid modifying the original
     const apoyoDetails = { ...apoyo };
     
-    // For Integrantes de Circulo, fetch their associated Cabeza de Circulo
     if (apoyo.persona && apoyo.persona.lider) {
-      // The persona's lider data is already included in the API response
       apoyoDetails.lider = apoyo.persona.lider;
     }
     
     setViewDetailsApoyo(apoyoDetails);
+  };
+
+  const handleCloseViewDetails = () => {
+    setViewDetailsApoyo(null);
   };
 
   // Mostrar estado de carga
@@ -703,331 +592,20 @@ const ApoyoCRUD = () => {
         </>
       )}
 
-      {/* Edit Modal */}
+      {/* Modal de edición */}
       {selectedApoyo && (
-        <div className="neumorphic-modal">
-          <div className="neumorphic-modal-content large-modal">
-            <div className="modal-header">
-              <h3>Editar Apoyo</h3>
-              <button 
-                className="close" 
-                onClick={() => setSelectedApoyo(null)}
-              >
-                <i className="bi bi-x-lg"></i>
-              </button>
-            </div>
-            <div className="modal-body">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleUpdateSubmit(selectedApoyo);
-                }}
-                className="edit-form"
-              >
-                <div className="modal-sections">
-                  <div className="modal-section">
-                    <h4 className="section-title">Información del Apoyo</h4>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Cantidad</label>
-                        <input
-                          type="number"
-                          className="neumorphic-input"
-                          value={selectedApoyo.cantidad || ''}
-                          onChange={(e) => setSelectedApoyo({ ...selectedApoyo, cantidad: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Tipo de Apoyo</label>
-                        <select
-                          className="neumorphic-input"
-                          value={selectedApoyo.tipoApoyo || ''}
-                          onChange={(e) => setSelectedApoyo({ ...selectedApoyo, tipoApoyo: e.target.value })}
-                          required
-                        >
-                          <option value="">Seleccione una opción</option>
-                          {predefinedOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                        {selectedApoyo.tipoApoyo === "Otro" && (
-                          <div className="custom-input-container">
-                            <input
-                              type="text"
-                              placeholder="Especifique el tipo de apoyo"
-                              value={selectedApoyo.tipoApoyoCustom || ''}
-                              onChange={(e) => setSelectedApoyo({
-                                ...selectedApoyo,
-                                tipoApoyoCustom: e.target.value,
-                              })}
-                              className="custom-input"
-                              autoComplete="off"
-                              required
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Fecha de Entrega</label>
-                        <input
-                          type="date"
-                          className="neumorphic-input"
-                          value={formatDate(selectedApoyo.fechaEntrega) || ''}
-                          onChange={(e) => setSelectedApoyo({ ...selectedApoyo, fechaEntrega: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Current beneficiary information */}
-                  <div className="modal-section">
-                    <h4 className="section-title">Beneficiario Actual</h4>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <p>
-                          {selectedApoyo.persona
-                            ? `${selectedApoyo.persona.nombre} ${selectedApoyo.persona.apellidoPaterno} ${selectedApoyo.persona.apellidoMaterno} - Integrante de Círculo`
-                            : selectedApoyo.cabeza
-                              ? `${selectedApoyo.cabeza.nombre} ${selectedApoyo.cabeza.apellidoPaterno} ${selectedApoyo.cabeza.apellidoMaterno} - Cabeza de Círculo`
-                              : "No hay beneficiario asignado"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Cambiar Beneficiario section with increased height */}
-                  <div className="modal-section">
-                    <h4 className="section-title">Cambiar Beneficiario</h4>
-                    <div className="beneficiary-edit-section">
-                      <div className="form-row">
-                        <div className="form-group" style={{ position: "relative" }}>
-                          <label>Buscar Nuevo Beneficiario</label>
-                          <input
-                            type="text"
-                            className="neumorphic-input"
-                            placeholder="Nombre o Clave de Elector"
-                            value={searchBeneficiarioQuery}
-                            onChange={handleSearchBeneficiarios}
-                            autoComplete="off"
-                          />
-                          {beneficiarios.length > 0 && (
-                            <ul className="search-results">
-                              {beneficiarios.map((beneficiario) => (
-                                <li
-                                  key={`${beneficiario.tipo}-${beneficiario.id}`}
-                                  onClick={() => handleSelectNewBeneficiario(beneficiario)}
-                                  className="search-result-item"
-                                >
-                                  {`${beneficiario.nombre} ${beneficiario.apellidoPaterno} ${beneficiario.apellidoMaterno} - ${beneficiario.claveElector} (${beneficiario.tipo === "cabeza" ? "Cabeza de Círculo" : "Integrante de Círculo"})`}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="selected-beneficiary-container">
-                        {selectedNewBeneficiario && (
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Nuevo Beneficiario Seleccionado</label>
-                              <input
-                                type="text"
-                                className="neumorphic-input selected-beneficiary"
-                                value={`${selectedNewBeneficiario.nombre} ${selectedNewBeneficiario.apellidoPaterno} ${selectedNewBeneficiario.apellidoMaterno} - ${selectedNewBeneficiario.claveElector}`}
-                                readOnly
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="form-actions">
-                  <button type="button" className="neumorphic-button cancel" onClick={() => setSelectedApoyo(null)}>
-                    <i className="bi bi-x-circle me-2"></i>Cancelar
-                  </button>
-                  <button type="submit" className="neumorphic-button primary">
-                    <i className="bi bi-floppy me-2"></i>Guardar Cambios
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <ApoyoEdit 
+          apoyo={selectedApoyo} 
+          onClose={handleCloseEdit}
+        />
       )}
 
-      {/* View Details Modal */}
+      {/* Modal de visualización de detalles */}
       {viewDetailsApoyo && (
-        <div className="neumorphic-modal">
-          <div className="neumorphic-modal-content large-modal">
-            <div className="modal-header">
-              <h3>Detalles del Apoyo</h3>
-              <button 
-                className="close" 
-                onClick={() => setViewDetailsApoyo(null)}
-              >
-                <i className="bi bi-x-lg"></i>
-              </button>
-            </div>
-            
-            <div className="details-container">
-              {/* Información del Apoyo */}
-              <div className="details-section">
-                <h4>Información del Apoyo</h4>
-                <div className="details-grid wide-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">ID</span>
-                    <span className="detail-value">{viewDetailsApoyo.id}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Tipo de Apoyo</span>
-                    <span className="detail-value">{viewDetailsApoyo.tipoApoyo}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Cantidad</span>
-                    <span className="detail-value">{viewDetailsApoyo.cantidad}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Fecha de Entrega</span>
-                    <span className="detail-value">{formatDate(viewDetailsApoyo.fechaEntrega)}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Información del Beneficiario */}
-              <div className="details-section">
-                <h4>Información del Beneficiario</h4>
-                {viewDetailsApoyo.persona ? (
-                  <div className="details-grid wide-grid">
-                    <div className="detail-item">
-                      <span className="detail-label">Tipo</span>
-                      <span className="detail-value">Integrante de Círculo</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Nombre Completo</span>
-                      <span className="detail-value">
-                        {`${viewDetailsApoyo.persona.nombre} ${viewDetailsApoyo.persona.apellidoPaterno} ${viewDetailsApoyo.persona.apellidoMaterno}`}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Clave de Elector</span>
-                      <span className="detail-value">{viewDetailsApoyo.persona.claveElector}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Teléfono</span>
-                      <span className="detail-value">{viewDetailsApoyo.persona.telefono}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Dirección</span>
-                      <span className="detail-value">
-                        {`${viewDetailsApoyo.persona.calle} #${viewDetailsApoyo.persona.noExterior}
-                         ${viewDetailsApoyo.persona.noInterior ? ", Int: " + viewDetailsApoyo.persona.noInterior : ""}, 
-                         Col. ${viewDetailsApoyo.persona.colonia}, CP: ${viewDetailsApoyo.persona.codigoPostal}`}
-                      </span>
-                    </div>
-                  </div>
-                ) : viewDetailsApoyo.cabeza ? (
-                  <div className="details-grid wide-grid">
-                    <div className="detail-item">
-                      <span className="detail-label">Tipo</span>
-                      <span className="detail-value">Cabeza de Círculo</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Nombre Completo</span>
-                      <span className="detail-value">
-                        {`${viewDetailsApoyo.cabeza.nombre} ${viewDetailsApoyo.cabeza.apellidoPaterno} ${viewDetailsApoyo.cabeza.apellidoMaterno}`}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Clave de Elector</span>
-                      <span className="detail-value">{viewDetailsApoyo.cabeza.claveElector}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Teléfono</span>
-                      <span className="detail-value">{viewDetailsApoyo.cabeza.telefono}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Dirección</span>
-                      <span className="detail-value">
-                        {`${viewDetailsApoyo.cabeza.calle} #${viewDetailsApoyo.cabeza.noExterior}
-                         ${viewDetailsApoyo.cabeza.noInterior ? ", Int: " + viewDetailsApoyo.cabeza.noInterior : ""}, 
-                         Col. ${viewDetailsApoyo.cabeza.colonia}, CP: ${viewDetailsApoyo.cabeza.codigoPostal}`}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Estructura Territorial</span>
-                      <span className="detail-value">{viewDetailsApoyo.cabeza.estructuraTerritorial || "N/A"}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Posición en Estructura</span>
-                      <span className="detail-value">{viewDetailsApoyo.cabeza.posicionEstructura || "N/A"}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <p>No se encontró información del beneficiario</p>
-                )}
-              </div>
-              
-              {/* Show Cabeza de Círculo details if the beneficiary is an Integrante with a leader */}
-              {viewDetailsApoyo.persona && viewDetailsApoyo.persona.lider && (
-                <div className="details-section">
-                  <h4>Cabeza de Círculo Asociada</h4>
-                  <div className="details-grid">
-                    <div className="detail-item">
-                      <span className="detail-label">Nombre Completo</span>
-                      <span className="detail-value">
-                        {`${viewDetailsApoyo.persona.lider.nombre} ${viewDetailsApoyo.persona.lider.apellidoPaterno} ${viewDetailsApoyo.persona.lider.apellidoMaterno}`}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Clave de Elector</span>
-                      <span className="detail-value">{viewDetailsApoyo.persona.lider.claveElector}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Teléfono</span>
-                      <span className="detail-value">{viewDetailsApoyo.persona.lider.telefono}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Estructura Territorial</span>
-                      <span className="detail-value">{viewDetailsApoyo.persona.lider.estructuraTerritorial || "N/A"}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Posición en Estructura</span>
-                      <span className="detail-value">{viewDetailsApoyo.persona.lider.posicionEstructura || "N/A"}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div className="modal-footer">
-                <button 
-                  className="close modal-close-button" 
-                  onClick={() => setViewDetailsApoyo(null)}
-                  style={{
-                    backgroundColor: 'var(--primary-color)',
-                    color: 'white',
-                    borderRadius: '6px',
-                    padding: '8px 16px',
-                    width: 'auto',
-                    height: 'auto',
-                    fontSize: '14px'
-                  }}
-                >
-                  <i className="bi bi-check-circle me-2"></i>Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ApoyoView 
+          apoyo={viewDetailsApoyo} 
+          onClose={handleCloseViewDetails}
+        />
       )}
     </div>
   );
