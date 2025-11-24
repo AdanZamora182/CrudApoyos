@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete, BadRequestException, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Put, Delete, BadRequestException, Res, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { ApoyoService } from './apoyo.service';
 import { Apoyo } from './apoyo.entity';

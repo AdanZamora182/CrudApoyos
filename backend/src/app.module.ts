@@ -9,6 +9,7 @@ import { IntegranteCirculoModule } from './integrante-circulo/integrante-circulo
 import { ApoyoModule } from './apoyo/apoyo.module';
 import { DireccionesModule } from './direcciones/direcciones.module';
 import { DatabaseHealthModule } from './database/database-health.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { DatabaseHealthModule } from './database/database-health.module';
     IntegranteCirculoModule,
     ApoyoModule,
     DireccionesModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

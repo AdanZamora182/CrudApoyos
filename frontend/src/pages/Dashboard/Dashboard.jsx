@@ -1,10 +1,22 @@
 import React from "react";
+import DashboardCards from "./Cards";
+import GraphBars from "./GraphBars";
+import DashboardTables from "./Tables";
+import {
+  DashboardContainer,
+  CardsGrid
+} from '../../components/dashboard/Dashboard.styles';
 
-// Placeholder para cuando la funcionalidad está deshabilitada
-const IntegranteCirculoCRUD = () => (
-  <div style={{ padding: 20, textAlign: "center", color: "#666" }}>
-    Sección temporalmente deshabilitada
-  </div>
-);
+const Dashboard = () => {
+  return (
+    <DashboardContainer>
+      <CardsGrid>
+        <DashboardCards />
+      </CardsGrid>
+      <GraphBars />
+      <DashboardTables />
+    </DashboardContainer>
+  );
+};
 
-export default IntegranteCirculoCRUD;
+export default Dashboard;
