@@ -55,7 +55,7 @@ Frontend SPA construido con React + Vite para gestionar cabezas de círculo, int
 - useResponsive: detecta tamaño de pantalla y devuelve flags (isMobile, isTablet, isDesktop).
 - useForm / useTable: helpers mínimos para formularios y tablas (pueden delegar en componentes).
 
-## Componentes importantes (breve)
+## Componentes importantes 
 - Layout (Sidebar + Navbar + ContentBody)
 - Sidebar: navegación colapsable / overlay móvil
 - Navbar: título, toggles y user info
