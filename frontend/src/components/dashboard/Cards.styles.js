@@ -21,7 +21,7 @@ export const StyledCard = styled(Card)`
       left: 0;
       right: 0;
       height: 4px;
-      background: ${props => props.accentColor || '#2196f3'};
+      background: ${props => props.$accentColor || '#2196f3'};
       transform: scaleX(1);
       transform-origin: left;
     }
@@ -80,12 +80,12 @@ export const CardIconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.bgColor || '#e3f2fd'};
-  box-shadow: 0 4px 12px ${props => props.shadowColor || 'rgba(33, 150, 243, 0.3)'};
+  background: ${props => props.$bgColor || '#e3f2fd'};
+  box-shadow: 0 4px 12px ${props => props.$shadowColor || 'rgba(33, 150, 243, 0.3)'};
   transition: none;
 
   svg {
-    color: ${props => props.iconColor || '#2196f3'};
+    color: ${props => props.$iconColor || '#2196f3'};
     font-size: 26px;
     transition: none;
   }

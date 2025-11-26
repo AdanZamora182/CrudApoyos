@@ -88,9 +88,9 @@ export const TableIconWrapper = styled.div`
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: ${props => props.color || '#6366f1'};
+  background: ${props => props.$color || '#6366f1'};
   color: white;
-  box-shadow: 0 6px 16px ${props => props.color ? `${props.color}50` : '#6366f150'};
+  box-shadow: 0 6px 16px ${props => props.$color ? `${props.$color}50` : '#6366f150'};
   flex-shrink: 0;
   transition: none;
 

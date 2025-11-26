@@ -182,7 +182,7 @@ const GraphBars = () => {
       {/* Gráfica 1: Cantidad de Apoyos Entregados por Mes */}
       <ChartCard>
         <ChartHeader>
-          <ChartIconWrapper color="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">
+          <ChartIconWrapper $color="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">
             <Calendar size={26} />
           </ChartIconWrapper>
           <ChartTitle>Apoyos Entregados por Mes ({currentYear})</ChartTitle>
@@ -257,7 +257,7 @@ const GraphBars = () => {
       {/* Gráfica 2: Distribución de Apoyos por Tipo */}
       <ChartCard>
         <ChartHeader>
-          <ChartIconWrapper color="linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)">
+          <ChartIconWrapper $color="linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)">
             <TrendingUp size={26} />
           </ChartIconWrapper>
           <ChartTitle>Distribución por Tipo de Apoyo ({currentYear})</ChartTitle>

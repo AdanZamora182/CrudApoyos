@@ -15,12 +15,12 @@ import {
 import { getDashboardStats } from '../../api/dashboardApi';
 
 const MetricCard = ({ title, value, subtext, icon: Icon, bgColor, iconColor, shadowColor, accentColor, loading, error }) => (
-  <StyledCard accentColor={accentColor}>
+  <StyledCard $accentColor={accentColor}>
     <CardHeader>
       <div>
         <CardTitle>{title}</CardTitle>
       </div>
-      <CardIconWrapper bgColor={bgColor} iconColor={iconColor} shadowColor={shadowColor}>
+      <CardIconWrapper $bgColor={bgColor} $iconColor={iconColor} $shadowColor={shadowColor}>
         <Icon />
       </CardIconWrapper>
     </CardHeader>

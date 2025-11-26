@@ -88,9 +88,9 @@ export const ChartIconWrapper = styled.div`
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: ${props => props.color || '#3b82f6'};
+  background: ${props => props.$color || '#3b82f6'};
   color: white;
-  box-shadow: 0 6px 16px ${props => props.color ? `${props.color}50` : '#3b82f650'};
+  box-shadow: 0 6px 16px ${props => props.$color ? `${props.$color}50` : '#3b82f650'};
   flex-shrink: 0;
   transition: none;
 

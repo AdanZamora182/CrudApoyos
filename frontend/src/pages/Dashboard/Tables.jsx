@@ -174,7 +174,7 @@ const DashboardTables = () => {
       {/* Tabla 1: Top Colonias con Más Apoyos */}
       <TableCard>
         <TableHeader>
-          <TableIconWrapper color="linear-gradient(135deg, #10b981 0%, #059669 100%)">
+          <TableIconWrapper $color="linear-gradient(135deg, #10b981 0%, #059669 100%)">
             <TrendingUp size={26} />
           </TableIconWrapper>
           <TableTitle>Top 7 Colonias con Más Apoyos ({currentYear})</TableTitle>
@@ -198,7 +198,7 @@ const DashboardTables = () => {
       {/* Tabla 2: Top Colonias con Menos Apoyos */}
       <TableCard>
         <TableHeader>
-          <TableIconWrapper color="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
+          <TableIconWrapper $color="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
             <TrendingDown size={26} />
           </TableIconWrapper>
           <TableTitle>Top 7 Colonias con Menos Apoyos ({currentYear})</TableTitle>
