@@ -11,6 +11,8 @@ import { DireccionesModule } from './direcciones/direcciones.module';
 import { DatabaseHealthModule } from './database/database-health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 
+const enableMongo = (process.env.MONGO_ENABLED ?? 'true') !== 'false' && !!process.env.MONGO_URI?.trim();
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,18 +58,38 @@ import { DashboardModule } from './dashboard/dashboard.module';
         supportBigNumbers: true,
       }),
     }),
-    // Conexión a MongoDB
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        uri: config.get<string>('MONGO_URI'),
-        dbName: 'direccionesBD',
-        // Configuraciones adicionales para MongoDB
-        serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
-        socketTimeoutMS: 45000, // Timeout de socket de 45 segundos
+    // Conexión a MongoDB (solo si MONGO_URI está presente)
+    ...(enableMongo ? [
+      MongooseModule.forRootAsync({
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => {
+          const uri = config.get<string>('MONGO_URI');
+          return {
+            uri,
+            dbName: 'direccionesBD',
+            // Configuraciones de conexión
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            autoIndex: false,
+            // No dejar que errores matén el proceso; loguear y permitir desconexiones
+            connectionFactory: (connection) => {
+              connection.on('error', (err) => {
+                console.error('[Mongoose] connection error:', err?.message ?? err);
+              });
+              connection.on('disconnected', () => {
+                console.warn('[Mongoose] disconnected');
+              });
+              connection.on('connected', () => {
+                console.log('[Mongoose] connected to', uri);
+              });
+              return connection;
+            },
+          };
+        },
       }),
-    }),
+      DireccionesModule,
+    ] : []),
     // Módulo de monitoreo de salud de la base de datos
     DatabaseHealthModule,
     // Módulos de la aplicación
@@ -76,7 +98,6 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CabezaCirculoModule,
     IntegranteCirculoModule,
     ApoyoModule,
-    DireccionesModule,
     DashboardModule,
   ],
 })
