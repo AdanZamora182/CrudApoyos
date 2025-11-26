@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   useReactTable,
   getCoreRowModel,
@@ -28,10 +29,28 @@ const DashboardTables = () => {
   const currentYear = new Date().getFullYear();
   const [selectedMonthMas, setSelectedMonthMas] = useState('todos');
   const [selectedMonthMenos, setSelectedMonthMenos] = useState('todos');
-  const [dataColoniasMas, setDataColoniasMas] = useState([]);
-  const [dataColoniasMenos, setDataColoniasMenos] = useState([]);
-  const [loadingMas, setLoadingMas] = useState(true);
-  const [loadingMenos, setLoadingMenos] = useState(true);
+
+  // Query para colonias con más apoyos
+  const { data: dataColoniasMas = [], isLoading: loadingMas } = useQuery({
+    queryKey: ['topColoniasMas', currentYear, selectedMonthMas],
+    queryFn: () => {
+      const month = selectedMonthMas === 'todos' ? null : selectedMonthMas;
+      return getTopColoniasMasApoyos(currentYear, month);
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+
+  // Query para colonias con menos apoyos
+  const { data: dataColoniasMenos = [], isLoading: loadingMenos } = useQuery({
+    queryKey: ['topColoniasMenos', currentYear, selectedMonthMenos],
+    queryFn: () => {
+      const month = selectedMonthMenos === 'todos' ? null : selectedMonthMenos;
+      return getTopColoniasMenosApoyos(currentYear, month);
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
 
   const meses = [
     { value: 'todos', label: 'Todos los meses' },
@@ -80,42 +99,6 @@ const DashboardTables = () => {
       ),
     },
   ];
-
-  useEffect(() => {
-    fetchColoniasMas();
-  }, [selectedMonthMas]);
-
-  useEffect(() => {
-    fetchColoniasMenos();
-  }, [selectedMonthMenos]);
-
-  const fetchColoniasMas = async () => {
-    try {
-      setLoadingMas(true);
-      const month = selectedMonthMas === 'todos' ? null : selectedMonthMas;
-      const data = await getTopColoniasMasApoyos(currentYear, month);
-      setDataColoniasMas(data);
-    } catch (error) {
-      console.error('Error al cargar colonias con más apoyos:', error);
-      setDataColoniasMas([]);
-    } finally {
-      setLoadingMas(false);
-    }
-  };
-
-  const fetchColoniasMenos = async () => {
-    try {
-      setLoadingMenos(true);
-      const month = selectedMonthMenos === 'todos' ? null : selectedMonthMenos;
-      const data = await getTopColoniasMenosApoyos(currentYear, month);
-      setDataColoniasMenos(data);
-    } catch (error) {
-      console.error('Error al cargar colonias con menos apoyos:', error);
-      setDataColoniasMenos([]);
-    } finally {
-      setLoadingMenos(false);
-    }
-  };
 
   const tableMas = useReactTable({
     data: dataColoniasMas,

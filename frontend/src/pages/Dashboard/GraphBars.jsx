@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { Box, FormControl, InputLabel, Select, MenuItem, Chip } from '@mui/material';
 import { Calendar, TrendingUp } from 'lucide-react';
@@ -15,10 +16,26 @@ import {
 
 const GraphBars = () => {
   const currentYear = new Date().getFullYear();
-  const [apoyosPorMes, setApoyosPorMes] = useState([]);
-  const [apoyosPorTipo, setApoyosPorTipo] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState('todos');
-  const [loading, setLoading] = useState(true);
+
+  // Query para apoyos por mes
+  const { data: apoyosPorMes = [], isLoading: loadingMes } = useQuery({
+    queryKey: ['apoyosByMonth', currentYear],
+    queryFn: () => getApoyosByMonth(currentYear),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+
+  // Query para apoyos por tipo (con filtro de mes)
+  const { data: apoyosPorTipo = [], isLoading: loadingTipo } = useQuery({
+    queryKey: ['apoyosByType', currentYear, selectedMonth],
+    queryFn: () => {
+      const month = selectedMonth === 'todos' ? null : selectedMonth;
+      return getApoyosByType(currentYear, month);
+    },
+    staleTime: 3 * 60 * 1000,
+    retry: 2,
+  });
 
   // Gradientes modernos para las gráficas
   const coloresMeses = [
@@ -45,36 +62,6 @@ const GraphBars = () => {
     { value: 11, label: 'Noviembre' },
     { value: 12, label: 'Diciembre' },
   ];
-
-  useEffect(() => {
-    fetchApoyosPorMes();
-  }, []);
-
-  useEffect(() => {
-    fetchApoyosPorTipo();
-  }, [selectedMonth]);
-
-  const fetchApoyosPorMes = async () => {
-    try {
-      const data = await getApoyosByMonth(currentYear);
-      setApoyosPorMes(data);
-    } catch (error) {
-      console.error('Error al cargar apoyos por mes:', error);
-    }
-  };
-
-  const fetchApoyosPorTipo = async () => {
-    try {
-      setLoading(true);
-      const month = selectedMonth === 'todos' ? null : selectedMonth;
-      const data = await getApoyosByType(currentYear, month);
-      setApoyosPorTipo(data);
-    } catch (error) {
-      console.error('Error al cargar apoyos por tipo:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
@@ -201,50 +188,69 @@ const GraphBars = () => {
           <ChartTitle>Apoyos Entregados por Mes ({currentYear})</ChartTitle>
         </ChartHeader>
         <ChartContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={apoyosPorMes}
-              margin={{ top: 30, right: 30, left: 20, bottom: 70 }}
-            >
-              <defs>
-                {coloresMeses.map((color, index) => (
-                  <linearGradient key={index} id={`gradient${index}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.9} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0.6} />
-                  </linearGradient>
-                ))}
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
-              <XAxis
-                dataKey="mes"
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
-                axisLine={{ stroke: '#cbd5e1' }}
+          {loadingMes ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+              <Box
+                sx={{
+                  width: 50,
+                  height: 50,
+                  border: '4px solid #e2e8f0',
+                  borderTop: '4px solid #6366f1',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  '@keyframes spin': {
+                    '0%': { transform: 'rotate(0deg)' },
+                    '100%': { transform: 'rotate(360deg)' },
+                  },
+                }}
               />
-              <YAxis
-                tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
-                axisLine={{ stroke: '#cbd5e1' }}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }} />
-              <Legend
-                wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 600 }}
-                iconType="circle"
-              />
-              <Bar
-                dataKey="cantidad"
-                name="Cantidad de Apoyos"
-                radius={[0, 0, 0, 0]}
-                maxBarSize={60}
+            </Box>
+          ) : (
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={apoyosPorMes}
+                margin={{ top: 30, right: 30, left: 20, bottom: 70 }}
               >
-                <LabelList dataKey="cantidad" content={renderCustomLabel} />
-                {apoyosPorMes.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={`url(#gradient${index % coloresMeses.length})`} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                <defs>
+                  {coloresMeses.map((color, index) => (
+                    <linearGradient key={index} id={`gradient${index}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+                      <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                <XAxis
+                  dataKey="mes"
+                  angle={-45}
+                  textAnchor="end"
+                  height={40}
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  axisLine={{ stroke: '#cbd5e1' }}
+                />
+                <YAxis
+                  tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                  axisLine={{ stroke: '#cbd5e1' }}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }} />
+                <Legend
+                  wrapperStyle={{ paddingTop: '20px', fontSize: '14px', fontWeight: 600 }}
+                  iconType="circle"
+                />
+                <Bar
+                  dataKey="cantidad"
+                  name="Cantidad de Apoyos"
+                  radius={[0, 0, 0, 0]}
+                  maxBarSize={60}
+                >
+                  <LabelList dataKey="cantidad" content={renderCustomLabel} />
+                  {apoyosPorMes.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`url(#gradient${index % coloresMeses.length})`} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </ChartContent>
       </ChartCard>
 
@@ -275,7 +281,7 @@ const GraphBars = () => {
           </FormControl>
         </FilterContainer>
         <ChartContent>
-          {loading ? (
+          {loadingTipo ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
               <Box
                 sx={{
@@ -303,14 +309,7 @@ const GraphBars = () => {
                 gap: 2,
               }}
             >
-              <Box
-                sx={{
-                  fontSize: 48,
-                  opacity: 0.3,
-                }}
-              >
-                📊
-              </Box>
+              <Box sx={{ fontSize: 48, opacity: 0.3 }}>📊</Box>
               <p style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 500 }}>
                 No hay datos disponibles para el período seleccionado
               </p>
