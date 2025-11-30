@@ -37,6 +37,7 @@ function Login() {
   
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,10 +93,18 @@ function Login() {
       const response = await iniciarSesion({
         usuario: formData.username,
         contraseña: formData.password,
+        rememberMe: rememberMe,
       });
 
-      if (response.usuario) {
-        login(response.usuario);
+      if (response.usuario && response.accessToken) {
+        // Guardar tokens y datos del usuario
+        const tokenData = {
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+          expiresIn: response.expiresIn,
+        };
+        
+        login(response.usuario, tokenData, rememberMe);
         showSuccess('Inicio de sesión exitoso. Redirigiendo...', 3000);
         setTimeout(() => {
           navigate('/menu');
@@ -181,7 +190,12 @@ function Login() {
 
               <RememberMe>
                 <CheckboxLabel>
-                  <input type="checkbox" name="remember" />
+                  <input 
+                    type="checkbox" 
+                    name="remember" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   Recordar sesión
                 </CheckboxLabel>
               </RememberMe>

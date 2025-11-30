@@ -1,21 +1,39 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { Usuario } from './usuario.entity';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
+// Interface para el payload del JWT
+export interface JwtPayload {
+  sub: number;
+  usuario: string;
+  nombre: string;
+  apellidos: string;
+}
+
+// Interface para la respuesta del login
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken?: string;
+  usuario: Omit<Usuario, 'contraseña' | 'codigoUusuario'>;
+  expiresIn: number;
+}
+
 // Servicio que contiene la lógica de negocio para la gestión de usuarios
 @Injectable()
 export class UsuarioService {
-  // Inyección de dependencias: repositorio de usuario, servicio HTTP y configuración
+  // Inyección de dependencias: repositorio de usuario, servicio HTTP, JWT y configuración
   constructor(
     @InjectRepository(Usuario)
     private usuarioRepo: Repository<Usuario>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   // Método privado para validar el token de reCAPTCHA con Google
@@ -73,7 +91,7 @@ export class UsuarioService {
   }
 
   // Método para autenticar usuarios durante el inicio de sesión
-  async login(usuario: string, contraseña: string): Promise<Usuario | null> {
+  async login(usuario: string, contraseña: string, rememberMe: boolean = false): Promise<LoginResponse | null> {
     // Buscar el usuario por nombre de usuario
     const user = await this.usuarioRepo.findOneBy({ usuario });
     if (!user) return null;
@@ -82,6 +100,87 @@ export class UsuarioService {
     const isMatch = await bcrypt.compare(contraseña, user.contraseña);
     if (!isMatch) return null;
 
-    return user;
+    // Crear payload para el token JWT
+    const payload: JwtPayload = {
+      sub: user.id,
+      usuario: user.usuario,
+      nombre: user.nombre,
+      apellidos: user.apellidos,
+    };
+
+    // Determinar tiempo de expiración según "recordar sesión"
+    // Si rememberMe es true: 30 días, si no: 24 horas
+    const expiresIn = rememberMe ? '30d' : '24h';
+    const expiresInSeconds = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+
+    // Generar access token
+    const accessToken = this.jwtService.sign(payload, { expiresIn });
+
+    // Generar refresh token (válido por 60 días si rememberMe, 7 días si no)
+    const refreshExpiresIn = rememberMe ? '60d' : '7d';
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id, type: 'refresh' },
+      { expiresIn: refreshExpiresIn }
+    );
+
+    // Retornar respuesta sin datos sensibles
+    const { contraseña: _, codigoUusuario: __, ...usuarioSeguro } = user;
+
+    return {
+      accessToken,
+      refreshToken,
+      usuario: usuarioSeguro,
+      expiresIn: expiresInSeconds,
+    };
+  }
+
+  // Método para refrescar el access token usando el refresh token
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number } | null> {
+    try {
+      // Verificar y decodificar el refresh token
+      const decoded = this.jwtService.verify(refreshToken);
+      
+      if (decoded.type !== 'refresh') {
+        throw new UnauthorizedException('Token inválido');
+      }
+
+      // Buscar el usuario
+      const user = await this.usuarioRepo.findOneBy({ id: decoded.sub });
+      if (!user) {
+        throw new UnauthorizedException('Usuario no encontrado');
+      }
+
+      // Crear nuevo access token
+      const payload: JwtPayload = {
+        sub: user.id,
+        usuario: user.usuario,
+        nombre: user.nombre,
+        apellidos: user.apellidos,
+      };
+
+      const accessToken = this.jwtService.sign(payload, { expiresIn: '24h' });
+
+      return {
+        accessToken,
+        expiresIn: 24 * 60 * 60,
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Método para validar un token y obtener el usuario
+  async validateToken(token: string): Promise<Omit<Usuario, 'contraseña' | 'codigoUusuario'> | null> {
+    try {
+      const decoded = this.jwtService.verify(token);
+      const user = await this.usuarioRepo.findOneBy({ id: decoded.sub });
+      
+      if (!user) return null;
+
+      const { contraseña: _, codigoUusuario: __, ...usuarioSeguro } = user;
+      return usuarioSeguro;
+    } catch (error) {
+      return null;
+    }
   }
 }

@@ -59,6 +59,8 @@ const AppRouter = () => {
           </PrivateRoute>
         } 
       >
+        {/* Redirigir la ruta raíz "/" a "/menu" */}
+        <Route index element={<Navigate to="/menu" replace />} />
         <Route path="menu" element={<></>} />
         <Route path="cabezas-circulo" element={<CabezasCirculoPage />} />
         <Route path="integrantes-circulo" element={<IntegranteCirculoPage />} />

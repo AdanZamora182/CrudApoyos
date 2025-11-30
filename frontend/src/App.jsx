@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToasterProvider } from './components/ui/ToasterProvider';
 import AppRouter from './router/AppRouter';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 /**
  * Componente principal de la aplicación
@@ -24,6 +25,7 @@ function App() {
           </AuthProvider>
         </ToasterProvider>
       </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </Router>
   );
 }
