@@ -9,39 +9,37 @@ const api = axios.create({
   timeout: 10000, // 10 segundos de timeout
 });
 
-// Función para obtener el token del storage apropiado
+// Función para obtener el token del localStorage
 const getToken = () => {
-  const rememberMe = localStorage.getItem('rememberMe') === 'true';
-  const storage = rememberMe ? localStorage : sessionStorage;
-  return storage.getItem('accessToken');
+  return localStorage.getItem('accessToken');
 };
 
 // Función para obtener el refresh token
 const getRefreshToken = () => {
-  const rememberMe = localStorage.getItem('rememberMe') === 'true';
-  const storage = rememberMe ? localStorage : sessionStorage;
-  return storage.getItem('refreshToken');
+  return localStorage.getItem('refreshToken');
 };
 
 // Función para guardar el nuevo access token
 const saveAccessToken = (token, expiresIn) => {
-  const rememberMe = localStorage.getItem('rememberMe') === 'true';
-  const storage = rememberMe ? localStorage : sessionStorage;
-  storage.setItem('accessToken', token);
+  localStorage.setItem('accessToken', token);
   
   if (expiresIn) {
     const expiryTime = Date.now() + (expiresIn * 1000);
-    storage.setItem('tokenExpiry', expiryTime.toString());
+    localStorage.setItem('tokenExpiry', expiryTime.toString());
   }
 };
 
 // Función para limpiar los datos de autenticación
 const clearAuthData = () => {
-  const keys = ['accessToken', 'refreshToken', 'user', 'rememberMe', 'tokenExpiry'];
+  const keys = ['accessToken', 'refreshToken', 'user', 'rememberMe', 'tokenExpiry', 'session_id'];
   keys.forEach(key => {
     localStorage.removeItem(key);
-    sessionStorage.removeItem(key);
   });
+  // Disparar evento de logout para sincronizar otras pestañas
+  localStorage.setItem('logout_event', Date.now().toString());
+  setTimeout(() => {
+    localStorage.removeItem('logout_event');
+  }, 100);
 };
 
 // Variable para evitar múltiples intentos de refresh simultáneos
