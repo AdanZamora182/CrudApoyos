@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 
 // Variables de tema
 const theme = {
@@ -13,6 +13,138 @@ const theme = {
   shadowLight: '#ffffff',
   shadowDark: '#d1d9e6',
 };
+
+// Estilos globales para formularios (reemplaza los CSS externos)
+export const FormGlobalStyles = createGlobalStyle`
+  /* Estilos para labels de formulario */
+  .form-label,
+  label.form-label {
+    display: block;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  /* Estilos para inputs con efecto de focus morado */
+  .form-control-sm:focus,
+  input.form-control-sm:focus,
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  input[type="email"]:focus,
+  input[type="number"]:focus {
+    border-color: ${theme.primaryColor} !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2) !important;
+  }
+
+  /* Estilos específicos para inputs en formularios */
+  .container form input:focus,
+  .container form select:focus,
+  .container form textarea:focus {
+    border-color: ${theme.primaryColor};
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2);
+  }
+
+  /* Efecto de hover para inputs */
+  .form-control:hover:not(:focus),
+  .form-control-sm:hover:not(:focus) {
+    border-color: rgba(92, 107, 192, 0.4);
+  }
+
+  /* Input group container */
+  .input-group {
+    display: flex;
+    align-items: stretch;
+    height: 33.5px;
+  }
+
+  /* Input dentro de input-group */
+  .input-group .form-control {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    height: 33.5px !important;
+    min-height: 33.5px !important;
+    max-height: 33.5px !important;
+    line-height: 1.5;
+    padding: 6px 8px;
+    border-right: none;
+    border-color: #dee2e6;
+  }
+
+  /* Input solo (sin botón) dentro de input-group */
+  .input-group .form-control:only-child,
+  .input-group > input:only-child {
+    border-right: 1px solid #dee2e6 !important;
+    border-top-right-radius: 0.375rem !important;
+    border-bottom-right-radius: 0.375rem !important;
+  }
+
+  /* Cuando hay un botón presente, ajustar los bordes del input */
+  .input-group:has(.btn) > .form-control {
+    border-right: none;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+
+  /* Botón del input-group (dropdown de colonias) */
+  .input-group .btn-outline-secondary {
+    border-color: #dee2e6;
+    color: #6c757d;
+    height: 33.5px !important;
+    min-height: 33.5px !important;
+    max-height: 33.5px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-width: 1px;
+    border-style: solid;
+    font-size: 13px;
+    border-radius: 0 0.375rem 0.375rem 0;
+    transition: all 0.15s ease-in-out;
+    border-left: 1px solid #e0e0e0;
+    outline: none !important;
+    box-shadow: none !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+
+  .input-group .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .input-group .btn-outline-secondary:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #dee2e6 !important;
+    background-color: #fff !important;
+    color: #6c757d !important;
+  }
+
+  .input-group .btn-outline-secondary:active {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Botón dentro de input-group */
+  .input-group .btn {
+    height: 33.5px !important;
+    min-height: 33.5px !important;
+    max-height: 33.5px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: none;
+  }
+`;
 
 // Contenedor principal del formulario
 export const FormContainer = styled.div`
@@ -566,6 +698,7 @@ export const CompactAlert = styled.div`
 `;
 
 export default {
+  FormGlobalStyles,
   FormContainer,
   FormSection,
   SectionHeading,

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { createIntegranteCirculo, buscarCabezasCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
 import {
+  FormGlobalStyles,
   FormContainer,
   FormSection,
   SectionHeading,
@@ -323,6 +324,9 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
 
   return (
     <FormContainer className={`container mt-3 mb-4`}>
+      {/* Estilos globales para el formulario */}
+      <FormGlobalStyles />
+      
       {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">

@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { createCabezaCirculo } from "../../api/cabezasApi";
 import { buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api/direccionesApi";
 import {
+  FormGlobalStyles,
   FormContainer,
   FormSection,
   SectionHeading,
@@ -291,6 +292,9 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
 
   return (
     <FormContainer className={`container mt-3`}>
+      {/* Estilos globales para el formulario */}
+      <FormGlobalStyles />
+      
       {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">

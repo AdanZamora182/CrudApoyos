@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
 import {
+  FormGlobalStyles,
   FormContainer,
   FormSection,
   SectionHeading,
-  FormRow,
-  FormCol,
   ColoniaDropdown,
   ColoniaDropdownItem,
   DropdownToggleButton,
@@ -20,7 +19,7 @@ import {
   RemoveBeneficiaryButton,
   EmptyBeneficiaryPlaceholder,
   ErrorText,
-  FormActions,
+  ButtonContainer,
   PrimaryButton,
   SecondaryButton,
   CompactAlert
@@ -268,6 +267,9 @@ const ApoyoForm = ({ hideHeader = false }) => {
 
   return (
     <FormContainer className={`container mt-3`}>
+      {/* Estilos globales para el formulario */}
+      <FormGlobalStyles />
+      
       {/* Mostrar encabezado si no está oculto */}
       {!hideHeaderState && (
         <div className="mb-4">
@@ -435,14 +437,14 @@ const ApoyoForm = ({ hideHeader = false }) => {
         </FormSection>
 
         {/* Botones de acción del formulario */}
-        <FormActions>
+        <ButtonContainer>
           <SecondaryButton type="button" onClick={handleReset}>
             Limpiar
           </SecondaryButton>
           <PrimaryButton type="submit" disabled={loading}>
             {loading ? "Registrando..." : "Registrar"}
           </PrimaryButton>
-        </FormActions>
+        </ButtonContainer>
       </form>
     </FormContainer>
   );
