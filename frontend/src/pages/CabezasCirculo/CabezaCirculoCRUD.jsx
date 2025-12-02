@@ -10,10 +10,37 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import { getAllCabezasCirculo, deleteCabezaCirculo, updateCabezaCirculo, exportCabezasCirculoToExcel } from "../../api";
-import "./CabezaCirculo.css";
-import { useToaster } from "../../components/ui/ToasterProvider"; // Agregar import
+import { useToaster } from "../../components/ui/ToasterProvider";
 import CabezaCirculoEdit from './CabezaCirculoEdit';
 import { ExcelButton } from '../../components/buttons/ExcelButton.styles';
+
+// Styled components para tabla
+import {
+  CrudContainer,
+  CrudControls,
+  TableContainer,
+  Table,
+  ActionColumn,
+  LoaderContainer,
+  Loader,
+  EmptyState,
+  EmptyIcon,
+} from '../../components/tables/Table.styles';
+import { EditButton, DeleteButton } from '../../components/tables/ActionButtons.styles';
+import { SearchContainer, SearchInput, SearchIcon } from '../../components/tables/SearchBar.styles';
+import {
+  PaginationContainer,
+  PaginationTopRow,
+  PageSizeSelector,
+  PageSizeSelect,
+  PaginationInfo,
+  PageInfo,
+  PaginationControls as PaginationControlsWrapper,
+  PaginationButton,
+  PageNumbers,
+  PageNumber,
+  PageEllipsis,
+} from '../../components/tables/Pagination.styles';
 
 const CabezaCirculoCRUD = () => {
   // Estado para manejar el registro seleccionado para edición
@@ -183,25 +210,27 @@ const CabezaCirculoCRUD = () => {
         id: "actions",
         header: "Acciones",
         cell: (props) => (
-          <div className="action-column">
-            <button 
-              className="action-button edit" 
+          <ActionColumn>
+            <EditButton 
               onClick={() => handleEdit(props.row.original)}
               title="Editar"
             >
               <i className="bi bi-pencil-square"></i>
-            </button>
-            <button 
-              className="action-button delete" 
+            </EditButton>
+            <DeleteButton 
               onClick={() => handleDelete(props.row.original.id)}
               title="Eliminar"
             >
               <i className="bi bi-trash3"></i>
-            </button>
-          </div>
+            </DeleteButton>
+          </ActionColumn>
         ),
         enableGlobalFilter: false,
         enableSorting: false,
+        meta: {
+          headerClassName: "fixed-column",
+          cellClassName: "fixed-column",
+        },
       }),
     ],
     [columnHelper]
@@ -293,24 +322,24 @@ const CabezaCirculoCRUD = () => {
   // Mostrar estado de carga
   if (isLoading) {
     return (
-      <div className="neumorphic-crud-container">
-        <div className="neumorphic-loader-container">
-          <div className="neumorphic-loader"></div>
+      <CrudContainer>
+        <LoaderContainer>
+          <Loader />
           <p>Cargando datos...</p>
-        </div>
-      </div>
+        </LoaderContainer>
+      </CrudContainer>
     );
   }
 
   // Mostrar estado de error
   if (isError) {
     return (
-      <div className="neumorphic-crud-container">
-        <div className="neumorphic-empty-state">
-          <span className="empty-icon">⚠️</span>
+      <CrudContainer>
+        <EmptyState>
+          <EmptyIcon>⚠️</EmptyIcon>
           <p>Error al cargar los datos: {error?.message}</p>
-        </div>
-      </div>
+        </EmptyState>
+      </CrudContainer>
     );
   }
 
@@ -349,170 +378,158 @@ const CabezaCirculoCRUD = () => {
     const endRow = Math.min((currentPage + 1) * pageSize, totalRows);
     
     return (
-      <div className="tanstack-pagination-container">
+      <PaginationContainer>
         {/* Fila superior con selector de registros por página */}
-        <div className="pagination-top-row">
-          <div className="page-size-selector-top">
+        <PaginationTopRow>
+          <PageSizeSelector>
             <label htmlFor="pageSize">Registros por página:</label>
-            <select
+            <PageSizeSelect
               id="pageSize"
               value={pageSize}
               onChange={(e) => table.setPageSize(Number(e.target.value))}
-              className="page-size-select"
             >
               {[5, 10, 12, 15, 20, 25, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
               ))}
-            </select>
-          </div>
-        </div>
+            </PageSizeSelect>
+          </PageSizeSelector>
+        </PaginationTopRow>
 
         {/* Información de paginación centrada */}
-        <div className="pagination-info">
+        <PaginationInfo>
           Mostrando {startRow}-{endRow} de {totalRows} registros
           {totalRows > 0 && (
-            <span className="page-info">
+            <PageInfo>
               {" "}(Página {currentPage + 1} de {totalPages})
-            </span>
+            </PageInfo>
           )}
-        </div>
+        </PaginationInfo>
 
         {/* Controles de navegación de páginas */}
-        <div className="pagination-controls">
+        <PaginationControlsWrapper>
           {/* Botón para ir a la primera página */}
-          <button
+          <PaginationButton
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
-            className="pagination-button"
             title="Primera página"
           >
             <i className="bi bi-chevron-double-left"></i>
-          </button>
+          </PaginationButton>
 
           {/* Botón para página anterior */}
-          <button
+          <PaginationButton
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="pagination-button"
             title="Página anterior"
           >
             <i className="bi bi-chevron-left"></i>
-          </button>
+          </PaginationButton>
 
           {/* Números de página */}
-          <div className="page-numbers">
+          <PageNumbers>
             {/* Mostrar primera página si no está en el rango visible */}
             {getVisiblePageNumbers()[0] > 0 && (
               <>
-                <button 
+                <PageNumber 
                   onClick={() => table.setPageIndex(0)}
-                  className="page-number"
                 >
                   1
-                </button>
+                </PageNumber>
                 {getVisiblePageNumbers()[0] > 1 && (
-                  <span className="page-ellipsis">...</span>
+                  <PageEllipsis>...</PageEllipsis>
                 )}
               </>
             )}
 
             {/* Números de página visibles */}
             {getVisiblePageNumbers().map((pageIndex) => (
-              <button
+              <PageNumber
                 key={pageIndex}
                 onClick={() => table.setPageIndex(pageIndex)}
-                className={`page-number ${currentPage === pageIndex ? 'active' : ''}`}
+                className={currentPage === pageIndex ? 'active' : ''}
               >
                 {pageIndex + 1}
-              </button>
+              </PageNumber>
             ))}
 
             {/* Mostrar última página si no está en el rango visible */}
             {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 1 && (
               <>
                 {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 2 && (
-                  <span className="page-ellipsis">...</span>
+                  <PageEllipsis>...</PageEllipsis>
                 )}
-                <button 
+                <PageNumber 
                   onClick={() => table.setPageIndex(totalPages - 1)}
-                  className="page-number"
                 >
                   {totalPages}
-                </button>
+                </PageNumber>
               </>
             )}
-          </div>
+          </PageNumbers>
 
           {/* Botón para página siguiente */}
-          <button
+          <PaginationButton
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="pagination-button"
             title="Página siguiente"
           >
             <i className="bi bi-chevron-right"></i>
-          </button>
+          </PaginationButton>
 
           {/* Botón para ir a la última página */}
-          <button
+          <PaginationButton
             onClick={() => table.setPageIndex(totalPages - 1)}
             disabled={!table.getCanNextPage()}
-            className="pagination-button"
             title="Última página"
           >
             <i className="bi bi-chevron-double-right"></i>
-          </button>
-        </div>
-      </div>
+          </PaginationButton>
+        </PaginationControlsWrapper>
+      </PaginationContainer>
     );
   };
 
   return (
-    <div className="neumorphic-crud-container">
+    <CrudContainer>
       {/* Barra de controles con búsqueda */}
-      <div className="neumorphic-controls">
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 w-100">
-          <div className="neumorphic-search w-100 w-md-50 position-relative">
-            <input
-              type="text"
-              placeholder="Buscar por Nombre o Clave de Elector..."
-              value={globalFilter ?? ""}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="neumorphic-input search-input w-100 pe-5"
-            />
-            <span className="search-icon position-absolute end-0 top-50 translate-middle-y me-2">
-              <i className="bi bi-search"></i>
-            </span>
-          </div>
+      <CrudControls>
+        <SearchContainer>
+          <SearchInput
+            type="text"
+            placeholder="Buscar por Nombre o Clave de Elector..."
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+          />
+          <SearchIcon className="bi bi-search" />
+        </SearchContainer>
 
-          {/* Botón de exportar a Excel */}
-          <ExcelButton onClick={handleExportToExcel}>
-            <i className="bi bi-file-earmark-excel"></i>
-            <span>Exportar Excel</span>
-          </ExcelButton>
-        </div>
-      </div>
+        {/* Botón de exportar a Excel */}
+        <ExcelButton onClick={handleExportToExcel}>
+          <i className="bi bi-file-earmark-excel"></i>
+          <span>Exportar Excel</span>
+        </ExcelButton>
+      </CrudControls>
 
       {/* Mostrar tabla o estado vacío */}
       {table.getFilteredRowModel().rows.length === 0 ? (
-        <div className="neumorphic-empty-state">
-          <span className="empty-icon">🔍</span>
+        <EmptyState>
+          <EmptyIcon>🔍</EmptyIcon>
           <p>No se encontraron registros que coincidan con su búsqueda</p>
-        </div>
+        </EmptyState>
       ) : (
         <>
           {/* Tabla con datos */}
-          <div className="neumorphic-table-container">
-            <table className="neumorphic-table">
+          <TableContainer>
+            <Table>
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className={header.id === "actions" ? "fixed-column" : ""}
+                        className={header.column.columnDef.meta?.headerClassName || ''}
                         style={{ cursor: header.column.getCanSort() ? "pointer" : "default" }}
                         onClick={header.column.getToggleSortingHandler()}
                       >
@@ -544,7 +561,7 @@ const CabezaCirculoCRUD = () => {
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className={cell.column.id === "actions" ? "fixed-column" : ""}
+                        className={cell.column.columnDef.meta?.cellClassName || ''}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -552,8 +569,8 @@ const CabezaCirculoCRUD = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </Table>
+          </TableContainer>
 
           {/* Controles de paginación */}
           <PaginationControls />
@@ -567,7 +584,7 @@ const CabezaCirculoCRUD = () => {
           onClose={handleCloseEdit}
         />
       )}
-    </div>
+    </CrudContainer>
   );
 };
 
