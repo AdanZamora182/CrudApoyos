@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { updateApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from '../../api';
 import { useToaster } from '../../components/ui/ToasterProvider';
 import {
+  FormGlobalStyles,
   FormSection,
   SectionHeading,
   PrimaryButton,
@@ -25,6 +26,14 @@ import {
   ColoniaDropdownItem,
   DropdownToggleButton,
 } from '../../components/forms/FormSections.styles';
+import {
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalContentWrapper,
+  ModalButtonContainer,
+} from '../../components/forms/EditForm.styles';
 
 const ApoyoEdit = ({ apoyo, onClose }) => {
   const [selectedApoyo, setSelectedApoyo] = useState(null);
@@ -200,18 +209,21 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
   if (!selectedApoyo) return null;
 
   return (
-    <div className="neumorphic-modal">
-      <div className="neumorphic-modal-content large-modal">
+    <ModalOverlay>
+      <ModalContent className="large-modal">
+        {/* Estilos globales para el formulario */}
+        <FormGlobalStyles />
+        
         {/* Cabecera del modal */}
-        <div className="modal-header">
+        <ModalHeader>
           <h3>Editar Apoyo</h3>
-          <button className="close" onClick={onClose}>
+          <ModalCloseButton onClick={onClose}>
             <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
+          </ModalCloseButton>
+        </ModalHeader>
         
         {/* Contenido del modal con formulario de edición */}
-        <div className="modal-content-wrapper">
+        <ModalContentWrapper>
           <form onSubmit={handleUpdateSubmit}>
             {/* Sección: Información del Apoyo */}
             <FormSection>
@@ -412,7 +424,7 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
             </FormSection>
 
             {/* Botones de acción del formulario */}
-            <div className="d-flex justify-content-end gap-2 mt-3 mb-2">
+            <ModalButtonContainer>
               <SecondaryButton type="button" onClick={onClose}>
                 <i className="bi bi-x-circle me-2"></i>Cancelar
               </SecondaryButton>
@@ -423,11 +435,11 @@ const ApoyoEdit = ({ apoyo, onClose }) => {
                 <i className="bi bi-floppy me-2"></i>
                 {updateMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
               </PrimaryButton>
-            </div>
+            </ModalButtonContainer>
           </form>
-        </div>
-      </div>
-    </div>
+        </ModalContentWrapper>
+      </ModalContent>
+    </ModalOverlay>
   );
 };
 

@@ -5,6 +5,7 @@ import { updateCabezaCirculo } from '../../api/cabezasApi';
 import { buscarMunicipioPorCP, buscarColoniasPorCP } from '../../api/direccionesApi';
 import { useToaster } from '../../components/ui/ToasterProvider';
 import {
+  FormGlobalStyles,
   FormSection,
   SectionHeading,
   ColoniaDropdownContainer,
@@ -14,6 +15,14 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from '../../components/forms/FormSections.styles';
+import {
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalContentWrapper,
+  ModalButtonContainer,
+} from '../../components/forms/EditForm.styles';
 
 
 const CabezaCirculoEdit = ({ cabeza, onClose }) => {
@@ -190,18 +199,21 @@ const CabezaCirculoEdit = ({ cabeza, onClose }) => {
   if (!selectedCabeza) return null;
 
   return (
-    <div className="neumorphic-modal">
-      <div className="neumorphic-modal-content large-modal">
+    <ModalOverlay>
+      <ModalContent className="large-modal">
+        {/* Estilos globales para el formulario */}
+        <FormGlobalStyles />
+        
         {/* Cabecera del modal */}
-        <div className="modal-header">
+        <ModalHeader>
           <h3>Editar Registro</h3>
-          <button className="close" onClick={onClose}>
+          <ModalCloseButton onClick={onClose}>
             <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
+          </ModalCloseButton>
+        </ModalHeader>
         
         {/* Contenido del modal con formulario de edición */}
-        <div className="modal-content-wrapper">
+        <ModalContentWrapper>
           <form onSubmit={handleUpdateSubmit}>
             {/* Sección: Información Personal */}
             <FormSection>
@@ -448,7 +460,7 @@ const CabezaCirculoEdit = ({ cabeza, onClose }) => {
             </FormSection>
 
             {/* Botones de acción del formulario */}
-            <div className="d-flex justify-content-end gap-2 mt-3 mb-2">
+            <ModalButtonContainer>
               <SecondaryButton type="button" onClick={onClose}>
                 <i className="bi bi-x-circle me-2"></i>Cancelar
               </SecondaryButton>
@@ -459,11 +471,11 @@ const CabezaCirculoEdit = ({ cabeza, onClose }) => {
                 <i className="bi bi-floppy me-2"></i>
                 {updateMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
               </PrimaryButton>
-            </div>
+            </ModalButtonContainer>
           </form>
-        </div>
-      </div>
-    </div>
+        </ModalContentWrapper>
+      </ModalContent>
+    </ModalOverlay>
   );
 };
 
