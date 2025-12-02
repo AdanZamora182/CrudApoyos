@@ -1,5 +1,19 @@
 import React from 'react';
-import './ApoyoForm.css';
+import {
+  ViewModalOverlay,
+  ViewModalContent,
+  ViewModalHeader,
+  ViewModalCloseButton,
+  DetailsContainer,
+  DetailsSection,
+  SectionTitle,
+  DetailsGrid,
+  DetailItem,
+  DetailLabel,
+  DetailValue,
+  ViewModalFooter,
+  CloseButton,
+} from '../../components/view/RegisterView.styles';
 
 const ApoyoView = ({ apoyo, onClose }) => {
   // Función para formatear fechas en formato YYYY-MM-DD
@@ -12,168 +26,150 @@ const ApoyoView = ({ apoyo, onClose }) => {
   if (!apoyo) return null;
 
   return (
-    <div className="neumorphic-modal">
-      <div className="neumorphic-modal-content large-modal">
-        <div className="modal-header">
+    <ViewModalOverlay onClick={onClose}>
+      <ViewModalContent className="large-modal" onClick={(e) => e.stopPropagation()}>
+        <ViewModalHeader>
           <h3>Detalles del Apoyo</h3>
-          <button 
-            className="close" 
-            onClick={onClose}
-          >
+          <ViewModalCloseButton onClick={onClose}>
             <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
+          </ViewModalCloseButton>
+        </ViewModalHeader>
         
-        <div className="details-container">
+        <DetailsContainer>
           {/* Información del Apoyo */}
-          <div className="details-section">
-            <h4>Información del Apoyo</h4>
-            <div className="details-grid wide-grid">
-              <div className="detail-item">
-                <span className="detail-label">ID</span>
-                <span className="detail-value">{apoyo.id}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Tipo de Apoyo</span>
-                <span className="detail-value">{apoyo.tipoApoyo}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Cantidad</span>
-                <span className="detail-value">{apoyo.cantidad}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Fecha de Entrega</span>
-                <span className="detail-value">{formatDate(apoyo.fechaEntrega)}</span>
-              </div>
-            </div>
-          </div>
+          <DetailsSection>
+            <SectionTitle>Información del Apoyo</SectionTitle>
+            <DetailsGrid className="wide-grid">
+              <DetailItem>
+                <DetailLabel>ID</DetailLabel>
+                <DetailValue>{apoyo.id}</DetailValue>
+              </DetailItem>
+              <DetailItem>
+                <DetailLabel>Tipo de Apoyo</DetailLabel>
+                <DetailValue>{apoyo.tipoApoyo}</DetailValue>
+              </DetailItem>
+              <DetailItem>
+                <DetailLabel>Cantidad</DetailLabel>
+                <DetailValue>{apoyo.cantidad}</DetailValue>
+              </DetailItem>
+              <DetailItem>
+                <DetailLabel>Fecha de Entrega</DetailLabel>
+                <DetailValue>{formatDate(apoyo.fechaEntrega)}</DetailValue>
+              </DetailItem>
+            </DetailsGrid>
+          </DetailsSection>
           
           {/* Información del Beneficiario */}
-          <div className="details-section">
-            <h4>Información del Beneficiario</h4>
+          <DetailsSection>
+            <SectionTitle>Información del Beneficiario</SectionTitle>
             {apoyo.persona ? (
-              <div className="details-grid wide-grid">
-                <div className="detail-item">
-                  <span className="detail-label">Tipo</span>
-                  <span className="detail-value">Integrante de Círculo</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Nombre Completo</span>
-                  <span className="detail-value">
+              <DetailsGrid className="wide-grid">
+                <DetailItem>
+                  <DetailLabel>Tipo</DetailLabel>
+                  <DetailValue>Integrante de Círculo</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Nombre Completo</DetailLabel>
+                  <DetailValue>
                     {`${apoyo.persona.nombre} ${apoyo.persona.apellidoPaterno} ${apoyo.persona.apellidoMaterno}`}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Clave de Elector</span>
-                  <span className="detail-value">{apoyo.persona.claveElector}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Teléfono</span>
-                  <span className="detail-value">{apoyo.persona.telefono}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Dirección</span>
-                  <span className="detail-value">
-                    {`${apoyo.persona.calle} #${apoyo.persona.noExterior}
-                     ${apoyo.persona.noInterior ? ", Int: " + apoyo.persona.noInterior : ""}, 
-                     Col. ${apoyo.persona.colonia}, CP: ${apoyo.persona.codigoPostal}`}
-                  </span>
-                </div>
-              </div>
+                  </DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Clave de Elector</DetailLabel>
+                  <DetailValue>{apoyo.persona.claveElector}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Teléfono</DetailLabel>
+                  <DetailValue>{apoyo.persona.telefono}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Dirección</DetailLabel>
+                  <DetailValue>
+                    {`${apoyo.persona.calle} #${apoyo.persona.noExterior}${apoyo.persona.noInterior ? ", Int: " + apoyo.persona.noInterior : ""}, Col. ${apoyo.persona.colonia}, CP: ${apoyo.persona.codigoPostal}`}
+                  </DetailValue>
+                </DetailItem>
+              </DetailsGrid>
             ) : apoyo.cabeza ? (
-              <div className="details-grid wide-grid">
-                <div className="detail-item">
-                  <span className="detail-label">Tipo</span>
-                  <span className="detail-value">Cabeza de Círculo</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Nombre Completo</span>
-                  <span className="detail-value">
+              <DetailsGrid className="wide-grid">
+                <DetailItem>
+                  <DetailLabel>Tipo</DetailLabel>
+                  <DetailValue>Cabeza de Círculo</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Nombre Completo</DetailLabel>
+                  <DetailValue>
                     {`${apoyo.cabeza.nombre} ${apoyo.cabeza.apellidoPaterno} ${apoyo.cabeza.apellidoMaterno}`}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Clave de Elector</span>
-                  <span className="detail-value">{apoyo.cabeza.claveElector}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Teléfono</span>
-                  <span className="detail-value">{apoyo.cabeza.telefono}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Dirección</span>
-                  <span className="detail-value">
-                    {`${apoyo.cabeza.calle} #${apoyo.cabeza.noExterior}
-                     ${apoyo.cabeza.noInterior ? ", Int: " + apoyo.cabeza.noInterior : ""}, 
-                     Col. ${apoyo.cabeza.colonia}, CP: ${apoyo.cabeza.codigoPostal}`}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Estructura Territorial</span>
-                  <span className="detail-value">{apoyo.cabeza.estructuraTerritorial || "N/A"}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Posición en Estructura</span>
-                  <span className="detail-value">{apoyo.cabeza.posicionEstructura || "N/A"}</span>
-                </div>
-              </div>
+                  </DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Clave de Elector</DetailLabel>
+                  <DetailValue>{apoyo.cabeza.claveElector}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Teléfono</DetailLabel>
+                  <DetailValue>{apoyo.cabeza.telefono}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Dirección</DetailLabel>
+                  <DetailValue>
+                    {`${apoyo.cabeza.calle} #${apoyo.cabeza.noExterior}${apoyo.cabeza.noInterior ? ", Int: " + apoyo.cabeza.noInterior : ""}, Col. ${apoyo.cabeza.colonia}, CP: ${apoyo.cabeza.codigoPostal}`}
+                  </DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Estructura Territorial</DetailLabel>
+                  <DetailValue>{apoyo.cabeza.estructuraTerritorial || "N/A"}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Posición en Estructura</DetailLabel>
+                  <DetailValue>{apoyo.cabeza.posicionEstructura || "N/A"}</DetailValue>
+                </DetailItem>
+              </DetailsGrid>
             ) : (
               <p>No se encontró información del beneficiario</p>
             )}
-          </div>
+          </DetailsSection>
           
           {/* Mostrar Cabeza de Círculo si el beneficiario es un Integrante con líder */}
           {apoyo.persona && apoyo.persona.lider && (
-            <div className="details-section">
-              <h4>Cabeza de Círculo Asociada</h4>
-              <div className="details-grid">
-                <div className="detail-item">
-                  <span className="detail-label">Nombre Completo</span>
-                  <span className="detail-value">
+            <DetailsSection>
+              <SectionTitle>Cabeza de Círculo Asociada</SectionTitle>
+              <DetailsGrid>
+                <DetailItem>
+                  <DetailLabel>Nombre Completo</DetailLabel>
+                  <DetailValue>
                     {`${apoyo.persona.lider.nombre} ${apoyo.persona.lider.apellidoPaterno} ${apoyo.persona.lider.apellidoMaterno}`}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Clave de Elector</span>
-                  <span className="detail-value">{apoyo.persona.lider.claveElector}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Teléfono</span>
-                  <span className="detail-value">{apoyo.persona.lider.telefono}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Estructura Territorial</span>
-                  <span className="detail-value">{apoyo.persona.lider.estructuraTerritorial || "N/A"}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Posición en Estructura</span>
-                  <span className="detail-value">{apoyo.persona.lider.posicionEstructura || "N/A"}</span>
-                </div>
-              </div>
-            </div>
+                  </DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Clave de Elector</DetailLabel>
+                  <DetailValue>{apoyo.persona.lider.claveElector}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Teléfono</DetailLabel>
+                  <DetailValue>{apoyo.persona.lider.telefono}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Estructura Territorial</DetailLabel>
+                  <DetailValue>{apoyo.persona.lider.estructuraTerritorial || "N/A"}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Posición en Estructura</DetailLabel>
+                  <DetailValue>{apoyo.persona.lider.posicionEstructura || "N/A"}</DetailValue>
+                </DetailItem>
+              </DetailsGrid>
+            </DetailsSection>
           )}
           
           {/* Footer del modal con botón de cerrar */}
-          <div className="modal-footer">
-            <button 
-              className="close modal-close-button" 
-              onClick={onClose}
-              style={{
-                backgroundColor: 'var(--primary-color)',
-                color: 'white',
-                borderRadius: '6px',
-                padding: '8px 16px',
-                width: 'auto',
-                height: 'auto',
-                fontSize: '14px'
-              }}
-            >
-              <i className="bi bi-check-circle me-2"></i>Cerrar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+          <ViewModalFooter>
+            <CloseButton onClick={onClose}>
+              <i className="bi bi-check-circle"></i>
+              Cerrar
+            </CloseButton>
+          </ViewModalFooter>
+        </DetailsContainer>
+      </ViewModalContent>
+    </ViewModalOverlay>
   );
 };
 
