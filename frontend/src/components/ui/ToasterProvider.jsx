@@ -1,333 +1,252 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiX } from 'react-icons/fi';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { breakpoints, devices } from '../../styles/breakpoints';
 
 // Contexto para el toaster
 const ToasterContext = createContext();
 
-// Animaciones minimalistas
-const slideIn = keyframes`
+// Animaciones
+const apertura = keyframes`
   from {
-    transform: translateX(100%);
+    transform: translateY(-100px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 `;
 
-const slideOut = keyframes`
+const cierre = keyframes`
   from {
     transform: translateX(0);
-    opacity: 1;
   }
   to {
-    transform: translateX(100%);
-    opacity: 0;
+    transform: translateX(calc(100% + 40px));
   }
 `;
 
-// Contenedor principal con breakpoints correctos
+const autoCierreAnimation = keyframes`
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+`;
+
+// Contenedor principal usando clases de Bootstrap
 const ToasterContainer = styled.div.attrs({
-  className: 'position-fixed top-0 end-0 p-3'
+  className: 'toast-container position-fixed top-0 end-0 p-3'
 })`
   z-index: 9999;
-  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 360px;
   pointer-events: none;
 
-  /* Extra Small - Móviles muy pequeños */
   @media ${devices.maxXs} {
-    left: 0.5rem;
-    right: 0.5rem;
-    max-width: 100%;
+    left: 10px;
+    right: 10px;
+    max-width: calc(100% - 20px);
     padding: 0.5rem !important;
-    top: 0.5rem;
   }
 
-  /* Small - Móviles */
   @media ${devices.maxSm} {
-    left: 0.75rem;
-    right: 0.75rem;
-    max-width: 100%;
-    padding: 0.75rem !important;
-  }
-
-  /* Tablet pequeña */
-  @media ${devices.tablet} {
-    max-width: 360px;
-    padding: 1rem !important;
-  }
-
-  /* Desktop pequeño */
-  @media (min-width: ${breakpoints.md}) and (max-width: ${breakpoints.lg}) {
-    max-width: 380px;
-  }
-
-  /* Desktop grande */
-  @media ${devices.desktop} {
-    max-width: 420px;
+    max-width: 320px;
   }
 `;
 
-// Toast con diseño responsivo mejorado y ajuste automático de ancho
-const Toast = styled.div.attrs({
-  className: 'd-flex align-items-center shadow-sm mb-2'
-})`
-  animation: ${props => props.$isClosing ? slideOut : slideIn} 0.3s ease forwards;
-  pointer-events: auto;
-  background: ${props => props.$variant === 'success' 
-    ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)' 
-    : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)'};
-  border-radius: 0.5rem;
-  padding: 0.875rem 1rem;
-  border-left: 3px solid ${props => props.$variant === 'success' ? '#10b981' : '#ef4444'};
-  transition: box-shadow 0.2s ease;
-  position: relative;
-  will-change: transform, opacity;
-  width: fit-content;
-  max-width: 100%;
+// Toast wrapper con colores según variante - tamaño reducido
+const ToastWrapper = styled.div`
+  background: ${(props) => props.$bgColor};
+  display: flex;
+  justify-content: space-between;
+  border-radius: 8px;
   overflow: hidden;
-  min-height: 52px;
+  animation: ${apertura} 200ms ease-out;
+  position: relative;
+  pointer-events: auto;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  &.cerrando {
+    animation: ${cierre} 200ms ease-out forwards;
   }
 
-  /* Extra Small - Móviles muy pequeños */
-  @media ${devices.maxXs} {
-    padding: 0.625rem 0.75rem;
-    border-radius: 0.375rem;
-    margin-bottom: 0.5rem !important;
-    min-height: 44px;
-    border-left-width: 2px;
+  &::after {
+    content: "";
     width: 100%;
-    max-width: 100%;
-  }
-
-  /* Small - Móviles */
-  @media ${devices.maxSm} {
-    padding: 0.75rem 0.875rem;
-    border-radius: 0.4375rem;
-    margin-bottom: 0.625rem !important;
-    min-height: 48px;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Tablet */
-  @media ${devices.tablet} {
-    padding: 0.875rem 1rem;
-    border-radius: 0.5rem;
-    width: fit-content;
-    max-width: 100%;
-  }
-
-  /* Desktop */
-  @media ${devices.desktop} {
-    padding: 0.875rem 1rem;
-    width: fit-content;
-    max-width: 100%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    bottom: 0;
+    animation: ${autoCierreAnimation} ${(props) => props.$duration || 5}s ease-out forwards;
   }
 `;
 
-// Icono con tamaños responsivos
-const ToastIcon = styled.span.attrs({
-  className: 'me-2'
-})`
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  display: flex;
+// Contenido del toast - más compacto
+const ToastContent = styled.div`
+  display: grid;
+  grid-template-columns: 24px auto;
   align-items: center;
-  color: ${props => props.$variant === 'success' ? '#059669' : '#dc2626'};
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-  margin-right: 0.75rem;
+  gap: 10px;
+  flex: 1;
+  padding: 0.65rem 0.75rem;
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-
-  /* Extra Small */
   @media ${devices.maxXs} {
-    font-size: 1rem;
-    margin-right: 0.5rem;
-
-    svg {
-      width: 1rem;
-      height: 1rem;
-    }
-  }
-
-  /* Small */
-  @media ${devices.maxSm} {
-    font-size: 1.125rem;
-    margin-right: 0.625rem;
-
-    svg {
-      width: 1.125rem;
-      height: 1.125rem;
-    }
-  }
-
-  /* Tablet */
-  @media ${devices.tablet} {
-    font-size: 1.1875rem;
-    margin-right: 0.6875rem;
-  }
-
-  /* Desktop */
-  @media ${devices.desktop} {
-    font-size: 1.25rem;
-    margin-right: 0.75rem;
+    gap: 8px;
+    padding: 0.5rem 0.65rem;
   }
 `;
 
-// Mensaje con tipografía responsiva y mejor manejo de espacios
-const ToastMessage = styled.span.attrs({
-  className: 'flex-grow-1'
-})`
-  font-weight: 500;
-  line-height: 1.5;
-  color: ${props => props.$variant === 'success' ? '#065f46' : '#991b1b'};
-  font-size: 0.9375rem;
-  word-break: break-word;
-  padding-right: 0.5rem;
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  min-width: 0;
-
-  /* Extra Small */
-  @media ${devices.maxXs} {
-    font-size: 0.8125rem;
-    line-height: 1.35;
-    padding-right: 0.375rem;
-    font-weight: 480;
-  }
-
-  /* Small */
-  @media ${devices.maxSm} {
-    font-size: 0.8125rem;
-    line-height: 1.4;
-    padding-right: 0.4375rem;
-  }
-
-  /* Tablet */
-  @media ${devices.tablet} {
-    font-size: 0.875rem;
-    line-height: 1.45;
-    padding-right: 0.5rem;
-  }
-
-  /* Desktop */
-  @media ${devices.desktop} {
-    font-size: 0.9375rem;
-    line-height: 1.5;
-  }
-
-  /* Desktop grande */
-  @media ${devices.xl} {
-    font-size: 1rem;
-  }
-`;
-
-// Botón de cerrar responsivo
-const CloseButton = styled.button.attrs({
-  type: 'button',
-  className: 'btn-close-custom'
-})`
-  background: none;
-  border: none;
-  padding: 0.25rem;
-  width: 1.375rem;
-  height: 1.375rem;
-  flex-shrink: 0;
+// Wrapper del icono - más pequeño
+const IconWrapper = styled.div`
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.$variant === 'success' ? '#059669' : '#dc2626'};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 0.25rem;
-  opacity: 0.7;
-  margin-left: 0.5rem;
-
-  &:hover {
-    opacity: 1;
-    background-color: ${props => props.$variant === 'success' 
-      ? 'rgba(5, 150, 105, 0.1)' 
-      : 'rgba(220, 38, 38, 0.1)'};
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px ${props => props.$variant === 'success'
-      ? 'rgba(5, 150, 105, 0.2)'
-      : 'rgba(220, 38, 38, 0.2)'};
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
 
   svg {
-    width: 1rem;
-    height: 1rem;
+    width: 20px;
+    height: 20px;
   }
 
-  /* Extra Small */
   @media ${devices.maxXs} {
-    width: 1.125rem;
-    height: 1.125rem;
-    padding: 0.125rem;
-    margin-left: 0.375rem;
+    font-size: 18px;
     
     svg {
-      width: 0.8125rem;
-      height: 0.8125rem;
-    }
-  }
-
-  /* Small */
-  @media ${devices.maxSm} {
-    width: 1.25rem;
-    height: 1.25rem;
-    padding: 0.1875rem;
-    margin-left: 0.4375rem;
-    
-    svg {
-      width: 0.875rem;
-      height: 0.875rem;
-    }
-  }
-
-  /* Tablet */
-  @media ${devices.tablet} {
-    width: 1.3125rem;
-    height: 1.3125rem;
-    margin-left: 0.5rem;
-    
-    svg {
-      width: 0.9375rem;
-      height: 0.9375rem;
-    }
-  }
-
-  /* Desktop */
-  @media ${devices.desktop} {
-    width: 1.375rem;
-    height: 1.375rem;
-
-    svg {
-      width: 1rem;
-      height: 1rem;
+      width: 18px;
+      height: 18px;
     }
   }
 `;
+
+// Contenido de texto
+const TextContent = styled.div`
+  color: #fff;
+`;
+
+// Título del toast - más pequeño
+const ToastTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 2px;
+  font-size: 0.9rem;
+
+  @media ${devices.maxXs} {
+    font-size: 0.85rem;
+    margin-bottom: 1px;
+  }
+`;
+
+// Mensaje del toast - más pequeño
+const ToastMessage = styled.div`
+  line-height: 1.3;
+  opacity: 0.95;
+  font-size: 0.8rem;
+
+  @media ${devices.maxXs} {
+    font-size: 0.75rem;
+  }
+`;
+
+// Botón de cerrar - más compacto
+const CloseButton = styled.button`
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  @media ${devices.maxXs} {
+    padding: 0 0.5rem;
+  }
+`;
+
+// Icono de cerrar - más pequeño
+const CloseIcon = styled.div`
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+// Configuración de tipos de toast
+const toastConfig = {
+  success: {
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+      </svg>
+    ),
+    bgColor: "#3ab65c",
+    title: "¡Éxito!",
+  },
+  warning: {
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+      </svg>
+    ),
+    bgColor: "#bc8c12",
+    title: "Advertencia",
+  },
+  error: {
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
+      </svg>
+    ),
+    bgColor: "#bf333b",
+    title: "Error",
+  },
+  info: {
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+      </svg>
+    ),
+    bgColor: "#1898c0",
+    title: "Información",
+  },
+};
 
 // Hook para usar el toaster
 export const useToaster = () => {
@@ -509,33 +428,36 @@ export const ToasterProvider = ({ children }) => {
     <ToasterContext.Provider value={value}>
       {children}
       <ToasterContainer>
-        {toasts.map((toast) => (
-          <Toast 
-            key={toast.id}
-            $variant={toast.variant}
-            $isClosing={toast.isClosing}
-            role="alert"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <ToastIcon $variant={toast.variant}>
-              {toast.variant === 'success' ? 
-                <FiCheckCircle /> : 
-                <FiAlertCircle />
-              }
-            </ToastIcon>
-            <ToastMessage $variant={toast.variant}>
-              {toast.message}
-            </ToastMessage>
-            <CloseButton 
-              onClick={() => removeToast(toast.id)}
-              $variant={toast.variant}
-              aria-label="Cerrar notificación"
+        {toasts.map((toast) => {
+          const config = toastConfig[toast.variant] || toastConfig.error;
+          const durationInSeconds = 8; // Duración en segundos para la barra de progreso
+          
+          return (
+            <ToastWrapper
+              key={toast.id}
+              $bgColor={config.bgColor}
+              $duration={durationInSeconds}
+              className={toast.isClosing ? 'cerrando' : ''}
+              role="alert"
+              aria-live="polite"
+              aria-atomic="true"
             >
-              <FiX />
-            </CloseButton>
-          </Toast>
-        ))}
+              <ToastContent>
+                <IconWrapper>{config.icon}</IconWrapper>
+                <TextContent>
+                  <ToastTitle>{config.title}</ToastTitle>
+                  <ToastMessage>{toast.message}</ToastMessage>
+                </TextContent>
+              </ToastContent>
+              <CloseButton 
+                onClick={() => removeToast(toast.id)}
+                aria-label="Cerrar notificación"
+              >
+                <CloseIcon>×</CloseIcon>
+              </CloseButton>
+            </ToastWrapper>
+          );
+        })}
       </ToasterContainer>
     </ToasterContext.Provider>
   );
