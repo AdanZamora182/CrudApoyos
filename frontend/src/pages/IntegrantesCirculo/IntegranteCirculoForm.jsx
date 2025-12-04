@@ -122,6 +122,13 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
           municipio: municipio,
           colonia: "" // Limpiar colonia cuando cambia el código postal
         }));
+        
+        // Limpiar errores de municipio y código postal al autocompletar
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          municipio: null,
+          codigoPostal: null
+        }));
       }
       
       // Actualizar lista de colonias si se encuentran
@@ -148,6 +155,14 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       colonia: coloniaSeleccionada
     }));
     setShowColoniaDropdown(false);
+    
+    // Limpiar error del campo colonia si existe
+    if (errors.colonia) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        colonia: null
+      }));
+    }
   };
 
   // Función para alternar la visibilidad del dropdown de colonias
