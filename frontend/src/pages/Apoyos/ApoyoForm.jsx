@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
+import { useToaster } from "../../components/ui/ToasterProvider";
 import {
   FormGlobalStyles,
   FormContainer,
@@ -21,12 +22,12 @@ import {
   ErrorText,
   ButtonContainer,
   PrimaryButton,
-  SecondaryButton,
-  CompactAlert
+  SecondaryButton
 } from '../../components/forms/FormSections.styles';
 
 const ApoyoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToaster();
 
   // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
@@ -40,7 +41,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
   // Estados del componente para manejo del formulario
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [beneficiarios, setBeneficiarios] = useState([]);
@@ -197,18 +197,11 @@ const ApoyoForm = ({ hideHeader = false }) => {
 
     // Validar formulario antes de enviar
     if (!validateForm()) {
-      setMessage({
-        type: "error",
-        text: "Por favor, complete todos los campos obligatorios.",
-      });
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 7000);
+      showWarning("Por favor, complete todos los campos obligatorios.");
       return;
     }
 
     setLoading(true);
-    setMessage({ type: "", text: "" });
 
     try {
       // Preparar datos para enviar al backend
@@ -225,31 +218,20 @@ const ApoyoForm = ({ hideHeader = false }) => {
       // Enviar datos al backend
       await createApoyo(apoyoData);
 
-      // Mostrar mensaje de éxito
-      setMessage({
-        type: "success",
-        text: "Apoyo registrado exitosamente.",
-      });
+      // Mostrar toast de éxito
+      showSuccess("Apoyo registrado exitosamente.");
 
       // Limpiar formulario después del éxito
       setFormData(initialFormState);
       setErrors({});
       setSelectedBeneficiario(null);
       setSearchQuery("");
-
-      // Limpiar mensaje de éxito después de 8 segundos
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 8000);
     } catch (error) {
       console.error("Error al registrar apoyo:", error);
       
       // Manejar errores del backend
       const backendErrorMessage = error.response?.data?.message || "Error al registrar apoyo. Verifique los datos e inténtelo de nuevo.";
-      setMessage({
-        type: "error",
-        text: backendErrorMessage,
-      });
+      showError(backendErrorMessage);
     } finally {
       setLoading(false);
     }
@@ -259,7 +241,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
   const handleReset = () => {
     setFormData(initialFormState);
     setErrors({});
-    setMessage({ type: "", text: "" });
     setSelectedBeneficiario(null);
     setSearchQuery("");
     setShowTipoApoyoDropdown(false);
@@ -275,22 +256,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
         <div className="mb-4">
           <h1 className="h4 text-primary">Registro de Apoyo</h1>
         </div>
-      )}
-
-      {/* Mostrar mensajes al usuario */}
-      {message.text && (
-        message.text === "Por favor, complete todos los campos obligatorios." ? (
-          <CompactAlert>
-            <small>
-              <i className="fas fa-exclamation-circle me-2 alert-icon"></i>
-              {message.text}
-            </small>
-          </CompactAlert>
-        ) : (
-          <div className={`alert alert-${message.type === "success" ? "success" : "danger"} mb-3`}>
-            {message.text}
-          </div>
-        )
       )}
 
       {/* Formulario principal */}

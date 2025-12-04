@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { createIntegranteCirculo, buscarCabezasCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
+import { useToaster } from "../../components/ui/ToasterProvider";
 import {
   FormGlobalStyles,
   FormContainer,
@@ -20,12 +21,12 @@ import {
   RemoveLiderButton,
   PrimaryButton,
   SecondaryButton,
-  ButtonContainer,
-  CompactAlert
+  ButtonContainer
 } from '../../components/forms/FormSections.styles';
 
 const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToaster();
   
   // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
@@ -47,7 +48,6 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   // Estados del componente para manejo del formulario
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
   const [cabezasCirculo, setCabezasCirculo] = useState([]);
   const [selectedLider, setSelectedLider] = useState(null);
@@ -243,18 +243,11 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
 
     // Validar formulario antes de enviar
     if (!validateForm()) {
-      setMessage({
-        type: "error",
-        text: "Por favor, complete correctamente todos los campos obligatorios.",
-      });
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 7000);
+      showWarning("Por favor, complete correctamente todos los campos obligatorios.");
       return;
     }
 
     setLoading(true);
-    setMessage({ type: "", text: "" });
 
     try {
       // Preparar datos para enviar al backend
@@ -279,21 +272,13 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       // Enviar datos al backend
       await createIntegranteCirculo(integranteData);
 
-      // Mostrar mensaje de éxito
-      setMessage({
-        type: "success",
-        text: "Integrante de círculo registrado exitosamente.",
-      });
+      // Mostrar toast de éxito
+      showSuccess("Integrante de círculo registrado exitosamente.");
 
       // Limpiar formulario después del éxito
       setFormData(initialFormState);
       setErrors({});
       setSelectedLider(null);
-
-      // Limpiar mensaje de éxito después de 8 segundos
-      setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 8000);
     } catch (error) {
       console.error("Error al registrar integrante de círculo:", error);
       
@@ -301,10 +286,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       const backendErrorMessage = error.response?.data?.message || "Error al registrar integrante de círculo. Verifique los datos e inténtelo de nuevo.";
       const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
       
-      setMessage({
-        type: "error",
-        text: displayMessage,
-      });
+      // Mostrar toast de error
+      showError(displayMessage);
     } finally {
       setLoading(false);
     }
@@ -314,7 +297,6 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const handleReset = () => {
     setFormData(initialFormState);
     setErrors({});
-    setMessage({ type: "", text: "" });
     setSelectedLider(null);
     setSearchQuery("");
     setCabezasCirculo([]);
@@ -332,22 +314,6 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
         <div className="mb-4">
           <h1 className="h4 text-primary">Registro de Integrante de Círculo</h1>
         </div>
-      )}
-
-      {/* Mostrar mensajes al usuario */}
-      {message.text && (
-        message.text === "Por favor, complete correctamente todos los campos obligatorios." ? (
-          <CompactAlert>
-            <small>
-              <i className="fas fa-exclamation-circle me-2 alert-icon"></i>
-              {message.text}
-            </small>
-          </CompactAlert>
-        ) : (
-          <div className={`alert alert-${message.type === "success" ? "success" : "danger"} mb-3`}>
-            {message.text}
-          </div>
-        )
       )}
 
       {/* Formulario principal */}

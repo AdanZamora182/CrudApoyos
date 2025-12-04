@@ -198,14 +198,14 @@ const toastConfig = {
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
       </svg>
     ),
-    bgColor: "#3ab65c",
+    bgColor: "#29ac4cff",
     title: "¡Éxito!",
   },
   warning: {
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
+        width="24"s
         height="24"
         fill="currentColor"
         viewBox="0 0 16 16"
@@ -213,7 +213,7 @@ const toastConfig = {
         <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
       </svg>
     ),
-    bgColor: "#bc8c12",
+    bgColor: "#dba929ff",
     title: "Advertencia",
   },
   error: {
@@ -228,7 +228,7 @@ const toastConfig = {
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
       </svg>
     ),
-    bgColor: "#bf333b",
+    bgColor: "#ff424cff",
     title: "Error",
   },
   info: {
@@ -243,7 +243,7 @@ const toastConfig = {
         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
       </svg>
     ),
-    bgColor: "#1898c0",
+    bgColor: "#22bfeeff",
     title: "Información",
   },
 };
@@ -261,98 +261,46 @@ export const useToaster = () => {
 export const ToasterProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const location = useLocation();
-  const isInitialMount = useRef(true);
   const currentPath = useRef(location.pathname);
 
-  // Función para generar ID único para mensajes
-  const generateMessageId = useCallback((message, variant) => {
-    return `${variant}-${message.slice(0, 50).replace(/\s/g, '')}-${location.pathname}`;
-  }, [location.pathname]);
-
-  // Función para verificar si un mensaje ya se mostró en esta sesión
-  const wasMessageShown = useCallback((messageId) => {
-    const shownMessages = JSON.parse(sessionStorage.getItem('shownToastMessages') || '[]');
-    return shownMessages.includes(messageId);
-  }, []);
-
-  // Función para marcar un mensaje como mostrado
-  const markMessageAsShown = useCallback((messageId) => {
-    const shownMessages = JSON.parse(sessionStorage.getItem('shownToastMessages') || '[]');
-    if (!shownMessages.includes(messageId)) {
-      shownMessages.push(messageId);
-      sessionStorage.setItem('shownToastMessages', JSON.stringify(shownMessages));
-    }
-  }, []);
-
-  // Limpiar toasts cuando cambie la ruta (solo si es una navegación real)
+  // Limpiar toasts cuando cambie la ruta
   useEffect(() => {
     if (currentPath.current !== location.pathname) {
-      // Solo limpiar si cambió la ruta realmente
       setToasts([]);
       currentPath.current = location.pathname;
     }
   }, [location.pathname]);
 
-  // Limpiar mensajes mostrados cuando se cierre la pestaña/navegador
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      sessionStorage.removeItem('shownToastMessages');
-    };
+  // Función para remover un toast con animación suave
+  const removeToast = useCallback((id) => {
+    setToasts(prev => 
+      prev.map(toast => 
+        toast.id === id ? { ...toast, isClosing: true } : toast
+      )
+    );
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(toast => toast.id !== id));
+    }, 350);
   }, []);
 
-  // Función para mostrar un toast con control de duplicados
+  // Función para mostrar un toast (siempre se muestra)
   const showToast = useCallback((message, variant = 'error', duration = 8000) => {
-    const messageId = generateMessageId(message, variant);
-    
-    // Lista de mensajes críticos que siempre deben mostrarse
-    const criticalMessages = [
-      'Credenciales incorrectas',
-      'Error al iniciar sesión',
-      'Las contraseñas no coinciden',
-      'Por favor completa el reCAPTCHA',
-      'ya existe',
-      'ya está registrado',
-      'usuario ya existe',
-      'correo ya existe',
-      'Error al registrar',
-      'nombre de usuario',
-      'duplicado'
-    ];
-    
-    // Verificar si es un mensaje crítico que debe mostrarse siempre
-    const isCriticalMessage = criticalMessages.some(critical => 
-      message.toLowerCase().includes(critical.toLowerCase())
-    );
-    
-    // Solo verificar duplicados para mensajes no críticos
-    if (!isCriticalMessage && wasMessageShown(messageId)) {
-      return; // No mostrar el mensaje si ya se mostró y no es crítico
-    }
-
     const id = Date.now() + Math.random();
     const newToast = {
       id,
       message,
       variant,
       isClosing: false,
-      messageId, // Guardar el ID único del mensaje
     };
 
     setToasts(prev => [...prev, newToast]);
-    
-    // Solo marcar como mostrado si no es un mensaje crítico
-    if (!isCriticalMessage) {
-      markMessageAsShown(messageId);
-    }
 
     // Auto-cerrar después del tiempo especificado
     setTimeout(() => {
       removeToast(id);
     }, duration);
-  }, [generateMessageId, wasMessageShown, markMessageAsShown]);
+  }, [removeToast]);
 
   // Función para mostrar toast de éxito
   const showSuccess = useCallback((message, duration = 8000) => {
@@ -364,64 +312,22 @@ export const ToasterProvider = ({ children }) => {
     showToast(message, 'error', duration);
   }, [showToast]);
 
-  // Función para remover un toast con animación suave
-  const removeToast = useCallback((id) => {
-    // Primero activar la animación de cierre
-    setToasts(prev => 
-      prev.map(toast => 
-        toast.id === id ? { ...toast, isClosing: true } : toast
-      )
-    );
-
-    // Esperar a que termine la animación antes de remover del DOM
-    setTimeout(() => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, 350); // Ligeramente más que la duración de la animación
-  }, []);
+  // Función para mostrar toast de advertencia
+  const showWarning = useCallback((message, duration = 8000) => {
+    showToast(message, 'warning', duration);
+  }, [showToast]);
 
   // Función para limpiar todos los toasts
   const clearToasts = useCallback(() => {
     setToasts([]);
   }, []);
 
-  // Función para limpiar toasts con una pequeña demora
-  const clearToastsDelayed = useCallback(() => {
-    setTimeout(() => {
-      setToasts([]);
-    }, 100);
-  }, []);
-
-  // Función para limpiar el historial de mensajes mostrados
-  const clearMessageHistory = useCallback(() => {
-    sessionStorage.removeItem('shownToastMessages');
-  }, []);
-
-  // Función para mostrar un mensaje único (no se repetirá hasta que se limpie el historial)
-  const showUniqueToast = useCallback((message, variant = 'error', duration = 8000) => {
-    // Esta función siempre muestra el mensaje, útil para casos específicos
-    const id = Date.now() + Math.random();
-    const newToast = {
-      id,
-      message,
-      variant,
-      isClosing: false,
-    };
-
-    setToasts(prev => [...prev, newToast]);
-
-    setTimeout(() => {
-      removeToast(id);
-    }, duration);
-  }, [removeToast]);
-
   const value = {
     showToast,
     showSuccess,
     showError,
-    showUniqueToast,
+    showWarning,
     clearToasts,
-    clearToastsDelayed,
-    clearMessageHistory,
   };
 
   return (
