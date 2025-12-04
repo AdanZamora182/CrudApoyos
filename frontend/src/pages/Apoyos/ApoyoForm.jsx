@@ -179,6 +179,14 @@ const ApoyoForm = ({ hideHeader = false }) => {
     });
     setSearchQuery(""); // Limpiar la consulta de búsqueda después de la selección
     setBeneficiarios([]);
+    
+    // Limpiar error del campo beneficiario si existe
+    if (errors.beneficiarioId) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        beneficiarioId: null
+      }));
+    }
   };
 
   // Función para remover el beneficiario seleccionado

@@ -244,6 +244,14 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
     setFormData({ ...formData, lider: cabeza.id });
     setSearchQuery("");
     setCabezasCirculo([]);
+    
+    // Limpiar error del campo lider si existe
+    if (errors.lider) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        lider: null
+      }));
+    }
   };
 
   // Función para remover el líder seleccionado
