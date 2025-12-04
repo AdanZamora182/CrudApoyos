@@ -101,6 +101,14 @@ const ApoyoForm = ({ hideHeader = false }) => {
       tipoApoyo: tipoSeleccionado
     }));
     setShowTipoApoyoDropdown(false);
+    
+    // Limpiar error del campo tipoApoyo si existe
+    if (errors.tipoApoyo) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        tipoApoyo: null
+      }));
+    }
   };
 
   // Función para alternar la visibilidad del dropdown de tipos de apoyo
