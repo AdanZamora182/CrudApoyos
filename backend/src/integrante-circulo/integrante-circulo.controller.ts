@@ -59,7 +59,18 @@ export class IntegranteCirculoController {
   // Endpoint PUT para actualizar un integrante existente
   @Put(':id')
   async update(@Param('id', ParseIntPipe) id: number, @Body() integranteData: Partial<IntegranteCirculo>): Promise<IntegranteCirculo> {
-    return this.integranteCirculoService.update(id, integranteData);
+    try {
+      return await this.integranteCirculoService.update(id, integranteData);
+    } catch (error) {
+      console.error("Error en el controlador al actualizar:", error);
+      
+      // Detectar error de clave de elector duplicada
+      if (error.code === 'ER_DUP_ENTRY' || error.message?.includes('Duplicate entry') || error.message?.includes('Clave_Elector')) {
+        throw new BadRequestException("Clave de elector duplicada, verifique la información.");
+      }
+      
+      throw new BadRequestException('Error al actualizar el Integrante de Círculo.');
+    }
   }
   
   // Endpoint DELETE para eliminar un integrante por su ID

@@ -75,7 +75,14 @@ const CabezaCirculoEdit = ({ cabeza, onClose }) => {
     },
     onError: (error) => {
       console.error('Error updating record:', error);
-      showError('Error al actualizar el registro.');
+      
+      // Detectar error de clave de elector duplicada
+      const errorMessage = error.response?.data?.message || error.message || '';
+      if (errorMessage.toLowerCase().includes('clave') || errorMessage.toLowerCase().includes('duplicad') || errorMessage.toLowerCase().includes('unique') || errorMessage.toLowerCase().includes('existe')) {
+        showError('Clave de elector duplicada, verifique la información.');
+      } else {
+        showError('Error al actualizar el registro.');
+      }
     },
   });
 

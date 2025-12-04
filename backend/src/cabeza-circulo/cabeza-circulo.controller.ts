@@ -62,7 +62,18 @@ export class CabezaCirculoController {
   // Endpoint PUT para actualizar una cabeza de círculo existente
   @Put(':id')
   async update(@Param('id', ParseIntPipe) id: number, @Body() cabezaData: Partial<CabezaCirculo>): Promise<CabezaCirculo> {
-    return this.cabezaCirculoService.update(id, cabezaData);
+    try {
+      return await this.cabezaCirculoService.update(id, cabezaData);
+    } catch (error) {
+      console.error("Error en el controlador al actualizar:", error);
+      
+      // Detectar error de clave de elector duplicada
+      if (error.code === 'ER_DUP_ENTRY' || error.message?.includes('Duplicate entry') || error.message?.includes('Clave_Elector')) {
+        throw new BadRequestException("Clave de elector duplicada, verifique la información.");
+      }
+      
+      throw new BadRequestException('Error al actualizar la Cabeza de Círculo.');
+    }
   }
   
   // Endpoint DELETE para eliminar una cabeza de círculo por su ID
