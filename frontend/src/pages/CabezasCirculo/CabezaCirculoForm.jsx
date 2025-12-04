@@ -259,8 +259,8 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
       
       // Detectar si es error de clave de elector duplicada
-      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad')) {
-        showError(displayMessage);
+      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad') || displayMessage.toLowerCase().includes('unique')) {
+        showError("Clave de elector duplicada, verifique la información.");
       } else {
         showError(displayMessage);
       }

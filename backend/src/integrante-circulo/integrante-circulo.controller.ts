@@ -17,6 +17,12 @@ export class IntegranteCirculoController {
       return await this.integranteCirculoService.create(integranteCirculoData);
     } catch (error) {
       console.error("Error en el controlador al crear Integrante de Círculo:", error);
+      
+      // Detectar error de clave de elector duplicada
+      if (error.code === 'ER_DUP_ENTRY' || error.message?.includes('Duplicate entry') || error.message?.includes('Clave_Elector')) {
+        throw new BadRequestException("Clave de elector duplicada, verifique la información.");
+      }
+      
       throw new BadRequestException("Error al registrar el Integrante de Círculo.");
     }
   }

@@ -286,8 +286,12 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       const backendErrorMessage = error.response?.data?.message || "Error al registrar integrante de círculo. Verifique los datos e inténtelo de nuevo.";
       const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
       
-      // Mostrar toast de error
-      showError(displayMessage);
+      // Detectar si es error de clave de elector duplicada
+      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad') || displayMessage.toLowerCase().includes('unique')) {
+        showError("Clave de elector duplicada, verifique la información.");
+      } else {
+        showError(displayMessage);
+      }
     } finally {
       setLoading(false);
     }

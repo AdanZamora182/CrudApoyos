@@ -16,6 +16,12 @@ export class CabezaCirculoController {
       return await this.cabezaCirculoService.create(cabezaCirculoData);
     } catch (error) {
       console.error("Error en el controlador al crear:", error);
+      
+      // Detectar error de clave de elector duplicada
+      if (error.code === 'ER_DUP_ENTRY' || error.message?.includes('Duplicate entry') || error.message?.includes('Clave_Elector')) {
+        throw new BadRequestException("Clave de elector duplicada, verifique la información.");
+      }
+      
       if (error instanceof BadRequestException) {
         throw error;
       }
