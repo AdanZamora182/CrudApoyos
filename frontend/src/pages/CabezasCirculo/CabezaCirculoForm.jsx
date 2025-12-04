@@ -288,6 +288,8 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
   const handleReset = () => {
     setFormData(initialFormState);
     setErrors({});
+    setColonias([]);
+    setShowColoniaDropdown(false);
   };
 
   return (

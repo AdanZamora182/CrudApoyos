@@ -73,12 +73,35 @@ export const FormGlobalStyles = createGlobalStyle`
     border-color: #dee2e6;
   }
 
+  /* Estilos para input inválido dentro de input-group */
+  .input-group .form-control.is-invalid {
+    border-color: #dc3545 !important;
+    border-right: none !important;
+  }
+
+  .input-group .form-control.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+  }
+
+  /* Cuando el input es inválido, también colorear el botón del dropdown */
+  .input-group:has(.form-control.is-invalid) .btn-outline-secondary {
+    border-color: #dc3545 !important;
+    border-left-color: #e0e0e0 !important;
+  }
+
   /* Input solo (sin botón) dentro de input-group */
   .input-group .form-control:only-child,
   .input-group > input:only-child {
     border-right: 1px solid #dee2e6 !important;
     border-top-right-radius: 0.375rem !important;
     border-bottom-right-radius: 0.375rem !important;
+  }
+
+  /* Input solo inválido dentro de input-group */
+  .input-group .form-control.is-invalid:only-child {
+    border-right: 1px solid #dc3545 !important;
+    border-color: #dc3545 !important;
   }
 
   /* Cuando hay un botón presente, ajustar los bordes del input */
