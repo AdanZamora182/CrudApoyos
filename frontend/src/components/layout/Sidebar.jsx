@@ -77,17 +77,21 @@ const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
       </SidebarHeader>
 
       <SidebarMenu>
-        {menuItems.map((item) => (
-          <MenuItem
-            key={item.path}
-            $active={location.pathname === item.path}
-            $collapsed={collapsed}
-            onClick={() => navigateToPage(item.path)}
-          >
-            <MenuIcon>{item.icon}</MenuIcon>
-            {!collapsed && <MenuText>{item.text}</MenuText>}
-          </MenuItem>
-        ))}
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <MenuItem
+              key={item.path}
+              $active={isActive}
+              $collapsed={collapsed}
+              onClick={() => navigateToPage(item.path)}
+              className={isActive ? 'active' : ''}
+            >
+              <MenuIcon $active={isActive}>{item.icon}</MenuIcon>
+              {!collapsed && <MenuText>{item.text}</MenuText>}
+            </MenuItem>
+          );
+        })}
       </SidebarMenu>
 
       <SidebarFooter $collapsed={collapsed}>
