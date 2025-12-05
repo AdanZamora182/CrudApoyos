@@ -1,4 +1,6 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getApoyos } from '../../api';
 import {
   ViewModalOverlay,
   ViewModalContent,
@@ -14,8 +16,31 @@ import {
   ViewModalFooter,
   CloseButton,
 } from '../../components/view/RegisterView.styles';
+import { LoaderContainer, Loader } from '../../components/tables/Table.styles';
 
-const ApoyoView = ({ apoyo, onClose }) => {
+const ApoyoView = ({ apoyoId, apoyo: initialApoyo, onClose }) => {
+  // Consulta para obtener los datos actualizados del apoyo
+  const {
+    data: apoyoData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["apoyo", apoyoId || initialApoyo?.id],
+    queryFn: async () => {
+      const id = apoyoId || initialApoyo?.id;
+      if (!id) return null;
+      // Obtener todos los apoyos y buscar el que corresponde
+      const results = await getApoyos();
+      return results.find(a => a.id === id) || initialApoyo;
+    },
+    initialData: initialApoyo,
+    staleTime: 1 * 60 * 1000, // Los datos se consideran frescos por 1 minuto
+    enabled: !!(apoyoId || initialApoyo?.id),
+  });
+
+  // Usar los datos de la consulta o los iniciales
+  const apoyo = apoyoData || initialApoyo;
+
   // Función para formatear fechas en formato YYYY-MM-DD
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -23,7 +48,21 @@ const ApoyoView = ({ apoyo, onClose }) => {
     return date.toISOString().split('T')[0];
   };
 
-  if (!apoyo) return null;
+  if (!apoyo && !isLoading) return null;
+
+  // Mostrar loader mientras carga
+  if (isLoading && !apoyo) {
+    return (
+      <ViewModalOverlay onClick={onClose}>
+        <ViewModalContent onClick={(e) => e.stopPropagation()}>
+          <LoaderContainer>
+            <Loader />
+            <p>Cargando datos...</p>
+          </LoaderContainer>
+        </ViewModalContent>
+      </ViewModalOverlay>
+    );
+  }
 
   return (
     <ViewModalOverlay onClick={onClose}>

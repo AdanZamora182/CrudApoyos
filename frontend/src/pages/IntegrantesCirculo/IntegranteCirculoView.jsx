@@ -1,4 +1,6 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { buscarIntegrantesCirculo } from '../../api';
 import {
   ViewModalOverlay,
   ViewModalContent,
@@ -15,8 +17,31 @@ import {
   ViewModalFooter,
   CloseButton,
 } from '../../components/view/RegisterView.styles';
+import { LoaderContainer, Loader } from '../../components/tables/Table.styles';
 
-const IntegranteCirculoView = ({ integrante, onClose }) => {
+const IntegranteCirculoView = ({ integranteId, integrante: initialIntegrante, onClose }) => {
+  // Consulta para obtener los datos actualizados del integrante de círculo
+  const {
+    data: integranteData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["integranteCirculo", integranteId || initialIntegrante?.id],
+    queryFn: async () => {
+      const id = integranteId || initialIntegrante?.id;
+      if (!id) return null;
+      // Buscar por clave de elector para obtener datos frescos
+      const results = await buscarIntegrantesCirculo(initialIntegrante?.claveElector || "");
+      return results.find(i => i.id === id) || initialIntegrante;
+    },
+    initialData: initialIntegrante,
+    staleTime: 1 * 60 * 1000, // Los datos se consideran frescos por 1 minuto
+    enabled: !!(integranteId || initialIntegrante?.id),
+  });
+
+  // Usar los datos de la consulta o los iniciales
+  const integrante = integranteData || initialIntegrante;
+
   // Función para formatear fechas en formato YYYY-MM-DD
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -24,7 +49,21 @@ const IntegranteCirculoView = ({ integrante, onClose }) => {
     return date.toISOString().split('T')[0];
   };
 
-  if (!integrante) return null;
+  if (!integrante && !isLoading) return null;
+
+  // Mostrar loader mientras carga
+  if (isLoading && !integrante) {
+    return (
+      <ViewModalOverlay onClick={onClose}>
+        <ViewModalContent onClick={(e) => e.stopPropagation()}>
+          <LoaderContainer>
+            <Loader />
+            <p>Cargando datos...</p>
+          </LoaderContainer>
+        </ViewModalContent>
+      </ViewModalOverlay>
+    );
+  }
 
   return (
     <ViewModalOverlay onClick={onClose}>
