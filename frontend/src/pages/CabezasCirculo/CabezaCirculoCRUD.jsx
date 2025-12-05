@@ -12,6 +12,7 @@ import {
 import { getAllCabezasCirculo, deleteCabezaCirculo, updateCabezaCirculo, exportCabezasCirculoToExcel } from "../../api";
 import { useToaster } from "../../components/ui/ToasterProvider";
 import CabezaCirculoEdit from './CabezaCirculoEdit';
+import CabezaCirculoView from './CabezaCirculoView';
 import { ExcelButton } from '../../components/buttons/ExcelButton.styles';
 
 // Styled components para tabla
@@ -26,7 +27,7 @@ import {
   EmptyState,
   EmptyIcon,
 } from '../../components/tables/Table.styles';
-import { EditButton, DeleteButton } from '../../components/tables/ActionButtons.styles';
+import { EditButton, DeleteButton, ViewButton } from '../../components/tables/ActionButtons.styles';
 import { SearchContainer, SearchInput, SearchIcon } from '../../components/tables/SearchBar.styles';
 import {
   PaginationContainer,
@@ -54,6 +55,9 @@ const getSavedPageSize = () => {
 const CabezaCirculoCRUD = () => {
   // Estado para manejar el registro seleccionado para edición
   const [selectedCabeza, setSelectedCabeza] = useState(null);
+  
+  // Estado para manejar el registro seleccionado para ver detalles
+  const [viewDetailsCabeza, setViewDetailsCabeza] = useState(null);
   
   // Estado para el filtro global de búsqueda en la tabla
   const [globalFilter, setGlobalFilter] = useState("");
@@ -214,12 +218,18 @@ const CabezaCirculoCRUD = () => {
         cell: (info) => info.getValue(),
         filterFn: "includesString",
       }),
-      // Columna de acciones (editar y eliminar)
+      // Columna de acciones (ver, editar y eliminar)
       columnHelper.display({
         id: "actions",
         header: "Acciones",
         cell: (props) => (
           <ActionColumn>
+            <ViewButton 
+              onClick={() => handleViewDetails(props.row.original)}
+              title="Ver Detalles"
+            >
+              <i className="bi bi-eye"></i>
+            </ViewButton>
             <EditButton 
               onClick={() => handleEdit(props.row.original)}
               title="Editar"
@@ -283,6 +293,16 @@ const CabezaCirculoCRUD = () => {
   // Función para cerrar el modal de edición
   const handleCloseEdit = () => {
     setSelectedCabeza(null);
+  };
+
+  // Función para abrir el modal de ver detalles
+  const handleViewDetails = (cabeza) => {
+    setViewDetailsCabeza(cabeza);
+  };
+
+  // Función para cerrar el modal de ver detalles
+  const handleCloseViewDetails = () => {
+    setViewDetailsCabeza(null);
   };
 
   // Función para procesar y enviar la actualización del registro
@@ -574,6 +594,14 @@ const CabezaCirculoCRUD = () => {
         <CabezaCirculoEdit 
           cabeza={selectedCabeza} 
           onClose={handleCloseEdit}
+        />
+      )}
+
+      {/* Modal de ver detalles */}
+      {viewDetailsCabeza && (
+        <CabezaCirculoView 
+          cabeza={viewDetailsCabeza} 
+          onClose={handleCloseViewDetails}
         />
       )}
     </CrudContainer>
