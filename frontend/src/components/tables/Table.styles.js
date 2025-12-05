@@ -17,7 +17,7 @@ const theme = {
 // Contenedor principal del CRUD con estilo neumórfico
 export const CrudContainer = styled.div`
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 8px;
   background-color: ${theme.backgroundColor};
   box-shadow: 
     inset 5px 5px 10px ${theme.shadowDark},
@@ -60,10 +60,8 @@ export const EmptyIcon = styled.span`
 
 // Contenedor de la tabla con scroll
 export const TableContainer = styled.div`
-  border-radius: 15px;
+  border-radius: 6px;
   overflow: hidden;
-  max-height: 500px;
-  overflow-y: auto;
   overflow-x: auto;
   box-shadow: 
     5px 5px 10px ${theme.shadowDark},
@@ -118,7 +116,7 @@ export const Table = styled.table`
   }
 
   td {
-    padding: 4px 12px;
+    padding: 8px 12px;
     border-bottom: 1px solid rgba(209, 217, 230, 0.3);
     white-space: nowrap;
     overflow: hidden;

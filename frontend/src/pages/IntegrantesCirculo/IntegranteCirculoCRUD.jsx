@@ -36,7 +36,6 @@ import {
   PageSizeSelector,
   PageSizeSelect,
   PaginationInfo,
-  PageInfo,
   PaginationControls as PaginationControlsStyled,
   PaginationButton,
   PageNumbers,
@@ -299,7 +298,8 @@ const IntegranteCirculoCRUD = () => {
   const getVisiblePageNumbers = () => {
     const currentPage = table.getState().pagination.pageIndex;
     const totalPages = table.getPageCount();
-    const delta = 2; // Número de páginas a mostrar a cada lado de la página actual
+    // Reducido a 1 para mostrar máximo 3 páginas centrales (mejor para móviles)
+    const delta = 1;
     
     let start = Math.max(0, currentPage - delta);
     let end = Math.min(totalPages - 1, currentPage + delta);
@@ -319,7 +319,7 @@ const IntegranteCirculoCRUD = () => {
     return pages;
   };
 
-  // Componente de controles de paginación mejorado
+  // Componente de controles de paginación mejorado - diseño minimalista
   const PaginationControls = () => {
     const currentPage = table.getState().pagination.pageIndex;
     const totalPages = table.getPageCount();
@@ -331,10 +331,10 @@ const IntegranteCirculoCRUD = () => {
     
     return (
       <PaginationContainer>
-        {/* Fila superior con selector de registros por página */}
+        {/* Lado izquierdo: selector de registros e información */}
         <PaginationTopRow>
           <PageSizeSelector>
-            <label htmlFor="pageSize">Registros por página:</label>
+            <label htmlFor="pageSize">Mostrar:</label>
             <PageSizeSelect
               id="pageSize"
               value={pageSize}
@@ -347,21 +347,14 @@ const IntegranteCirculoCRUD = () => {
               ))}
             </PageSizeSelect>
           </PageSizeSelector>
+
+          <PaginationInfo>
+            {startRow}-{endRow} de {totalRows} Registros
+          </PaginationInfo>
         </PaginationTopRow>
 
-        {/* Información de paginación centrada */}
-        <PaginationInfo>
-          Mostrando {startRow}-{endRow} de {totalRows} registros
-          {totalRows > 0 && (
-            <PageInfo>
-              {" "}(Página {currentPage + 1} de {totalPages})
-            </PageInfo>
-          )}
-        </PaginationInfo>
-
-        {/* Controles de navegación de páginas */}
+        {/* Lado derecho: controles de navegación */}
         <PaginationControlsStyled>
-          {/* Botón para ir a la primera página */}
           <PaginationButton
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
@@ -370,7 +363,6 @@ const IntegranteCirculoCRUD = () => {
             <i className="bi bi-chevron-double-left"></i>
           </PaginationButton>
 
-          {/* Botón para página anterior */}
           <PaginationButton
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -379,19 +371,11 @@ const IntegranteCirculoCRUD = () => {
             <i className="bi bi-chevron-left"></i>
           </PaginationButton>
 
-          {/* Números de página */}
           <PageNumbers>
-            {/* Mostrar primera página si no está en el rango visible */}
             {getVisiblePageNumbers()[0] > 0 && (
               <>
-                <PageNumber 
-                  onClick={() => table.setPageIndex(0)}
-                >
-                  1
-                </PageNumber>
-                {getVisiblePageNumbers()[0] > 1 && (
-                  <PageEllipsis>...</PageEllipsis>
-                )}
+                <PageNumber onClick={() => table.setPageIndex(0)}>1</PageNumber>
+                {getVisiblePageNumbers()[0] > 1 && <PageEllipsis>…</PageEllipsis>}
               </>
             )}
 
@@ -408,18 +392,15 @@ const IntegranteCirculoCRUD = () => {
             {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 1 && (
               <>
                 {getVisiblePageNumbers()[getVisiblePageNumbers().length - 1] < totalPages - 2 && (
-                  <PageEllipsis>...</PageEllipsis>
+                  <PageEllipsis>…</PageEllipsis>
                 )}
-                <PageNumber 
-                  onClick={() => table.setPageIndex(totalPages - 1)}
-                >
+                <PageNumber onClick={() => table.setPageIndex(totalPages - 1)}>
                   {totalPages}
                 </PageNumber>
               </>
             )}
           </PageNumbers>
 
-          {/* Botón para página siguiente */}
           <PaginationButton
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -428,7 +409,6 @@ const IntegranteCirculoCRUD = () => {
             <i className="bi bi-chevron-right"></i>
           </PaginationButton>
 
-          {/* Botón para ir a la última página */}
           <PaginationButton
             onClick={() => table.setPageIndex(totalPages - 1)}
             disabled={!table.getCanNextPage()}

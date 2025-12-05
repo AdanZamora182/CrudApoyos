@@ -3,47 +3,56 @@ import styled from 'styled-components';
 // Variables de tema
 const theme = {
   primaryColor: '#5c6bc0',
-  secondaryColor: '#26c6da',
-  darkColor: '#2c3e50',
-  lightColor: '#f5f7fa',
-  successColor: '#4caf50',
-  warningColor: '#ff9800',
-  dangerColor: '#f44336',
-  backgroundColor: '#f0f2f5',
-  shadowLight: '#ffffff',
-  shadowDark: '#d1d9e6',
+  textColor: '#374151',
+  textMuted: '#6b7280',
+  borderColor: '#e5e7eb',
+  hoverBg: '#f9fafb',
+  activeBg: '#5c6bc0',
+  activeText: '#ffffff',
 };
 
-// Contenedor principal de paginación
+// Contenedor principal de paginación - diseño horizontal unificado
 export const PaginationContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
-  padding: 20px;
-  background-color: transparent;
-  border-radius: 15px;
-  box-shadow: none;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border: 1px solid ${theme.borderColor};
+  border-radius: 8px;
+  gap: 16px;
+  flex-wrap: wrap;
 
-  @media (max-width: 768px) {
-    padding: 15px;
+  @media (max-width: 900px) {
+    flex-direction: column;
     gap: 12px;
+    padding: 12px;
   }
 
-  @media (max-width: 480px) {
-    padding: 12px;
+  @media (max-width: 768px) {
+    padding: 10px;
+    gap: 10px;
   }
 `;
 
-// Fila superior con selector de tamaño de página
+// Fila izquierda con selector de tamaño de página e info
 export const PaginationTopRow = styled.div`
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  width: 100%;
+  gap: 16px;
+  flex-shrink: 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
+    width: 100%;
     justify-content: center;
+  }
+
+  @media (max-width: 480px) {
+    gap: 12px;
+    justify-content: space-between;
+    width: 100%;
   }
 `;
 
@@ -52,203 +61,188 @@ export const PageSizeSelector = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  color: ${theme.darkColor};
+  font-size: 13px;
+  color: ${theme.textMuted};
   white-space: nowrap;
 
   label {
-    font-weight: 500;
+    font-weight: 400;
     margin-bottom: 0;
   }
 
-  @media (max-width: 768px) {
-    font-size: 11px;
+  @media (max-width: 480px) {
+    font-size: 12px;
   }
 `;
 
 // Select de tamaño de página
 export const PageSizeSelect = styled.select`
-  padding: 4px 6px;
-  border: 1px solid rgba(92, 107, 192, 0.2);
+  padding: 6px 10px;
+  border: 1px solid ${theme.borderColor};
   border-radius: 6px;
-  background-color: white;
-  color: ${theme.darkColor};
-  font-size: 11px;
+  background-color: #ffffff;
+  color: ${theme.textColor};
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 
-    2px 2px 4px ${theme.shadowDark},
-    -2px -2px 4px ${theme.shadowLight};
-  min-width: 45px;
-  width: 50px;
-  text-align: center;
+  transition: border-color 0.2s ease;
+  min-width: 60px;
+
+  &:hover {
+    border-color: ${theme.primaryColor};
+  }
 
   &:focus {
     outline: none;
     border-color: ${theme.primaryColor};
-    box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.15);
+    box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.1);
   }
 
-  @media (max-width: 768px) {
-    font-size: 10px;
-    padding: 3px 4px;
-    min-width: 40px;
-    width: 45px;
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 5px 8px;
+    min-width: 55px;
   }
 `;
 
 // Información de paginación
 export const PaginationInfo = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  font-size: 14px;
-  color: ${theme.darkColor};
-  font-weight: 500;
-  text-align: center;
-  margin-bottom: 10px;
+  gap: 4px;
+  font-size: 13px;
+  color: ${theme.textMuted};
+  white-space: nowrap;
 
-  @media (max-width: 768px) {
+  @media (max-width: 480px) {
     font-size: 12px;
   }
 `;
 
 // Info de página
 export const PageInfo = styled.span`
-  font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+  font-size: 13px;
+  color: ${theme.textMuted};
 
-  @media (max-width: 768px) {
-    font-size: 11px;
+  @media (max-width: 480px) {
+    font-size: 12px;
   }
 `;
 
-// Controles de paginación
+// Controles de paginación - lado derecho
 export const PaginationControls = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   flex-wrap: wrap;
+  justify-content: center;
 
-  @media (max-width: 768px) {
-    gap: 6px;
+  @media (max-width: 900px) {
+    width: 100%;
+    justify-content: center;
   }
 
   @media (max-width: 480px) {
-    justify-content: center;
+    gap: 2px;
   }
 `;
 
-// Botón de paginación
+// Botón de paginación (flechas)
 export const PaginationButton = styled.button`
-  width: 35px;
-  height: 35px;
-  border: none;
-  border-radius: 8px;
-  background-color: ${theme.backgroundColor};
-  color: ${theme.darkColor};
+  width: 32px;
+  height: 32px;
+  border: 1px solid ${theme.borderColor};
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: ${theme.textColor};
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 
-    3px 3px 6px ${theme.shadowDark},
-    -3px -3px 6px ${theme.shadowLight};
-  font-size: 14px;
+  transition: all 0.15s ease;
+  font-size: 12px;
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 
-      4px 4px 8px ${theme.shadowDark},
-      -4px -4px 8px ${theme.shadowLight};
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 
-      inset 2px 2px 4px ${theme.shadowDark},
-      inset -2px -2px 4px ${theme.shadowLight};
+    background-color: ${theme.hoverBg};
+    border-color: ${theme.primaryColor};
+    color: ${theme.primaryColor};
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
-    transform: none;
+    background-color: ${theme.hoverBg};
   }
 
-  @media (max-width: 768px) {
-    width: 35px;
-    height: 35px;
-    font-size: 13px;
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
   }
 `;
 
 // Contenedor de números de página
 export const PageNumbers = styled.div`
   display: flex;
-  gap: 5px;
   align-items: center;
+  gap: 2px;
+  margin: 0 4px;
+  flex-wrap: wrap;
+  justify-content: center;
 
-  @media (max-width: 768px) {
-    gap: 4px;
+  @media (max-width: 480px) {
+    gap: 1px;
+    margin: 0 2px;
   }
 `;
 
 // Número de página
 export const PageNumber = styled.button`
-  width: 35px;
-  height: 35px;
-  border: none;
-  border-radius: 8px;
-  background-color: ${theme.backgroundColor};
-  color: ${theme.darkColor};
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background-color: transparent;
+  color: ${theme.textColor};
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 
-    3px 3px 6px ${theme.shadowDark},
-    -3px -3px 6px ${theme.shadowLight};
-  font-size: 14px;
+  transition: all 0.15s ease;
+  font-size: 13px;
   font-weight: 500;
 
   &:hover:not(.active) {
-    transform: translateY(-2px);
-    box-shadow: 
-      4px 4px 8px ${theme.shadowDark},
-      -4px -4px 8px ${theme.shadowLight};
+    background-color: ${theme.hoverBg};
+    border-color: ${theme.borderColor};
   }
 
   &.active {
-    background: linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor});
-    color: white;
-    box-shadow: 
-      inset 2px 2px 4px rgba(0, 0, 0, 0.2),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.1);
-    transform: none;
-
-    &:hover {
-      transform: none;
-    }
+    background-color: ${theme.activeBg};
+    color: ${theme.activeText};
+    border-color: ${theme.activeBg};
   }
 
-  @media (max-width: 768px) {
-    width: 35px;
-    height: 35px;
-    font-size: 13px;
+  @media (max-width: 480px) {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    font-size: 12px;
   }
 `;
 
 // Elipsis de página
 export const PageEllipsis = styled.span`
-  padding: 0 5px;
-  color: ${theme.darkColor};
-  font-size: 14px;
-  font-weight: 500;
+  padding: 0 6px;
+  color: ${theme.textMuted};
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+
+  @media (max-width: 480px) {
+    padding: 0 4px;
+    font-size: 12px;
+  }
 `;
 
 export default {
