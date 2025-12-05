@@ -14,14 +14,9 @@ const theme = {
   shadowDark: '#d1d9e6',
 };
 
-// Contenedor principal del CRUD con estilo neumórfico
+// Contenedor principal del CRUD
 export const CrudContainer = styled.div`
-  padding: 20px;
-  border-radius: 8px;
-  background-color: ${theme.backgroundColor};
-  box-shadow: 
-    inset 5px 5px 10px ${theme.shadowDark},
-    inset -5px -5px 10px ${theme.shadowLight};
+  padding-top: 10px;
 
   &.full-screen {
     min-height: auto;
