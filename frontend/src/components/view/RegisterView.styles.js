@@ -127,7 +127,7 @@ export const DetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 0 10px 20px 10px;
+  padding: 16px 10px 20px 10px;
   max-height: 75vh;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -155,14 +155,12 @@ export const DetailsContainer = styled.div`
   }
 `;
 
-// Sección de detalles con estilo neumórfico
+// Sección de detalles - estilo minimalista
 export const DetailsSection = styled.div`
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
   padding: 15px;
-  box-shadow: 
-    inset 3px 3px 7px ${theme.shadowDark},
-    inset -3px -3px 7px ${theme.shadowLight};
+  border: 1px solid #e5e7eb;
 `;
 
 // Título de sección
@@ -187,14 +185,14 @@ export const DetailsGrid = styled.div`
   }
 `;
 
-// Item de detalle
+// Item de detalle - estilo minimalista
 export const DetailItem = styled.div`
   display: flex;
   flex-direction: column;
   padding: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  border-left: 3px solid ${theme.primaryColor};
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
 `;
 
 // Label del detalle
@@ -209,6 +207,8 @@ export const DetailLabel = styled.span`
 export const DetailValue = styled.span`
   font-size: 14px;
   color: ${theme.primaryColor};
+  white-space: pre-line;
+  line-height: 1.4;
 `;
 
 // Mensaje cuando no hay líder

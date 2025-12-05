@@ -85,7 +85,9 @@ const ApoyoView = ({ apoyo, onClose }) => {
                 <DetailItem>
                   <DetailLabel>Dirección</DetailLabel>
                   <DetailValue>
-                    {`${apoyo.persona.calle} #${apoyo.persona.noExterior}${apoyo.persona.noInterior ? ", Int: " + apoyo.persona.noInterior : ""}, Col. ${apoyo.persona.colonia}, CP: ${apoyo.persona.codigoPostal}`}
+                    {`${apoyo.persona.calle} ${apoyo.persona.noExterior}${apoyo.persona.noInterior ? `, Int. ${apoyo.persona.noInterior}` : ''}
+${apoyo.persona.colonia}
+C.P. ${apoyo.persona.codigoPostal}`}
                   </DetailValue>
                 </DetailItem>
               </DetailsGrid>
@@ -112,7 +114,9 @@ const ApoyoView = ({ apoyo, onClose }) => {
                 <DetailItem>
                   <DetailLabel>Dirección</DetailLabel>
                   <DetailValue>
-                    {`${apoyo.cabeza.calle} #${apoyo.cabeza.noExterior}${apoyo.cabeza.noInterior ? ", Int: " + apoyo.cabeza.noInterior : ""}, Col. ${apoyo.cabeza.colonia}, CP: ${apoyo.cabeza.codigoPostal}`}
+                    {`${apoyo.cabeza.calle} ${apoyo.cabeza.noExterior}${apoyo.cabeza.noInterior ? `, Int. ${apoyo.cabeza.noInterior}` : ''}
+${apoyo.cabeza.colonia}
+C.P. ${apoyo.cabeza.codigoPostal}`}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>

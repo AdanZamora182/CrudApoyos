@@ -62,7 +62,9 @@ const IntegranteCirculoView = ({ integrante, onClose }) => {
               <DetailItem>
                 <DetailLabel>Dirección:</DetailLabel>
                 <DetailValue>
-                  {`${integrante.calle} ${integrante.noExterior}${integrante.noInterior ? `, Int. ${integrante.noInterior}` : ''}, ${integrante.colonia}, C.P. ${integrante.codigoPostal}`}
+                  {`${integrante.calle} ${integrante.noExterior}${integrante.noInterior ? `, Int. ${integrante.noInterior}` : ''}
+${integrante.colonia}
+C.P. ${integrante.codigoPostal}`}
                 </DetailValue>
               </DetailItem>
               <DetailItem>
@@ -98,7 +100,9 @@ const IntegranteCirculoView = ({ integrante, onClose }) => {
                 <DetailItem>
                   <DetailLabel>Dirección:</DetailLabel>
                   <DetailValue>
-                    {`${integrante.lider.calle} ${integrante.lider.noExterior}${integrante.lider.noInterior ? `, Int. ${integrante.lider.noInterior}` : ''}, ${integrante.lider.colonia}, C.P. ${integrante.lider.codigoPostal}${integrante.lider.municipio ? `, ${integrante.lider.municipio}` : ''}`}
+                    {`${integrante.lider.calle} ${integrante.lider.noExterior}${integrante.lider.noInterior ? `, Int. ${integrante.lider.noInterior}` : ''}
+${integrante.lider.colonia}
+C.P. ${integrante.lider.codigoPostal}${integrante.lider.municipio ? `, ${integrante.lider.municipio}` : ''}`}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
