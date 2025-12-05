@@ -17,11 +17,11 @@ export const PaginationContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-top: 16px;
   padding: 12px 16px;
   background-color: #ffffff;
   border: 1px solid ${theme.borderColor};
-  border-radius: 8px;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
   gap: 16px;
   flex-wrap: wrap;
 

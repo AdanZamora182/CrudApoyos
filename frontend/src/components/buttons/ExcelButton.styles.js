@@ -12,9 +12,10 @@ export const ExcelButton = styled.button`
   background-color: ${theme.successColor};
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 0 16px;
+  height: 34px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex;
@@ -23,6 +24,7 @@ export const ExcelButton = styled.button`
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: ${theme.shadowSm};
+  flex-shrink: 0;
 
   &:hover:not(:disabled) {
     background-color: ${theme.successHover};
@@ -43,10 +45,13 @@ export const ExcelButton = styled.button`
   }
 
   i {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   @media (max-width: 576px) {
+    padding: 0 12px;
+    height: 32px;
+    
     span {
       display: none;
     }

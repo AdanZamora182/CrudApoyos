@@ -48,6 +48,16 @@ import {
   PageEllipsis,
 } from '../../components/tables/Pagination.styles';
 
+// Clave para persistir el tamaño de página en localStorage
+const PAGE_SIZE_KEY = 'apoyos_pageSize';
+const DEFAULT_PAGE_SIZE = 10;
+
+// Función para obtener el tamaño de página guardado
+const getSavedPageSize = () => {
+  const saved = localStorage.getItem(PAGE_SIZE_KEY);
+  return saved ? Number(saved) : DEFAULT_PAGE_SIZE;
+};
+
 const ApoyoCRUD = () => {
   const [selectedApoyo, setSelectedApoyo] = useState(null);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -308,7 +318,7 @@ const ApoyoCRUD = () => {
     globalFilterFn: "includesString",
     initialState: {
       pagination: {
-        pageSize: 12, // Mostrar 12 registros por página
+        pageSize: getSavedPageSize(), // Usar tamaño guardado o 10 por defecto
         pageIndex: 0, // Empezar en la primera página
       },
     },
@@ -418,9 +428,13 @@ const ApoyoCRUD = () => {
             <PageSizeSelect
               id="pageSize"
               value={pageSize}
-              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              onChange={(e) => {
+                const newSize = Number(e.target.value);
+                table.setPageSize(newSize);
+                localStorage.setItem(PAGE_SIZE_KEY, newSize);
+              }}
             >
-              {[5, 10, 12, 15, 20, 25, 50].map((size) => (
+              {[5, 10, 15, 20, 25, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
