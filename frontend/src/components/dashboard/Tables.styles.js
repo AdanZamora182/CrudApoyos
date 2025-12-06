@@ -1,6 +1,5 @@
 import styled from 'styled-components';
-import { Card } from '@mui/material';
-import devices from '../../styles/breakpoints';
+import { devices } from '../../styles/breakpoints';
 
 export const TablesContainer = styled.div`
   display: grid;
@@ -22,47 +21,43 @@ export const TablesContainer = styled.div`
   }
 `;
 
-export const TableCard = styled(Card)`
-  && {
-    padding: 28px;
-    border-radius: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    position: relative;
-    overflow: hidden;
+// TableCard usando div nativo en lugar de MUI Card
+export const TableCard = styled.div`
+  padding: 28px;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  position: relative;
+  overflow: hidden;
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #10b981, #6366f1, #f59e0b);
-      transform: scaleX(1);
-      transform-origin: left;
-      transition: transform 0.4s ease;
-    }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #6366f1, #f59e0b);
+  }
 
+  &:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
+
+  @media ${devices.maxMd} {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  @media ${devices.maxSm} {
+    padding: 16px;
+    border-radius: 12px;
+    
     &:hover {
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-      transform: translateY(-4px);
-    }
-
-    @media ${devices.maxMd} {
-      padding: 20px;
-      border-radius: 16px;
-    }
-
-    @media ${devices.maxSm} {
-      padding: 16px;
-      border-radius: 12px;
-      
-      &:hover {
-        transform: translateY(-2px);
-      }
+      transform: translateY(-2px);
     }
   }
 `;
@@ -92,7 +87,6 @@ export const TableIconWrapper = styled.div`
   color: white;
   box-shadow: 0 6px 16px ${props => props.$color ? `${props.$color}50` : '#6366f150'};
   flex-shrink: 0;
-  transition: none;
 
   @media ${devices.maxSm} {
     width: 44px;
@@ -122,16 +116,26 @@ export const FilterContainer = styled.div`
   margin-bottom: 24px;
   max-width: 320px;
 
-  .MuiOutlinedInput-root {
+  .form-select {
     border-radius: 12px;
-    transition: all 0.3s ease;
-    
+    border: 1px solid #e2e8f0;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+
     &:hover {
+      border-color: #94a3b8;
       box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
     }
-    
-    &.Mui-focused {
+
+    &:focus {
+      border-color: #3b82f6;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      outline: none;
     }
   }
 
@@ -197,21 +201,19 @@ export const StyledTable = styled.table`
 
   tbody {
     tr {
-      transition: all 0.2s ease;
+      transition: background-color 0.15s ease;
       border-bottom: 1px solid #f1f5f9;
 
-      &.even {
+      &:nth-child(even) {
         background: #ffffff;
       }
 
-      &.odd {
+      &:nth-child(odd) {
         background: #fafbfc;
       }
 
       &:hover {
         background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        transform: scale(1.01);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
       }
 
       &:last-child {

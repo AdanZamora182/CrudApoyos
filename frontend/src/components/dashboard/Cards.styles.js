@@ -1,47 +1,33 @@
 import styled from 'styled-components';
-import { Card } from '@mui/material';
 import { devices } from '../../styles/breakpoints';
 
-export const StyledCard = styled(Card)`
-  && {
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    position: relative;
-    overflow: hidden;
+// Card usando div nativo en lugar de MUI Card
+export const StyledCard = styled.div`
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  cursor: pointer;
+  border: none;
+  background: ${props => props.$bgColor || 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
+  position: relative;
+  overflow: hidden;
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: ${props => props.$accentColor || '#2196f3'};
-      transform: scaleX(1);
-      transform-origin: left;
-    }
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
 
+  @media ${devices.maxMd} {
+    padding: 18px;
+  }
+
+  @media ${devices.maxSm} {
+    padding: 16px;
+    border-radius: 12px;
+    
     &:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    }
-
-    @media ${devices.maxMd} {
-      padding: 18px;
-    }
-
-    @media ${devices.maxSm} {
-      padding: 16px;
-      border-radius: 12px;
-      
-      &:hover {
-        transform: translateY(-3px);
-      }
+      transform: translateY(-3px);
     }
   }
 `;
@@ -60,7 +46,7 @@ export const CardHeader = styled.div`
 export const CardTitle = styled.h3`
   font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: ${props => props.$textColor || '#64748b'};
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -80,14 +66,13 @@ export const CardIconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.$bgColor || '#e3f2fd'};
-  box-shadow: 0 4px 12px ${props => props.$shadowColor || 'rgba(33, 150, 243, 0.3)'};
-  transition: none;
+  background: ${props => props.$bgColor || 'rgba(255, 255, 255, 0.2)'};
+  box-shadow: ${props => props.$shadowColor ? `0 4px 12px ${props.$shadowColor}` : 'none'};
+  flex-shrink: 0;
 
   svg {
-    color: ${props => props.$iconColor || '#2196f3'};
+    color: ${props => props.$iconColor || '#ffffff'};
     font-size: 26px;
-    transition: none;
   }
 
   @media ${devices.maxMd} {
@@ -114,7 +99,7 @@ export const CardIconWrapper = styled.div`
 export const CardValue = styled.div`
   font-size: 32px;
   font-weight: 700;
-  color: #1e293b;
+  color: ${props => props.$textColor || '#1e293b'};
   margin-bottom: 6px;
   line-height: 1;
   letter-spacing: -0.5px;
@@ -131,7 +116,7 @@ export const CardValue = styled.div`
 
 export const CardSubtext = styled.p`
   font-size: 12px;
-  color: #94a3b8;
+  color: ${props => props.$textColor || '#94a3b8'};
   margin: 0;
   font-weight: 500;
   line-height: 1.4;

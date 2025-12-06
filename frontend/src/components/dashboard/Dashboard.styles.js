@@ -43,7 +43,11 @@ export const DashboardHeader = styled.div`
 export const CardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 24px;
+  width: 100%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
 
   @media ${devices.maxXl} {
     grid-template-columns: repeat(2, 1fr);

@@ -14,20 +14,20 @@ import {
 } from '../../components/dashboard/Cards.styles';
 import { getDashboardStats } from '../../api/dashboardApi';
 
-const MetricCard = ({ title, value, subtext, icon: Icon, bgColor, iconColor, shadowColor, accentColor, loading, error }) => (
-  <StyledCard $accentColor={accentColor}>
+const MetricCard = ({ title, value, subtext, icon: Icon, bgColor, iconColor, iconBgColor, textColor, loading, error }) => (
+  <StyledCard $bgColor={bgColor}>
     <CardHeader>
       <div>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle $textColor={textColor}>{title}</CardTitle>
       </div>
-      <CardIconWrapper $bgColor={bgColor} $iconColor={iconColor} $shadowColor={shadowColor}>
+      <CardIconWrapper $bgColor={iconBgColor} $iconColor={iconColor}>
         <Icon />
       </CardIconWrapper>
     </CardHeader>
     
     {loading ? (
       <LoadingWrapper>
-        <Spinner animation="border" role="status" style={{ color: iconColor, width: '2rem', height: '2rem' }}>
+        <Spinner animation="border" role="status" style={{ color: textColor || '#667eea', width: '2rem', height: '2rem' }}>
           <span className="visually-hidden">Cargando...</span>
         </Spinner>
       </LoadingWrapper>
@@ -35,8 +35,8 @@ const MetricCard = ({ title, value, subtext, icon: Icon, bgColor, iconColor, sha
       <ErrorText>{error}</ErrorText>
     ) : (
       <>
-        <CardValue>{value}</CardValue>
-        {subtext && <CardSubtext>{subtext}</CardSubtext>}
+        <CardValue $textColor={textColor}>{value}</CardValue>
+        {subtext && <CardSubtext $textColor={textColor ? 'rgba(255,255,255,0.85)' : undefined}>{subtext}</CardSubtext>}
       </>
     )}
   </StyledCard>
@@ -60,40 +60,40 @@ const DashboardCards = () => {
       value: stats?.cabezasCirculo || 0,
       subtext: 'Total registrado',
       icon: Users,
-      bgColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      bgColor: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+      iconBgColor: 'rgba(255, 255, 255, 0.2)',
       iconColor: '#ffffff',
-      shadowColor: 'rgba(102, 126, 234, 0.4)',
-      accentColor: '#667eea',
+      textColor: '#ffffff',
     },
     {
       title: 'Integrantes de Círculo',
       value: stats?.integrantesCirculo || 0,
       subtext: 'Total registrado',
       icon: UserCheck,
-      bgColor: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      bgColor: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+      iconBgColor: 'rgba(255, 255, 255, 0.2)',
       iconColor: '#ffffff',
-      shadowColor: 'rgba(240, 147, 251, 0.4)',
-      accentColor: '#f093fb',
+      textColor: '#ffffff',
     },
     {
       title: 'Apoyos Entregados',
       value: stats?.apoyosTotal || 0,
       subtext: `En el año ${currentYear}`,
       icon: Gift,
-      bgColor: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      bgColor: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+      iconBgColor: 'rgba(255, 255, 255, 0.2)',
       iconColor: '#ffffff',
-      shadowColor: 'rgba(79, 172, 254, 0.4)',
-      accentColor: '#4facfe',
+      textColor: '#ffffff',
     },
     {
       title: 'Promedio Mensual',
       value: stats?.apoyosPromedio || 0,
       subtext: `Apoyos por mes en ${currentYear}`,
       icon: TrendingUp,
-      bgColor: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      bgColor: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
+      iconBgColor: 'rgba(255, 255, 255, 0.2)',
       iconColor: '#ffffff',
-      shadowColor: 'rgba(67, 233, 123, 0.4)',
-      accentColor: '#43e97b',
+      textColor: '#ffffff',
     },
   ];
 
