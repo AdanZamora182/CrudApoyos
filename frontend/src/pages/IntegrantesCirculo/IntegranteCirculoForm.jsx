@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createIntegranteCirculo, buscarCabezasCirculo, buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api";
 import { useToaster } from "../../components/ui/ToasterProvider";
 import {
@@ -27,6 +28,35 @@ import {
 const IntegranteCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
   const { showSuccess, showError, showWarning } = useToaster();
+  const queryClient = useQueryClient();
+
+  // Mutación para crear un integrante de círculo
+  const createMutation = useMutation({
+    mutationFn: createIntegranteCirculo,
+    onSuccess: () => {
+      // Invalidar el cache de integrantes de círculo para refrescar la tabla CRUD
+      queryClient.invalidateQueries({ queryKey: ["integrantesCirculo"] });
+      showSuccess("Integrante de círculo registrado exitosamente.");
+      // Limpiar formulario después del éxito
+      setFormData(initialFormState);
+      setErrors({});
+      setSelectedLider(null);
+      setColonias([]);
+      setShowColoniaDropdown(false);
+    },
+    onError: (error) => {
+      console.error("Error al registrar integrante de círculo:", error);
+      // Manejar errores del backend
+      const backendErrorMessage = error.response?.data?.message || "Error al registrar integrante de círculo. Verifique los datos e inténtelo de nuevo.";
+      const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
+      // Detectar si es error de clave de elector duplicada
+      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad') || displayMessage.toLowerCase().includes('unique')) {
+        showError("Clave de elector duplicada, verifique la información.");
+      } else {
+        showError(displayMessage);
+      }
+    },
+  });
   
   // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
@@ -48,7 +78,6 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
   // Estados del componente para manejo del formulario
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [cabezasCirculo, setCabezasCirculo] = useState([]);
   const [selectedLider, setSelectedLider] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -270,54 +299,27 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
       return;
     }
 
-    setLoading(true);
+    // Preparar datos para enviar al backend
+    const integranteData = {
+      nombre: formData.nombre,
+      apellidoPaterno: formData.apellidoPaterno,
+      apellidoMaterno: formData.apellidoMaterno,
+      fechaNacimiento: formData.fechaNacimiento,
+      calle: formData.calle,
+      noExterior: formData.noExterior ? parseInt(formData.noExterior, 10) : null,
+      noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null,
+      colonia: formData.colonia,
+      codigoPostal: formData.codigoPostal ? parseInt(formData.codigoPostal, 10) : null,
+      municipio: formData.municipio,
+      claveElector: formData.claveElector,
+      telefono: parseInt(formData.telefono, 10),
+      lider: formData.lider ? { id: parseInt(formData.lider, 10) } : null,
+    };
+    
+    console.log("Datos a enviar al backend:", integranteData);
 
-    try {
-      // Preparar datos para enviar al backend
-      const integranteData = {
-        nombre: formData.nombre,
-        apellidoPaterno: formData.apellidoPaterno,
-        apellidoMaterno: formData.apellidoMaterno,
-        fechaNacimiento: formData.fechaNacimiento,
-        calle: formData.calle,
-        noExterior: formData.noExterior ? parseInt(formData.noExterior, 10) : null,
-        noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null,
-        colonia: formData.colonia,
-        codigoPostal: formData.codigoPostal ? parseInt(formData.codigoPostal, 10) : null,
-        municipio: formData.municipio,
-        claveElector: formData.claveElector,
-        telefono: parseInt(formData.telefono, 10),
-        lider: formData.lider ? { id: parseInt(formData.lider, 10) } : null,
-      };
-      
-      console.log("Datos a enviar al backend:", integranteData);
-
-      // Enviar datos al backend
-      await createIntegranteCirculo(integranteData);
-
-      // Mostrar toast de éxito
-      showSuccess("Integrante de círculo registrado exitosamente.");
-
-      // Limpiar formulario después del éxito
-      setFormData(initialFormState);
-      setErrors({});
-      setSelectedLider(null);
-    } catch (error) {
-      console.error("Error al registrar integrante de círculo:", error);
-      
-      // Manejar errores del backend
-      const backendErrorMessage = error.response?.data?.message || "Error al registrar integrante de círculo. Verifique los datos e inténtelo de nuevo.";
-      const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
-      
-      // Detectar si es error de clave de elector duplicada
-      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad') || displayMessage.toLowerCase().includes('unique')) {
-        showError("Clave de elector duplicada, verifique la información.");
-      } else {
-        showError(displayMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
+    // Enviar datos usando la mutación de react-query
+    createMutation.mutate(integranteData);
   };
 
   // Función para limpiar el formulario
@@ -617,8 +619,8 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
           <SecondaryButton type="button" onClick={handleReset}>
             Limpiar
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={loading}>
-            {loading ? "Registrando..." : "Registrar"}
+          <PrimaryButton type="submit" disabled={createMutation.isPending}>
+            {createMutation.isPending ? "Registrando..." : "Registrar"}
           </PrimaryButton>
         </ButtonContainer>
       </form>

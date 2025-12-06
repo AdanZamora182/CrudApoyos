@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createCabezaCirculo } from "../../api/cabezasApi";
 import { buscarMunicipioPorCP, buscarColoniasPorCP } from "../../api/direccionesApi";
 import { useToaster } from "../../components/ui/ToasterProvider";
@@ -21,6 +22,34 @@ import {
 const CabezaCirculoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
   const { showSuccess, showError, showWarning } = useToaster();
+  const queryClient = useQueryClient();
+
+  // Mutación para crear una cabeza de círculo
+  const createMutation = useMutation({
+    mutationFn: createCabezaCirculo,
+    onSuccess: () => {
+      // Invalidar el cache de cabezas de círculo para refrescar la tabla CRUD
+      queryClient.invalidateQueries({ queryKey: ["cabezasCirculo"] });
+      showSuccess("Cabeza de círculo registrada exitosamente.");
+      // Limpiar formulario después del éxito
+      setFormData(initialFormState);
+      setErrors({});
+      setColonias([]);
+      setShowColoniaDropdown(false);
+    },
+    onError: (error) => {
+      console.error("Error al registrar cabeza de círculo:", error);
+      // Manejar errores del backend
+      const backendErrorMessage = error.response?.data?.message || "Error al registrar cabeza de círculo. Verifique los datos e inténtelo de nuevo.";
+      const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
+      // Detectar si es error de clave de elector duplicada
+      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad') || displayMessage.toLowerCase().includes('unique')) {
+        showError("Clave de elector duplicada, verifique la información.");
+      } else {
+        showError(displayMessage);
+      }
+    },
+  });
   
   // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
@@ -46,7 +75,6 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
   // Estados del componente
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({}); // Para manejar errores de validación
-  const [loading, setLoading] = useState(false); // Para mostrar estado de carga
   const [hideHeaderState, setHideHeader] = useState(hideHeader);
   
   // Estados para el dropdown de colonias
@@ -231,57 +259,31 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
       return;
     }
 
-    setLoading(true);
+    // Formatear datos para enviar al backend
+    const cabezaData = {
+      nombre: formData.nombre,
+      apellidoPaterno: formData.apellidoPaterno,
+      apellidoMaterno: formData.apellidoMaterno,
+      fechaNacimiento: formData.fechaNacimiento,
+      telefono: parseInt(formData.telefono, 10),
+      calle: formData.calle,
+      noExterior: parseInt(formData.noExterior, 10), // Campo obligatorio
+      noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null, // Campo opcional
+      colonia: formData.colonia,
+      codigoPostal: parseInt(formData.codigoPostal, 10),
+      municipio: formData.municipio || null,
+      claveElector: formData.claveElector,
+      email: formData.email,
+      facebook: formData.facebook || null,
+      otraRedSocial: formData.otraRedSocial || null,
+      estructuraTerritorial: formData.estructuraTerritorial,
+      posicionEstructura: formData.posicionEstructura,
+    };
+    
+    console.log("Datos a enviar al backend:", cabezaData);
 
-    try {
-      // Formatear datos para enviar al backend
-      const cabezaData = {
-        nombre: formData.nombre,
-        apellidoPaterno: formData.apellidoPaterno,
-        apellidoMaterno: formData.apellidoMaterno,
-        fechaNacimiento: formData.fechaNacimiento,
-        telefono: parseInt(formData.telefono, 10),
-        calle: formData.calle,
-        noExterior: parseInt(formData.noExterior, 10), // Campo obligatorio
-        noInterior: formData.noInterior ? parseInt(formData.noInterior, 10) : null, // Campo opcional
-        colonia: formData.colonia,
-        codigoPostal: parseInt(formData.codigoPostal, 10),
-        municipio: formData.municipio || null,
-        claveElector: formData.claveElector,
-        email: formData.email,
-        facebook: formData.facebook || null,
-        otraRedSocial: formData.otraRedSocial || null,
-        estructuraTerritorial: formData.estructuraTerritorial,
-        posicionEstructura: formData.posicionEstructura,
-      };
-      
-      console.log("Datos a enviar al backend:", cabezaData);
-
-      // Enviar datos al backend
-      await createCabezaCirculo(cabezaData);
-
-      // Mostrar toast de éxito
-      showSuccess("Cabeza de círculo registrada exitosamente.");
-
-      // Limpiar formulario después del éxito
-      setFormData(initialFormState);
-      setErrors({});
-    } catch (error) {
-      console.error("Error al registrar cabeza de círculo:", error);
-      
-      // Manejar errores del backend
-      const backendErrorMessage = error.response?.data?.message || "Error al registrar cabeza de círculo. Verifique los datos e inténtelo de nuevo.";
-      const displayMessage = Array.isArray(backendErrorMessage) ? backendErrorMessage.join(', ') : backendErrorMessage;
-      
-      // Detectar si es error de clave de elector duplicada
-      if (displayMessage.toLowerCase().includes('clave') || displayMessage.toLowerCase().includes('existe') || displayMessage.toLowerCase().includes('duplicad') || displayMessage.toLowerCase().includes('unique')) {
-        showError("Clave de elector duplicada, verifique la información.");
-      } else {
-        showError(displayMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
+    // Enviar datos usando la mutación de react-query
+    createMutation.mutate(cabezaData);
   };
 
   // Función para limpiar el formulario
@@ -602,9 +604,9 @@ const CabezaCirculoForm = ({ hideHeader = false }) => {
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={loading}
+            disabled={createMutation.isPending}
           >
-            {loading ? "Registrando..." : "Registrar"}
+            {createMutation.isPending ? "Registrando..." : "Registrar"}
           </PrimaryButton>
         </ButtonContainer>
       </form>

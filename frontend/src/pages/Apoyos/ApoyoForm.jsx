@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
 import { useToaster } from "../../components/ui/ToasterProvider";
 import {
@@ -28,6 +29,29 @@ import {
 const ApoyoForm = ({ hideHeader = false }) => {
   const navigate = useNavigate();
   const { showSuccess, showError, showWarning } = useToaster();
+  const queryClient = useQueryClient();
+
+  // Mutación para crear un apoyo
+  const createMutation = useMutation({
+    mutationFn: createApoyo,
+    onSuccess: () => {
+      // Invalidar el cache de apoyos para refrescar la tabla CRUD
+      queryClient.invalidateQueries({ queryKey: ["apoyos"] });
+      showSuccess("Apoyo registrado exitosamente.");
+      // Limpiar formulario después del éxito
+      setFormData(initialFormState);
+      setErrors({});
+      setSelectedBeneficiario(null);
+      setSearchQuery("");
+      setShowTipoApoyoDropdown(false);
+    },
+    onError: (error) => {
+      console.error("Error al registrar apoyo:", error);
+      // Manejar errores del backend
+      const backendErrorMessage = error.response?.data?.message || "Error al registrar apoyo. Verifique los datos e inténtelo de nuevo.";
+      showError(backendErrorMessage);
+    },
+  });
 
   // Estado inicial del formulario con todos los campos requeridos
   const initialFormState = {
@@ -41,7 +65,6 @@ const ApoyoForm = ({ hideHeader = false }) => {
   // Estados del componente para manejo del formulario
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
@@ -217,40 +240,19 @@ const ApoyoForm = ({ hideHeader = false }) => {
       return;
     }
 
-    setLoading(true);
+    // Preparar datos para enviar al backend
+    const apoyoData = {
+      cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
+      tipoApoyo: formData.tipoApoyo.trim(), // Ya no necesita validación de "Otro"
+      fechaEntrega: formData.fechaEntrega,
+      persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null,
+      cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null,
+    };
 
-    try {
-      // Preparar datos para enviar al backend
-      const apoyoData = {
-        cantidad: formData.cantidad ? parseInt(formData.cantidad, 10) : null,
-        tipoApoyo: formData.tipoApoyo.trim(), // Ya no necesita validación de "Otro"
-        fechaEntrega: formData.fechaEntrega,
-        persona: formData.beneficiarioTipo === "integrante" ? { id: formData.beneficiarioId } : null,
-        cabeza: formData.beneficiarioTipo === "cabeza" ? { id: formData.beneficiarioId } : null,
-      };
+    console.log("Datos enviados al backend:", apoyoData);
 
-      console.log("Datos enviados al backend:", apoyoData);
-
-      // Enviar datos al backend
-      await createApoyo(apoyoData);
-
-      // Mostrar toast de éxito
-      showSuccess("Apoyo registrado exitosamente.");
-
-      // Limpiar formulario después del éxito
-      setFormData(initialFormState);
-      setErrors({});
-      setSelectedBeneficiario(null);
-      setSearchQuery("");
-    } catch (error) {
-      console.error("Error al registrar apoyo:", error);
-      
-      // Manejar errores del backend
-      const backendErrorMessage = error.response?.data?.message || "Error al registrar apoyo. Verifique los datos e inténtelo de nuevo.";
-      showError(backendErrorMessage);
-    } finally {
-      setLoading(false);
-    }
+    // Enviar datos usando la mutación de react-query
+    createMutation.mutate(apoyoData);
   };
 
   // Función para limpiar el formulario
@@ -422,8 +424,8 @@ const ApoyoForm = ({ hideHeader = false }) => {
           <SecondaryButton type="button" onClick={handleReset}>
             Limpiar
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={loading}>
-            {loading ? "Registrando..." : "Registrar"}
+          <PrimaryButton type="submit" disabled={createMutation.isPending}>
+            {createMutation.isPending ? "Registrando..." : "Registrar"}
           </PrimaryButton>
         </ButtonContainer>
       </form>
