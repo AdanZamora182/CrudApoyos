@@ -4,13 +4,16 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Habilitar CORS
+  // Habilitar CORS usando variable de entorno
   app.enableCors({
-    origin: 'http://localhost:5173', // URL del frontend (React con Vite)
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   });
 
-  await app.listen(3000); // Puerto del backend
+  // Puerto del backend desde variable de entorno
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`Backend running on port ${port}`);
 }
 bootstrap();
