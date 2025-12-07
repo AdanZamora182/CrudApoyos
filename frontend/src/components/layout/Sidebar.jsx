@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useAuth } from '../../hooks/useAuth';
 import logoApoyos from '../../assets/logoApoyos.png';
 import {
   SidebarContainer,
@@ -17,10 +18,22 @@ import {
   UserRole
 } from './Sidebar.styles';
 
-const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
+const Sidebar = ({ collapsed, onToggle, user }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isMobile, getResponsiveValue } = useResponsive();
+  const { logout } = useAuth();
+
+  // Handler para cerrar sesión (igual que en HomePage.jsx)
+  const handleLogout = () => {
+    try {
+      logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      window.location.href = '/login';
+    }
+  };
 
   const menuItems = [
     { 
@@ -102,7 +115,7 @@ const Sidebar = ({ collapsed, onToggle, user, onLogout }) => {
           </UserInfo>
         )}
         
-        <MenuItem $logout onClick={onLogout} $collapsed={collapsed}>
+        <MenuItem $logout onClick={handleLogout} $collapsed={collapsed}>
           <MenuIcon>
             <i className="bi bi-box-arrow-right"></i>
           </MenuIcon>

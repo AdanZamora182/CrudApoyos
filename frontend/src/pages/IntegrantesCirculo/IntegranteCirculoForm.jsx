@@ -18,7 +18,9 @@ import {
   SearchResults,
   SearchResultItem,
   SelectedLiderContainer,
-  SelectedBeneficiaryInput,
+  SelectedLiderInput,
+  LiderName,
+  LiderClaveElector,
   RemoveLiderButton,
   PrimaryButton,
   SecondaryButton,
@@ -592,12 +594,14 @@ const IntegranteCirculoForm = ({ hideHeader = false }) => {
                 <div className="col-md-6 mb-2">
                   <label className="form-label">Cabeza de Círculo Seleccionada</label>
                   <SelectedLiderContainer>
-                    <SelectedBeneficiaryInput
-                      type="text"
-                      className="form-control form-control-sm"
-                      value={`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno} - ${selectedLider.claveElector}`}
-                      readOnly
-                    />
+                    <SelectedLiderInput>
+                      <LiderName>
+                        {`${selectedLider.nombre} ${selectedLider.apellidoPaterno} ${selectedLider.apellidoMaterno}`}
+                      </LiderName>
+                      <LiderClaveElector>
+                        {selectedLider.claveElector}
+                      </LiderClaveElector>
+                    </SelectedLiderInput>
                     <RemoveLiderButton
                       type="button"
                       onClick={handleRemoveLider}

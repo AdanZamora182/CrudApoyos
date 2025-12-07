@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createApoyo, buscarCabezasCirculo, buscarIntegrantesCirculo } from "../../api";
 import { useToaster } from "../../components/ui/ToasterProvider";
 import {
@@ -18,6 +18,9 @@ import {
   SelectedBeneficiaryContainer,
   SelectedBeneficiaryWrapper,
   SelectedBeneficiaryInput,
+  BeneficiaryName,
+  BeneficiaryClaveElector,
+  BeneficiaryType,
   RemoveBeneficiaryButton,
   EmptyBeneficiaryPlaceholder,
   ErrorText,
@@ -66,9 +69,40 @@ const ApoyoForm = ({ hideHeader = false }) => {
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [beneficiarios, setBeneficiarios] = useState([]);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null);
   const [hideHeaderState] = useState(hideHeader);
+
+  // Debounce para la búsqueda (300ms)
+  useMemo(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Query para buscar beneficiarios con caché
+  const { data: beneficiarios = [], isFetching: isSearching } = useQuery({
+    queryKey: ['beneficiarios', 'search', debouncedQuery],
+    queryFn: async () => {
+      if (debouncedQuery.length <= 2) return [];
+      
+      // Buscar en ambas tablas en paralelo
+      const [cabezas, integrantes] = await Promise.all([
+        buscarCabezasCirculo(debouncedQuery),
+        buscarIntegrantesCirculo(debouncedQuery),
+      ]);
+      
+      // Combinar resultados y marcar el tipo
+      return [
+        ...cabezas.map((cabeza) => ({ ...cabeza, tipo: "cabeza" })),
+        ...integrantes.map((integrante) => ({ ...integrante, tipo: "integrante" })),
+      ];
+    },
+    enabled: debouncedQuery.length > 2, // Solo buscar si hay más de 2 caracteres
+    staleTime: 2 * 60 * 1000, // 2 minutos de caché
+    gcTime: 5 * 60 * 1000, // 5 minutos en memoria
+  });
 
   // Estado para el dropdown de tipos de apoyo
   const [showTipoApoyoDropdown, setShowTipoApoyoDropdown] = useState(false);
@@ -174,30 +208,10 @@ const ApoyoForm = ({ hideHeader = false }) => {
     return formIsValid;
   };
 
-  // Función para buscar beneficiarios (cabezas e integrantes de círculo)
-  const handleSearchBeneficiarios = async (e) => {
+  // Función para manejar cambios en el campo de búsqueda
+  const handleSearchBeneficiarios = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    
-    if (query.length > 2) {
-      try {
-        // Buscar en ambas tablas en paralelo
-        const [cabezas, integrantes] = await Promise.all([
-          buscarCabezasCirculo(query),
-          buscarIntegrantesCirculo(query),
-        ]);
-        
-        // Combinar resultados y marcar el tipo
-        setBeneficiarios([
-          ...cabezas.map((cabeza) => ({ ...cabeza, tipo: "cabeza" })),
-          ...integrantes.map((integrante) => ({ ...integrante, tipo: "integrante" })),
-        ]);
-      } catch (error) {
-        console.error("Error al buscar beneficiarios:", error);
-      }
-    } else {
-      setBeneficiarios([]);
-    }
   };
 
   // Función para seleccionar un beneficiario de la lista de búsqueda
@@ -205,11 +219,11 @@ const ApoyoForm = ({ hideHeader = false }) => {
     setSelectedBeneficiario(beneficiario);
     setFormData({
       ...formData,
-      beneficiarioId: beneficiario.id, // Establecer correctamente el ID del beneficiario seleccionado
-      beneficiarioTipo: beneficiario.tipo, // Establecer correctamente el tipo del beneficiario seleccionado
+      beneficiarioId: beneficiario.id,
+      beneficiarioTipo: beneficiario.tipo,
     });
     setSearchQuery(""); // Limpiar la consulta de búsqueda después de la selección
-    setBeneficiarios([]);
+    setDebouncedQuery(""); // Limpiar también el debounced para ocultar el dropdown
     
     // Limpiar error del campo beneficiario si existe
     if (errors.beneficiarioId) {
@@ -261,6 +275,7 @@ const ApoyoForm = ({ hideHeader = false }) => {
     setErrors({});
     setSelectedBeneficiario(null);
     setSearchQuery("");
+    setDebouncedQuery(""); // Limpiar el debounced para cerrar el dropdown
     setShowTipoApoyoDropdown(false);
   };
 
@@ -367,7 +382,12 @@ const ApoyoForm = ({ hideHeader = false }) => {
                     onChange={handleSearchBeneficiarios}
                     autoComplete="off"
                   />
-                  {beneficiarios.length > 0 && (
+                  {isSearching && searchQuery.length > 2 && (
+                    <div style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
+                      <span className="spinner-border spinner-border-sm text-primary" role="status" />
+                    </div>
+                  )}
+                  {beneficiarios.length > 0 && debouncedQuery.length > 2 && (
                     <SearchResults>
                       {beneficiarios.map((beneficiario) => (
                         <SearchResultItem
@@ -389,12 +409,17 @@ const ApoyoForm = ({ hideHeader = false }) => {
                   <div className="col-md-6 mb-2">
                     <label className="form-label">Beneficiario Seleccionado</label>
                     <SelectedBeneficiaryWrapper>
-                      <SelectedBeneficiaryInput
-                        type="text"
-                        className="form-control form-control-sm"
-                        value={`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno} - ${selectedBeneficiario.claveElector}`}
-                        readOnly
-                      />
+                      <SelectedBeneficiaryInput>
+                        <BeneficiaryName>
+                          {`${selectedBeneficiario.nombre} ${selectedBeneficiario.apellidoPaterno} ${selectedBeneficiario.apellidoMaterno}`}
+                        </BeneficiaryName>
+                        <BeneficiaryClaveElector>
+                          {selectedBeneficiario.claveElector}
+                        </BeneficiaryClaveElector>
+                        <BeneficiaryType $tipo={selectedBeneficiario.tipo}>
+                          {selectedBeneficiario.tipo === 'cabeza' ? 'Cabeza de Círculo' : 'Integrante de Círculo'}
+                        </BeneficiaryType>
+                      </SelectedBeneficiaryInput>
                       <RemoveBeneficiaryButton
                         type="button"
                         onClick={handleRemoveBeneficiario}

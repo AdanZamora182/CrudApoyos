@@ -410,46 +410,114 @@ export const SelectedLiderContainer = styled.div`
   align-items: center;
 `;
 
-// Input del líder seleccionado
-export const SelectedLiderInput = styled.input`
-  flex-grow: 1;
-  background-color: rgba(92, 107, 192, 0.05);
-  font-weight: 500;
-  color: ${theme.primaryColor};
-`;
-
-// Input de beneficiario seleccionado para desktop
-export const SelectedBeneficiaryInput = styled.input`
+// Contenedor de líder seleccionado con múltiples líneas (similar a SelectedBeneficiaryInput)
+export const SelectedLiderInput = styled.div`
   background-color: #f3f6ff;
+  border: 1px solid #dee2e6;
   border-left: 3px solid ${theme.primaryColor};
-  font-weight: 500;
-  padding-right: 35px !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  min-height: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  position: relative;
+  width: 100%;
 
   /* Tablet y móviles grandes */
   @media (max-width: 992px) {
-    font-size: 0.8125rem;
-    padding-right: 32px !important;
+    padding: 0.5rem 2.25rem 0.5rem 0.65rem;
+    min-height: 2.75rem;
   }
 
   /* Móviles */
   @media (max-width: 768px) {
-    font-size: 0.75rem;
-    padding: 0.5rem 30px 0.5rem 0.75rem !important;
-    line-height: 1.3;
-    white-space: normal;
+    padding: 0.5rem 2rem 0.5rem 0.6rem;
     min-height: 2.5rem;
   }
 
   /* Móviles pequeños */
   @media (max-width: 576px) {
-    font-size: 0.6875rem;
-    padding: 0.45rem 28px 0.45rem 0.65rem !important;
+    padding: 0.45rem 1.75rem 0.45rem 0.5rem;
+    min-height: 2.25rem;
+  }
+`;
+
+// Nombre del líder (línea principal)
+export const LiderName = styled.div`
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 992px) {
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.8125rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
+`;
+
+// Clave de elector del líder
+export const LiderClaveElector = styled.div`
+  font-size: 0.8375rem;
+  color: #6c757d;
+  font-weight: 400;
+  line-height: 1.2;
+
+  @media (max-width: 992px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+  }
+`;
+
+// Contenedor de beneficiario seleccionado con múltiples líneas
+export const SelectedBeneficiaryInput = styled.div`
+  background-color: #f3f6ff;
+  border-left: 3px solid ${theme.primaryColor};
+  border: 1px solid #dee2e6;
+  border-left: 3px solid ${theme.primaryColor};
+  border-radius: 0.375rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  min-height: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  position: relative;
+  width: 100%;
+
+  /* Tablet y móviles grandes */
+  @media (max-width: 997px) {
+    padding: 0.5rem 2.25rem 0.5rem 0.65rem;
+    min-height: 3.25rem;
+  }
+
+  /* Móviles */
+  @media (max-width: 768px) {
+    padding: 0.5rem 2rem 0.5rem 0.6rem;
     min-height: 3rem;
-    line-height: 1.2;
+    gap: 0.1rem;
+  }
+
+  /* Móviles pequeños */
+  @media (max-width: 576px) {
+    padding: 0.45rem 1.75rem 0.45rem 0.5rem;
+    min-height: 2.75rem;
   }
 `;
 
@@ -472,22 +540,39 @@ export const MobileBeneficiaryContainer = styled.div`
 
 // Nombre del beneficiario (línea principal)
 export const BeneficiaryName = styled.div`
-  font-weight: 500;
-  margin-bottom: 0.25rem;
+  font-weight: 600;
   color: #2c3e50;
-  font-size: 0.875rem;
-  line-height: 1.35;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 992px) {
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.8125rem;
+    white-space: normal;
+    word-break: break-word;
+  }
 
   @media (max-width: 576px) {
-    font-size: 0.8125rem;
+    font-size: 0.8rem;
   }
 `;
 
 // Clave de elector del beneficiario
 export const BeneficiaryClaveElector = styled.div`
-  font-size: 0.8125rem;
+  font-size: 0.8375rem;
   color: #6c757d;
-  margin-bottom: 0.15rem;
+  font-weight: 400;
+  line-height: 1.2;
+
+  @media (max-width: 992px) {
+    font-size: 0.8rem;
+  }
 
   @media (max-width: 576px) {
     font-size: 0.75rem;
@@ -495,14 +580,27 @@ export const BeneficiaryClaveElector = styled.div`
 `;
 
 // Tipo de beneficiario (Cabeza/Integrante)
-export const BeneficiaryType = styled.div`
+export const BeneficiaryType = styled.span`
+  display: inline-block;
   font-size: 0.75rem;
-  color: #495057;
-  margin-top: 0.2rem;
-  font-weight: 400;
+  font-weight: 500;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  line-height: 1.2;
+  margin-top: 0.1rem;
+  width: fit-content;
+  background-color: ${props => props.$tipo === 'cabeza' ? 'rgba(92, 107, 192, 0.15)' : 'rgba(38, 198, 218, 0.15)'};
+  color: ${props => props.$tipo === 'cabeza' ? '#5c6bc0' : '#00838f'};
+  border: 1px solid ${props => props.$tipo === 'cabeza' ? 'rgba(92, 107, 192, 0.3)' : 'rgba(38, 198, 218, 0.3)'};
+
+  @media (max-width: 992px) {
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.35rem;
+  }
 
   @media (max-width: 576px) {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
   }
 `;
 
@@ -737,6 +835,8 @@ export default {
   SearchResultItem,
   SelectedLiderContainer,
   SelectedLiderInput,
+  LiderName,
+  LiderClaveElector,
   SelectedBeneficiaryInput,
   RemoveLiderButton,
   BeneficiaryContainer,
