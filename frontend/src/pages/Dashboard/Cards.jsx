@@ -45,13 +45,16 @@ const MetricCard = ({ title, value, subtext, icon: Icon, bgColor, iconColor, ico
 const DashboardCards = () => {
   const [currentYear] = useState(new Date().getFullYear());
 
-  // Usar TanStack Query para obtener las estadísticas
-  const { data: stats, isLoading, isError } = useQuery({
+  // Usar TanStack Query con configuración optimizada
+  const { data: stats, isLoading, isError, isFetching } = useQuery({
     queryKey: ['dashboardStats', currentYear],
     queryFn: () => getDashboardStats(currentYear),
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: 10 * 60 * 1000, // 10 minutos - datos no cambian tan frecuentemente
+    gcTime: 30 * 60 * 1000, // 30 minutos en caché (antes cacheTime)
     refetchOnWindowFocus: false,
-    retry: 2,
+    refetchOnMount: false, // No refetch si ya hay datos en caché
+    retry: 1, // Solo 1 reintento para fallar rápido
+    retryDelay: 1000,
   });
 
   const cardsConfig = [

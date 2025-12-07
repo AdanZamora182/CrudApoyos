@@ -44,8 +44,11 @@ const GraphBars = () => {
   const { data: apoyosPorMes = [], isLoading: loadingMes } = useQuery({
     queryKey: ['apoyosByMonth', currentYear],
     queryFn: () => getApoyosByMonth(currentYear),
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
+    staleTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos en caché
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
   });
 
   // Query para apoyos por tipo (con filtro de mes)
@@ -55,8 +58,11 @@ const GraphBars = () => {
       const month = selectedMonth === 'todos' ? null : selectedMonth;
       return getApoyosByType(currentYear, month);
     },
-    staleTime: 3 * 60 * 1000,
-    retry: 2,
+    staleTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos en caché
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
   });
 
   // Colores para las gráficas

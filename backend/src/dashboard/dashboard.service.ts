@@ -58,7 +58,7 @@ export class DashboardService {
     return total > 0 ? Math.floor(total / monthsToConsider) : 0;
   }
 
-  // Método para obtener todas las estadísticas del dashboard
+  // Método para obtener todas las estadísticas del dashboard (optimizado)
   async getDashboardStats(year?: number): Promise<{
     cabezasCirculo: number;
     integrantesCirculo: number;
@@ -66,13 +66,19 @@ export class DashboardService {
     apoyosPromedio: number;
   }> {
     const currentYear = year || new Date().getFullYear();
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const monthsToConsider = currentYear === now.getFullYear() ? currentMonth : 12;
 
-    const [cabezasCirculo, integrantesCirculo, apoyosTotal, apoyosPromedio] = await Promise.all([
+    // Ejecutar todas las consultas en paralelo (sin duplicar la de apoyos)
+    const [cabezasCirculo, integrantesCirculo, apoyosTotal] = await Promise.all([
       this.getCabezasCirculoCount(),
       this.getIntegrantesCirculoCount(),
       this.getApoyosTotalByYear(currentYear),
-      this.getApoyosMonthlyAverage(currentYear),
     ]);
+
+    // Calcular promedio sin hacer otra consulta
+    const apoyosPromedio = apoyosTotal > 0 ? Math.floor(apoyosTotal / monthsToConsider) : 0;
 
     return {
       cabezasCirculo,
@@ -174,103 +180,88 @@ export class DashboardService {
     });
   }
 
-  // Método para obtener top colonias con más apoyos
+  // Método para obtener top colonias con más apoyos (optimizado con consultas en paralelo)
   async getTopColoniasMasApoyos(year?: number, month?: number, limit: number = 7): Promise<{ 
     posicion: number; 
     colonia: string; 
     codigoPostal: number; 
     totalApoyos: number 
   }[]> {
-    const currentYear = year || new Date().getFullYear();
-    const now = new Date();
-    
-    let startDate: Date;
-    let endDate: Date;
+    const { startDate, endDate } = this.getDateRange(year, month);
 
-    if (month) {
-      // Si se especifica un mes, filtrar solo ese mes
-      startDate = new Date(currentYear, month - 1, 1);
-      endDate = new Date(currentYear, month, 0, 23, 59, 59);
-    } else {
-      // Si no se especifica mes (Todos los meses)
-      startDate = new Date(currentYear, 0, 1);
-      
-      // Si el año es el actual, usar hasta hoy
-      if (currentYear === now.getFullYear()) {
-        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-      } else {
-        endDate = new Date(currentYear, 11, 31, 23, 59, 59);
-      }
-    }
+    // Ejecutar ambas consultas en paralelo
+    const [cabezasData, integrantesData] = await Promise.all([
+      this.apoyoRepo
+        .createQueryBuilder('apoyo')
+        .innerJoin('apoyo.cabeza', 'cabeza')
+        .select('cabeza.colonia', 'colonia')
+        .addSelect('cabeza.codigoPostal', 'codigoPostal')
+        .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
+        .where('apoyo.fechaEntrega >= :startDate', { startDate })
+        .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
+        .andWhere('apoyo.cabeza IS NOT NULL')
+        .groupBy('cabeza.colonia')
+        .addGroupBy('cabeza.codigoPostal')
+        .getRawMany(),
+      this.apoyoRepo
+        .createQueryBuilder('apoyo')
+        .innerJoin('apoyo.persona', 'persona')
+        .select('persona.colonia', 'colonia')
+        .addSelect('persona.codigoPostal', 'codigoPostal')
+        .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
+        .where('apoyo.fechaEntrega >= :startDate', { startDate })
+        .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
+        .andWhere('apoyo.persona IS NOT NULL')
+        .groupBy('persona.colonia')
+        .addGroupBy('persona.codigoPostal')
+        .getRawMany(),
+    ]);
 
-    // Consulta para obtener apoyos de CabezaCirculo
-    const cabezasData = await this.apoyoRepo
-      .createQueryBuilder('apoyo')
-      .innerJoin('apoyo.cabeza', 'cabeza')
-      .select('cabeza.colonia', 'colonia')
-      .addSelect('cabeza.codigoPostal', 'codigoPostal')
-      .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
-      .where('apoyo.fechaEntrega >= :startDate', { startDate })
-      .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
-      .andWhere('apoyo.cabeza IS NOT NULL')
-      .groupBy('cabeza.colonia')
-      .addGroupBy('cabeza.codigoPostal')
-      .getRawMany();
-
-    // Consulta para obtener apoyos de IntegranteCirculo
-    const integrantesData = await this.apoyoRepo
-      .createQueryBuilder('apoyo')
-      .innerJoin('apoyo.persona', 'persona')
-      .select('persona.colonia', 'colonia')
-      .addSelect('persona.codigoPostal', 'codigoPostal')
-      .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
-      .where('apoyo.fechaEntrega >= :startDate', { startDate })
-      .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
-      .andWhere('apoyo.persona IS NOT NULL')
-      .groupBy('persona.colonia')
-      .addGroupBy('persona.codigoPostal')
-      .getRawMany();
-
-    // Combinar y agrupar datos de ambas consultas
-    const coloniaMap = new Map<string, { colonia: string; codigoPostal: number; totalApoyos: number }>();
-
-    [...cabezasData, ...integrantesData].forEach((item) => {
-      const key = `${item.colonia}-${item.codigoPostal || 0}`;
-      const cantidad = parseInt(item.totalApoyos, 10) || 0;
-      
-      if (coloniaMap.has(key)) {
-        const existing = coloniaMap.get(key);
-        existing.totalApoyos += cantidad;
-      } else {
-        coloniaMap.set(key, {
-          colonia: item.colonia,
-          codigoPostal: item.codigoPostal || 0,
-          totalApoyos: cantidad,
-        });
-      }
-    });
-
-    // Convertir a array, ordenar descendente y tomar top 7
-    const result = Array.from(coloniaMap.values())
-      .sort((a, b) => b.totalApoyos - a.totalApoyos)
-      .slice(0, limit)
-      .map((item, index) => ({
-        posicion: index + 1,
-        colonia: item.colonia,
-        codigoPostal: item.codigoPostal,
-        totalApoyos: item.totalApoyos,
-      }));
-
-    return result;
+    return this.combineAndSortColonias(cabezasData, integrantesData, limit, 'desc');
   }
 
-  // Método para obtener top colonias con menos apoyos
+  // Método para obtener top colonias con menos apoyos (optimizado con consultas en paralelo)
   async getTopColoniasMenosApoyos(year?: number, month?: number, limit: number = 7): Promise<{ 
     posicion: number; 
     colonia: string; 
     codigoPostal: number; 
     totalApoyos: number 
   }[]> {
+    const { startDate, endDate } = this.getDateRange(year, month);
+
+    // Ejecutar ambas consultas en paralelo
+    const [cabezasData, integrantesData] = await Promise.all([
+      this.apoyoRepo
+        .createQueryBuilder('apoyo')
+        .innerJoin('apoyo.cabeza', 'cabeza')
+        .select('cabeza.colonia', 'colonia')
+        .addSelect('cabeza.codigoPostal', 'codigoPostal')
+        .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
+        .where('apoyo.fechaEntrega >= :startDate', { startDate })
+        .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
+        .andWhere('apoyo.cabeza IS NOT NULL')
+        .groupBy('cabeza.colonia')
+        .addGroupBy('cabeza.codigoPostal')
+        .getRawMany(),
+      this.apoyoRepo
+        .createQueryBuilder('apoyo')
+        .innerJoin('apoyo.persona', 'persona')
+        .select('persona.colonia', 'colonia')
+        .addSelect('persona.codigoPostal', 'codigoPostal')
+        .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
+        .where('apoyo.fechaEntrega >= :startDate', { startDate })
+        .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
+        .andWhere('apoyo.persona IS NOT NULL')
+        .groupBy('persona.colonia')
+        .addGroupBy('persona.codigoPostal')
+        .getRawMany(),
+    ]);
+
+    return this.combineAndSortColonias(cabezasData, integrantesData, limit, 'asc');
+  }
+
+  // Método helper para calcular rango de fechas
+  private getDateRange(year?: number, month?: number): { startDate: Date; endDate: Date } {
     const currentYear = year || new Date().getFullYear();
     const now = new Date();
     
@@ -282,7 +273,6 @@ export class DashboardService {
       endDate = new Date(currentYear, month, 0, 23, 59, 59);
     } else {
       startDate = new Date(currentYear, 0, 1);
-      
       if (currentYear === now.getFullYear()) {
         endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
       } else {
@@ -290,35 +280,16 @@ export class DashboardService {
       }
     }
 
-    // Consulta para obtener apoyos de CabezaCirculo
-    const cabezasData = await this.apoyoRepo
-      .createQueryBuilder('apoyo')
-      .innerJoin('apoyo.cabeza', 'cabeza')
-      .select('cabeza.colonia', 'colonia')
-      .addSelect('cabeza.codigoPostal', 'codigoPostal')
-      .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
-      .where('apoyo.fechaEntrega >= :startDate', { startDate })
-      .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
-      .andWhere('apoyo.cabeza IS NOT NULL')
-      .groupBy('cabeza.colonia')
-      .addGroupBy('cabeza.codigoPostal')
-      .getRawMany();
+    return { startDate, endDate };
+  }
 
-    // Consulta para obtener apoyos de IntegranteCirculo
-    const integrantesData = await this.apoyoRepo
-      .createQueryBuilder('apoyo')
-      .innerJoin('apoyo.persona', 'persona')
-      .select('persona.colonia', 'colonia')
-      .addSelect('persona.codigoPostal', 'codigoPostal')
-      .addSelect('SUM(apoyo.cantidad)', 'totalApoyos')
-      .where('apoyo.fechaEntrega >= :startDate', { startDate })
-      .andWhere('apoyo.fechaEntrega <= :endDate', { endDate })
-      .andWhere('apoyo.persona IS NOT NULL')
-      .groupBy('persona.colonia')
-      .addGroupBy('persona.codigoPostal')
-      .getRawMany();
-
-    // Combinar y agrupar datos
+  // Método helper para combinar y ordenar colonias
+  private combineAndSortColonias(
+    cabezasData: any[],
+    integrantesData: any[],
+    limit: number,
+    order: 'asc' | 'desc'
+  ): { posicion: number; colonia: string; codigoPostal: number; totalApoyos: number }[] {
     const coloniaMap = new Map<string, { colonia: string; codigoPostal: number; totalApoyos: number }>();
 
     [...cabezasData, ...integrantesData].forEach((item) => {
@@ -326,8 +297,7 @@ export class DashboardService {
       const cantidad = parseInt(item.totalApoyos, 10) || 0;
       
       if (coloniaMap.has(key)) {
-        const existing = coloniaMap.get(key);
-        existing.totalApoyos += cantidad;
+        coloniaMap.get(key).totalApoyos += cantidad;
       } else {
         coloniaMap.set(key, {
           colonia: item.colonia,
@@ -337,9 +307,8 @@ export class DashboardService {
       }
     });
 
-    // Convertir a array, ordenar ascendente y tomar top 7
-    const result = Array.from(coloniaMap.values())
-      .sort((a, b) => a.totalApoyos - b.totalApoyos)
+    return Array.from(coloniaMap.values())
+      .sort((a, b) => order === 'desc' ? b.totalApoyos - a.totalApoyos : a.totalApoyos - b.totalApoyos)
       .slice(0, limit)
       .map((item, index) => ({
         posicion: index + 1,
@@ -347,7 +316,5 @@ export class DashboardService {
         codigoPostal: item.codigoPostal,
         totalApoyos: item.totalApoyos,
       }));
-
-    return result;
   }
 }

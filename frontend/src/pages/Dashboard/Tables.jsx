@@ -40,8 +40,11 @@ const DashboardTables = () => {
       const month = selectedMonthMas === 'todos' ? null : selectedMonthMas;
       return getTopColoniasMasApoyos(currentYear, month);
     },
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
+    staleTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos en caché
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
   });
 
   // Query para colonias con menos apoyos
@@ -51,8 +54,11 @@ const DashboardTables = () => {
       const month = selectedMonthMenos === 'todos' ? null : selectedMonthMenos;
       return getTopColoniasMenosApoyos(currentYear, month);
     },
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
+    staleTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos en caché
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
   });
 
   const meses = [
