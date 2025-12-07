@@ -166,14 +166,14 @@ export const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   background: white;
-  min-width: 600px;
+  min-width: 500px;
 
   thead {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-bottom: 2px solid #e2e8f0;
 
     th {
-      padding: 16px 20px;
+      padding: 16px 12px;
       text-align: left;
       font-weight: 700;
       color: #475569;
@@ -182,8 +182,14 @@ export const StyledTable = styled.table`
       letter-spacing: 0.05em;
       white-space: nowrap;
 
+      &:nth-child(3),
+      &:nth-child(4) {
+        padding: 16px 8px;
+        text-align: center;
+      }
+
       @media ${devices.maxSm} {
-        padding: 12px 16px;
+        padding: 12px 10px;
         font-size: 11px;
       }
     }
@@ -212,13 +218,19 @@ export const StyledTable = styled.table`
     }
 
     td {
-      padding: 16px 20px;
+      padding: 16px 12px;
       color: #64748b;
       font-size: 14px;
       vertical-align: middle;
 
+      &:nth-child(3),
+      &:nth-child(4) {
+        padding: 16px 8px;
+        text-align: center;
+      }
+
       @media ${devices.maxSm} {
-        padding: 12px 16px;
+        padding: 12px 10px;
         font-size: 13px;
       }
     }
@@ -292,11 +304,15 @@ export const ColoniaText = styled.div`
   font-weight: 600;
   color: #1e293b;
   font-size: 14px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const PostalChip = styled.span`
   display: inline-block;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 12px;
   background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
   color: #6366f1;

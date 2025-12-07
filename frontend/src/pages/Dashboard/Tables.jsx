@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   useReactTable,
   getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
   flexRender,
+  createColumnHelper,
 } from '@tanstack/react-table';
 import { Form } from 'react-bootstrap';
 import { TrendingUp, TrendingDown } from 'lucide-react';
@@ -68,48 +71,68 @@ const DashboardTables = () => {
     { value: 12, label: 'Diciembre' },
   ];
 
-  // Columnas para las tablas
-  const columns = [
-    {
-      accessorKey: 'posicion',
-      header: 'Posición',
-      cell: ({ getValue }) => (
-        <PositionBadge>{getValue()}</PositionBadge>
-      ),
-    },
-    {
-      accessorKey: 'colonia',
-      header: 'Colonia',
-      cell: ({ getValue }) => (
-        <ColoniaText>{getValue()}</ColoniaText>
-      ),
-    },
-    {
-      accessorKey: 'codigoPostal',
-      header: 'C.P.',
-      cell: ({ getValue }) => (
-        <PostalChip>{getValue() || 'N/A'}</PostalChip>
-      ),
-    },
-    {
-      accessorKey: 'totalApoyos',
-      header: 'Total Apoyos',
-      cell: ({ getValue }) => (
-        <TotalText>{getValue().toLocaleString()}</TotalText>
-      ),
-    },
-  ];
+  // Column helper tipado para mejor estructura
+  const columnHelper = createColumnHelper();
 
+  // Columnas definidas con createColumnHelper para mejor tipado y estructura
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('posicion', {
+        header: 'Pos.',
+        cell: (info) => <PositionBadge>{info.getValue()}</PositionBadge>,
+        size: 60,
+        enableSorting: true,
+      }),
+      columnHelper.accessor('colonia', {
+        header: 'Colonia',
+        cell: (info) => <ColoniaText>{info.getValue()}</ColoniaText>,
+        size: 200,
+        enableSorting: true,
+      }),
+      columnHelper.accessor('codigoPostal', {
+        header: 'C.P.',
+        cell: (info) => <PostalChip>{info.getValue() || 'N/A'}</PostalChip>,
+        size: 80,
+        enableSorting: false,
+      }),
+      columnHelper.accessor('totalApoyos', {
+        header: 'Total',
+        cell: (info) => <TotalText>{info.getValue().toLocaleString()}</TotalText>,
+        size: 80,
+        enableSorting: true,
+      }),
+    ],
+    [columnHelper]
+  );
+
+  // Estado de ordenamiento para cada tabla
+  const [sortingMas, setSortingMas] = useState([]);
+  const [sortingMenos, setSortingMenos] = useState([]);
+
+  // Tabla con más apoyos
   const tableMas = useReactTable({
     data: dataColoniasMas,
     columns,
+    state: {
+      sorting: sortingMas,
+    },
+    onSortingChange: setSortingMas,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
+  // Tabla con menos apoyos
   const tableMenos = useReactTable({
     data: dataColoniasMenos,
     columns,
+    state: {
+      sorting: sortingMenos,
+    },
+    onSortingChange: setSortingMenos,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
   const renderTableContent = (table, loading, data) => {
