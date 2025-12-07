@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from 'react-bootstrap';
-import { Users, UserCheck, Gift, TrendingUp } from 'lucide-react';
+import { Users, UserCheck, Gift, Activity} from 'lucide-react';
 import {
   StyledCard,
   CardHeader,
@@ -89,7 +89,7 @@ const DashboardCards = () => {
       title: 'Promedio Mensual',
       value: stats?.apoyosPromedio || 0,
       subtext: `Apoyos por mes en ${currentYear}`,
-      icon: TrendingUp,
+      icon: Activity,
       bgColor: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
       iconBgColor: 'rgba(255, 255, 255, 0.2)',
       iconColor: '#ffffff',

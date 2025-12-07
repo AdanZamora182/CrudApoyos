@@ -27,7 +27,6 @@ export const TableCard = styled.div`
   border-radius: 20px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   border: 1px solid rgba(226, 232, 240, 0.8);
   position: relative;
   overflow: hidden;
@@ -42,11 +41,6 @@ export const TableCard = styled.div`
     background: linear-gradient(90deg, #10b981, #6366f1, #f59e0b);
   }
 
-  &:hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
-  }
-
   @media ${devices.maxMd} {
     padding: 20px;
     border-radius: 16px;
@@ -55,10 +49,6 @@ export const TableCard = styled.div`
   @media ${devices.maxSm} {
     padding: 16px;
     border-radius: 12px;
-    
-    &:hover {
-      transform: translateY(-2px);
-    }
   }
 `;
 

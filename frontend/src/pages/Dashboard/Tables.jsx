@@ -86,14 +86,14 @@ const DashboardTables = () => {
     },
     {
       accessorKey: 'codigoPostal',
-      header: 'Código Postal',
+      header: 'C.P.',
       cell: ({ getValue }) => (
         <PostalChip>{getValue() || 'N/A'}</PostalChip>
       ),
     },
     {
       accessorKey: 'totalApoyos',
-      header: 'Total de Apoyos',
+      header: 'Total Apoyos',
       cell: ({ getValue }) => (
         <TotalText>{getValue().toLocaleString()}</TotalText>
       ),

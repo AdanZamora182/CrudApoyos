@@ -11,7 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { Calendar, TrendingUp } from 'lucide-react';
+import { CalendarDays, Box } from 'lucide-react';
 import { getApoyosByMonth, getApoyosByType } from '../../api/dashboardApi';
 import {
   ChartContainer,
@@ -94,7 +94,7 @@ const GraphBars = () => {
     labels: apoyosPorMes.map(item => item.mes),
     datasets: [
       {
-        label: 'Cantidad de Apoyos',
+        label: 'Mes',
         data: apoyosPorMes.map(item => item.cantidad),
         backgroundColor: coloresMeses.map(color => `${color}CC`),
         borderColor: coloresMeses,
@@ -114,17 +114,7 @@ const GraphBars = () => {
     },
     plugins: {
       legend: {
-        position: 'bottom',
-        labels: {
-          padding: 20,
-          font: {
-            size: 13,
-            weight: '600',
-          },
-          color: '#64748b',
-          usePointStyle: true,
-          pointStyle: 'circle',
-        },
+        display: false,
       },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -212,17 +202,7 @@ const GraphBars = () => {
     },
     plugins: {
       legend: {
-        position: 'bottom',
-        labels: {
-          padding: 20,
-          font: {
-            size: 13,
-            weight: '600',
-          },
-          color: '#64748b',
-          usePointStyle: true,
-          pointStyle: 'circle',
-        },
+        display: false,
       },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -311,7 +291,7 @@ const GraphBars = () => {
       <ChartCard>
         <ChartHeader>
           <ChartIconWrapper $color="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">
-            <Calendar size={26} />
+            <CalendarDays size={26} />
           </ChartIconWrapper>
           <ChartTitle>Apoyos Entregados por Mes ({currentYear})</ChartTitle>
         </ChartHeader>
@@ -330,7 +310,7 @@ const GraphBars = () => {
       <ChartCard>
         <ChartHeader>
           <ChartIconWrapper $color="linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)">
-            <TrendingUp size={26} />
+            <Box size={26} />
           </ChartIconWrapper>
           <ChartTitle>Distribución por Tipo de Apoyo ({currentYear})</ChartTitle>
         </ChartHeader>
