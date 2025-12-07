@@ -303,7 +303,7 @@ function Register() {
               <FormGroup>
                 <ReCAPTCHA
                   ref={recaptchaRef}
-                  sitekey="6LfJ6xgrAAAAAH9C59xsanFRbksatVnywbT886yA"
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                   onChange={handleCaptchaChange}
                 />
               </FormGroup>
