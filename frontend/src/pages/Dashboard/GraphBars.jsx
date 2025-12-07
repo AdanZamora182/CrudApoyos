@@ -106,75 +106,87 @@ const GraphBars = () => {
   }), [apoyosPorMes]);
 
   // Opciones para la gráfica de apoyos por mes
-  const optionsMes = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: {
-      duration: 400,
-    },
-    plugins: {
-      legend: {
-        display: false,
+  const optionsMes = useMemo(() => {
+    // Calcular el total para los porcentajes
+    const totalApoyos = apoyosPorMes.reduce((sum, item) => sum + item.cantidad, 0);
+    
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 400,
       },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
-        titleColor: '#1e293b',
-        bodyColor: '#64748b',
-        borderColor: 'rgba(226, 232, 240, 0.8)',
-        borderWidth: 1,
-        padding: 16,
-        cornerRadius: 12,
-        boxPadding: 6,
-        titleFont: {
-          size: 14,
-          weight: '700',
-        },
-        bodyFont: {
-          size: 13,
-        },
-        callbacks: {
-          label: (context) => `Cantidad: ${context.parsed.y}`,
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
+      plugins: {
+        legend: {
           display: false,
         },
-        ticks: {
-          color: '#64748b',
-          font: {
-            size: 11,
-            weight: '500',
+        tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          titleColor: '#1e293b',
+          bodyColor: '#64748b',
+          borderColor: 'rgba(226, 232, 240, 0.8)',
+          borderWidth: 1,
+          padding: 16,
+          cornerRadius: 12,
+          boxPadding: 6,
+          titleFont: {
+            size: 14,
+            weight: '700',
           },
-          maxRotation: 45,
-          minRotation: 45,
-        },
-        border: {
-          color: '#cbd5e1',
+          bodyFont: {
+            size: 13,
+          },
+          callbacks: {
+            label: (context) => {
+              const cantidad = context.parsed.y;
+              const porcentaje = totalApoyos > 0 ? ((cantidad / totalApoyos) * 100).toFixed(1) : 0;
+              return [
+                `Cantidad: ${cantidad}`,
+                `Porcentaje: ${porcentaje}%`
+              ];
+            },
+          },
         },
       },
-      y: {
-        grid: {
-          color: 'rgba(226, 232, 240, 0.5)',
-          drawBorder: false,
-        },
-        ticks: {
-          color: '#64748b',
-          font: {
-            size: 12,
-            weight: '500',
+      scales: {
+        x: {
+          grid: {
+            display: false,
           },
-          padding: 8,
+          ticks: {
+            color: '#64748b',
+            font: {
+              size: 11,
+              weight: '500',
+            },
+            maxRotation: 45,
+            minRotation: 45,
+          },
+          border: {
+            color: '#cbd5e1',
+          },
         },
-        border: {
-          display: false,
+        y: {
+          grid: {
+            color: 'rgba(226, 232, 240, 0.5)',
+            drawBorder: false,
+          },
+          ticks: {
+            color: '#64748b',
+            font: {
+              size: 12,
+              weight: '500',
+            },
+            padding: 8,
+          },
+          border: {
+            display: false,
+          },
+          beginAtZero: true,
         },
-        beginAtZero: true,
       },
-    },
-  }), []);
+    };
+  }, [apoyosPorMes]);
 
   // Datos para la gráfica de apoyos por tipo (horizontal)
   const chartDataTipo = useMemo(() => ({
