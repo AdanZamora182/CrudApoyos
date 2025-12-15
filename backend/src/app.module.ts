@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config'; 
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { UsuarioModule } from './usuario/usuario.module';
 import { CabezaCirculoModule } from './cabeza-circulo/cabeza-circulo.module';
 import { IntegranteCirculoModule } from './integrante-circulo/integrante-circulo.module';
@@ -16,6 +17,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ConfigModule.forRoot({
       isGlobal: true, // Hace que las variables estén disponibles en toda la app
     }),
+    // Módulo de tareas programadas
+    ScheduleModule.forRoot(),
     // Conexión a la Base de Datos MySQL con configuración robusta
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

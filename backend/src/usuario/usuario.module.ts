@@ -7,6 +7,8 @@ import { UsuarioService } from './usuario.service';
 import { UsuarioController } from './usuario.controller';
 import { UsuarioCommand } from './usuario.command';
 import { AuthModule } from '../auth/auth.module';
+import { AdminPanelService } from './admin-panel.service';
+import { AdminPanelGuard } from './admin-panel.guard';
 
 // Módulo que configura y exporta la funcionalidad relacionada con usuarios
 @Module({
@@ -23,8 +25,8 @@ import { AuthModule } from '../auth/auth.module';
   // Registrar el controlador que maneja las rutas HTTP
   controllers: [UsuarioController],
   // Registrar los servicios y comandos disponibles
-  providers: [UsuarioService, UsuarioCommand],
+  providers: [UsuarioService, UsuarioCommand, AdminPanelService, AdminPanelGuard],
   // Exportar el servicio para uso en otros módulos
-  exports: [UsuarioService],
+  exports: [UsuarioService, AdminPanelService],
 })
 export class UsuarioModule {}

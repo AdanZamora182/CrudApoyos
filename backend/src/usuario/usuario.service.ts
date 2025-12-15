@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -182,5 +182,112 @@ export class UsuarioService {
     } catch (error) {
       return null;
     }
+  }
+
+  // ==================== MÉTODOS PARA PANEL DE ADMINISTRACIÓN ====================
+
+  // Obtener todos los usuarios (sin datos sensibles)
+  async listarUsuarios(): Promise<Omit<Usuario, 'contraseña' | 'codigoUusuario'>[]> {
+    const usuarios = await this.usuarioRepo.find({
+      select: ['id', 'nombre', 'apellidos', 'usuario', 'correo'],
+    });
+    return usuarios;
+  }
+
+  // Obtener un usuario por ID
+  async obtenerUsuarioPorId(id: number): Promise<Omit<Usuario, 'contraseña' | 'codigoUusuario'>> {
+    const user = await this.usuarioRepo.findOneBy({ id });
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    const { contraseña: _, codigoUusuario: __, ...usuarioSeguro } = user;
+    return usuarioSeguro;
+  }
+
+  // Actualizar datos de un usuario (sin contraseña)
+  async actualizarUsuario(
+    id: number,
+    datos: { nombre?: string; apellidos?: string; correo?: string; usuario?: string },
+  ): Promise<Omit<Usuario, 'contraseña' | 'codigoUusuario'>> {
+    const user = await this.usuarioRepo.findOneBy({ id });
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    // Si se quiere cambiar el nombre de usuario, verificar que no exista
+    if (datos.usuario && datos.usuario !== user.usuario) {
+      const usuarioExistente = await this.usuarioRepo.findOneBy({ usuario: datos.usuario });
+      if (usuarioExistente) {
+        throw new BadRequestException('El nombre de usuario ya está en uso');
+      }
+    }
+
+    // Actualizar solo los campos proporcionados
+    await this.usuarioRepo.update(id, datos);
+    
+    // Obtener el usuario actualizado
+    const usuarioActualizado = await this.usuarioRepo.findOneBy({ id });
+    const { contraseña: _, codigoUusuario: __, ...usuarioSeguro } = usuarioActualizado;
+    
+    return usuarioSeguro;
+  }
+
+  // Cambiar contraseña de un usuario (desde panel admin)
+  async cambiarContraseñaAdmin(id: number, nuevaContraseña: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.usuarioRepo.findOneBy({ id });
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    // Validar longitud mínima de contraseña
+    if (nuevaContraseña.length < 6) {
+      throw new BadRequestException('La contraseña debe tener al menos 6 caracteres');
+    }
+
+    // Hashear la nueva contraseña
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(nuevaContraseña, saltRounds);
+
+    // Actualizar la contraseña
+    await this.usuarioRepo.update(id, { contraseña: hashedPassword });
+
+    return {
+      success: true,
+      message: `Contraseña actualizada para el usuario ${user.usuario}`,
+    };
+  }
+
+  // Eliminar un usuario
+  async eliminarUsuario(id: number): Promise<{ success: boolean; message: string }> {
+    const user = await this.usuarioRepo.findOneBy({ id });
+    
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    await this.usuarioRepo.delete(id);
+
+    return {
+      success: true,
+      message: `Usuario ${user.usuario} eliminado correctamente`,
+    };
+  }
+
+  // Buscar usuarios por nombre o username
+  async buscarUsuarios(query: string): Promise<Omit<Usuario, 'contraseña' | 'codigoUusuario'>[]> {
+    const usuarios = await this.usuarioRepo
+      .createQueryBuilder('usuario')
+      .select(['usuario.id', 'usuario.nombre', 'usuario.apellidos', 'usuario.usuario', 'usuario.correo'])
+      .where('usuario.nombre LIKE :query', { query: `%${query}%` })
+      .orWhere('usuario.apellidos LIKE :query', { query: `%${query}%` })
+      .orWhere('usuario.usuario LIKE :query', { query: `%${query}%` })
+      .orWhere('usuario.correo LIKE :query', { query: `%${query}%` })
+      .getMany();
+
+    return usuarios;
   }
 }
