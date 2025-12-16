@@ -6,7 +6,7 @@ async function bootstrap() {
 
   // Habilitar CORS usando variable de entorno
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || process.env.ADMIN_PANEL_LOCAL || 'http://localhost:5173',
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   });
