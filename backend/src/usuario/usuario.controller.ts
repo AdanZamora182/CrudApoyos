@@ -161,7 +161,7 @@ export class UsuarioController {
 
   // Endpoint PUT para cambiar contraseña de un usuario
   @UseGuards(AdminPanelGuard)
-  @Put('admin/:id/cambiar-contraseña')
+  @Put('admin/:id/cambiar-password')
   async cambiarContraseñaAdmin(
     @Param('id') id: string,
     @Body() body: { nuevaContraseña: string },
